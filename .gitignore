@@ -1,0 +1,18 @@
+lib/solar900/
+inst/lib/
+tests/release/
+docs/si/
+
+tests/debug/
+tests/debug.tar.gz
+tests/output/
+tests/input/solar/
+
+*.Rproj
+.Rproj.user
+.RData
+.Rhistory
+solareclipser.Rproj
+
+# temp shell scripts
+*.sh
