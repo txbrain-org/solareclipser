@@ -1,0 +1,1264 @@
+---
+title: "Tutorial on `solareclipser` R package"
+author: "Andrey Ziyatdinov, Helena Brunel"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Tutorial on `solareclipser` R package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(solareclipser)
+```
+
+# Introduction
+
+This vignette is a tutorial on the R package `solareclipser`.
+The document contains a brief description of the main statistical models (polygenic, association and linkage) 
+implemented in `SOLAR` and accessible via `solareclipser`, 
+installation instructions for both `SOLAR` and `solareclipser`,
+reproducible examples on synthetic data sets available within the `solareclipser` package.
+The examples are intended to cover all the necessary steps 
+in the quantitative genetic analysis with `SOLAR`:
+data loading, data exploration, running statistical models 
+and interpreting the obtained results by printing, summarizing and plotting the models in R.
+
+In human genetics research, the study of a complex disorder is targeted 
+to discover its underlying genetic architecture.
+Whereas simple Mendelian diseases are results of a mutation in a single gene,
+for example [Huntington's disease](http://en.wikipedia.org/wiki/Huntington%27s_disease),
+complex disorders or phenotypes are the product of the action of multiple genes and environmental factors
+as well as their interactions.
+For instance, obesity is a complex disease
+which genetic basis might be better dissected 
+via measurable quantitative variation in phenotypes,
+such as body-mass index, closely related to the disease risk.
+
+One of the study designs to identify the quantitative trait loci (QTLs)
+that affect complex phenotypes is based on examination 
+of related individuals grouped by families (pedigrees).
+Pedigree-based designs allow for both QTL linkage and association mappings.
+In addition, QTL analysis with pedigrees 
+possess more power to detect rare variants,
+permits explicit control for population stratification in association studies,
+and suit for examination of parent-of-origin and sex-specificity effects.
+
+The analysis of the pedigree data is traditionally based on variance component (VC) models, 
+also known as linear mixed models.
+`SOLAR` is one of the well-known and widely used tools
+that implements the variance component models and other routines needed for the QTL analysis
+in extended pedigrees [@Almasy1998]
+([http://solar.txbiomedgenetics.org/](http://solar.txbiomedgenetics.org/)).
+The name `SOLAR` stands for Sequential Oligogenic Linkage Analysis Routines.
+The analyses available in `SOLAR` include 
+customized quantitative genetic analysis, 
+advanced linkage analysis, 
+SNP association analysis (QTN, QTLD, and MGA). 
+Other operations are implemented for calculation of marker-specific or multipoint identity-by-descent (IBD) matrices 
+in pedigrees of arbitrary size and complexity.
+The linkage analysis allows for multiple quantitative traits and/or discrete traits 
+which might involve multiple loci (oligogenic analysis), dominance effects, household effects, and interactions.
+
+There are other tools similar to `SOLAR`, such as `Mendel`, `MMM`, `GEMMA` and `FAST-LMM`,
+but the R package `solareclipser` presented here has been especially developed to work with `SOLAR`.
+
+`solareclipser` provides an interface from the program `SOLAR` to 
+the environment for statistical computing `R`.
+On one side, main `SOLAR` procedures can be called in `R` by one or a few commands from the `solareclipser` package,
+that makes the analysis more user-friendly with the same power of computations implemented in `SOLAR`.
+On the other side, the `solareclipser` user benefits from the infrastructure available 
+with the R environment and its packages, 
+such as interactive data manipulation, data visualization and parallel computation.
+
+# Methodology
+
+## Linear mixed model
+
+Consider that a particular trait, such as body-mass index, 
+is observed in $n$ individuals grouped by families or clusters of related individuals.
+A $n \times 1$ vector $y$ contains the phenotypic values measured for the trait.
+One assumes that these observations are described adequately by a linear model
+with a $p \times 1$ vector of fixed effects ($\beta$)
+and a $q \times 1$ vector of random effects ($u$) [@Lynch1998, Chapter 26, pp. 746].
+In matrix form,
+
+$$ y = X \beta + Z u + e $$
+
+where $X$ and $Z$ are respectively $n \times p$ and $n \times q$ incidence matrices,
+and $e$ is a $n \times 1$ vector of residual deviations
+assumed to be distributed independently of the random effects.
+Denote the $n \times n$ covariance matrix for the vector $e$ by $R$
+and the the $q \times q$ covariance matrix for the vector $u$ by $G$.
+
+The first element of the vector $\beta$ is typically the population mean,
+and other elements may be age, gender, diet and so on.
+The elements of the incidence matrices are usually equal to 0 or 1,
+that indicate the effect contribution to the individuals's phenotype.
+The model is referred to as a _mixed model_,
+because this model jointly accounts for fixed and random effects.
+
+Giving the two terms of the random effects $u$ and $e$,
+the first term typically accounts for the contribution from random genetic effects
+such as additive genetic values.
+The second term accounts for the residual variance,
+and one usually assumes that residual errors have constant variance and are uncorrelated,
+so that $R$ is a diagonal matrix, with $R = \sigma_e^2 I$.
+
+Two more equations for the means and variances of the component vectors
+of the mixed model can be derived on the basis of its definition.
+Since $E(u) = E(e) = 0$ by definition,
+
+$$ E(y) = X \beta $$
+
+Excluding the difference among individuals due to fixed effects 
+and calling the assumption that $u$ and $e$ are uncorrelated,
+the covariance matrix for the vector of observations $y$ is
+
+$$ Var(y) = V = Z G Z^{T} + R $$
+
+Now the mixed model can be rewritten in a compact form
+
+$$ y = X \beta + Z u + e$$ 
+
+$$
+\mbox{ where } \mbox{ } \mbox{ } u \sim (0, G) \mbox{ and } e \sim (0, R) \\
+\mbox{ implying } \mbox{ } \mbox{ } y \sim (X \beta, V) = (X \beta, Z G Z^T + R)
+$$
+
+For the mixed model,
+$y$, $X$ and $Z$ are observed variables,
+while $\beta$, $u$, $R$ and $G$ are generally unknown variables.
+Thus, the analysis consists of two complementary estimation procedures:
+(1) estimation of the covariance matrices $G$ and $R$,
+and (2) estimation of the vectors of fixed and random effects, $\beta$ and $u$.
+The covariance matrices are usually functions of a few unknown parameters 
+or variance components.
+For instance, the covariance matrix of the residuals errors
+typically has the form $R = \sigma_e^2 I$,
+where $\sigma_e^2$ is the parameter to be estimated.
+
+The description of the two estimation procedures is out of scope of this document,
+and the reader is referred to [@Lynch1998, Chapter 26-27], 
+where the necessary theoretical material and accompanying examples are given.
+On the other hand, the implementation of the estimation procedures in `SOLAR`
+is discussed elsewhere [@Almasy1998].
+
+The next three sections will present `SOLAR` models,
+which follow the general definition of linear mixed model given above,
+but parametrization of the models and estimation procedures 
+are implemented in a `SOLAR`-specific way.
+
+## Polygenic model in `SOLAR`
+
+The polygenic model is a basis for any quantitative genetic analysis in `SOLAR`.
+The model includes fixed effects ($\beta$) 
+and three random effects (the genetic additive effect $g$, 
+the house-hold effect $c$, and the residual effect $e$).
+
+$$y = X\beta + g + c + e$$
+
+$$\mbox{ where } \mbox{ } \mbox{ } g \sim (0, \sigma_g^2 A) 
+  \mbox{ and } \mbox{ } \mbox{ } c \sim (0, \sigma_c^2 H)
+  \mbox{ and } \mbox{ } \mbox{ } e \sim (0, \sigma_e^2 I)$$ 
+  
+$$ \mbox{ implying } \mbox{ } \mbox{ } y \sim (X\beta, V) = (X\beta, \sigma_g^2 A + \sigma_c^2 H + \sigma_e^2 I)$$
+
+The first $g$ term accounts for the additive genetic effect
+with the covariance matrix $A = 2 K$, 
+where $K$ is the kinship matrix.
+`SOLAR` estimates the _empirical_ kinship matrix based on the identifier (ID) fields in the pedigree data,
+such as individual ID `id`, gender `sex`, family ID `fam`, father ID `fa`, mother ID `mo`,
+and indicator of identical individuals, e.g. monozygotic twins, `mztwin`
+[@SOLARDOC, Appendix 1, [file-pedigree](http://helix.nih.gov/Documentation/solar-6.6.2-doc/91.appendix_1_text.html#file-pedigree) command].
+
+The second $c$ term represents an annotated environmental effect.
+It is named as a house-hold effect, but it is generally related to the sharing of any non-genetic factor among individuals.
+The house-hold effect is included in the analysis if the pedigree data contain a house-hold ID field
+(the expected field name is `hhid`).
+`SOLAR` automatically creates `Pedigree-Household Groups` based on the `hhid` identifiers.
+That means that pedigrees and household groups are merged into larger groups,
+which contain every individual in the same pedigree as well as every individual that has the same 
+`hhid` as any individual in the pedigree [@SOLARDOC, Section 9.3 [Household Group Analysis](http://helix.nih.gov/Documentation/solar-6.6.2-doc/09.chapter.html#household)]. 
+As a consequence of this grouping operation by `SOLAR`, 
+the covariance matrix $H$ of the $c$ random effect
+contains the information related to the pedigree-household groups
+rather than relationships given by the `hhid` field.
+
+The third $e$ term is the residual error with the diagonal covariance matrix.
+It is important to note that the `residual` command in `SOLAR`
+[@SOLARDOC, Appendix 1, [residual](http://helix.nih.gov/Documentation/solar-6.6.2-doc/91.appendix_1_text.html#residual) command]
+returns the covariate-free value of a trait under study, expressed as $y - X \beta$,
+and the returned value is not the residual vector $e$ given in the equation of the polygenic model.
+
+The polygenic term $g$ represents the additive genetic effect by default.
+The incorporation of the dominance effect into `SOLAR` models is also possible,
+but it is attributed to advanced modeling topics [@SOLARDOC, Section 9.4 [Dominance Analysis](http://helix.nih.gov/Documentation/solar-6.6.2-doc/09.chapter.html#dominance)].
+The `SOLAR`'s developers suggest that the dominance variance component is unlikely useful in quantitative trait mapping, 
+particularly in human genetic analysis, as only bi-lineal relatives contribute to this component. 
+
+`SOLAR` is able to work with discrete traits,
+which possible values are coded as two consecutive integers, for example, `0` and `1`
+[@SOLARDOC, Appendix 1, [discrete-notes](http://helix.nih.gov/Documentation/solar-6.6.2-doc/91.appendix_1_text.html#discrete-notes)].
+`SOLAR` uses a _liability threshold model_ to handle discrete traits [@Duggirala1997],
+and more details about implementation and practical notes 
+are available in  [@SOLARDOC, Section 9.1 [Discrete Traits](http://helix.nih.gov/Documentation/solar-6.6.2-doc/09.chapter.html)].
+`SOLAR` authors recommend to work with quantitative traits whenever it is possible.
+The user is able to disable the transformation of discrete traits, if it is necessary.
+
+The likelihood-based statistics, in particular Likelihood Ratio Tests (LRTs),
+is used for the inference of the linear mixed models implemented in `SOLAR`.
+The following table shows the alternative models used to test the significance of the random effects $g$ and $c$.
+
+| Alternative model   | Free parameters | Restricted parameters  |
+|----------|-----------|-------|
+| No polygenic effect | $\beta$, $\sigma_c^2$, $\sigma_e^2$      | $\sigma_g^2$ = 0|
+| No house-hold effect | $\beta$, $\sigma_g^2$, $\sigma_e^2$     | $\sigma_c^2$ = 0|
+
+Under the assumption of multivariate normality, 
+the LRT statistic is asymptotically distributed 
+as a $\frac{1}{2}:\frac{1}{2}$ mixture of of a $\chi_1^2$ variable
+and a point mass at the origin [@Blangero2000].
+This statement is applied to any LRT performed for parameters like $\sigma_g^2$,
+which is greater or equal to `0` by definition.
+
+`SOLAR` takes the decision of rejecting the house-hold effect 
+by considering two factors, the test results and the value of $\sigma_c^2$ parameter.
+If value of $\sigma_c^2$ is non-zero, the house-hold effect is retained in the polygenic model,
+nevertheless the effect is not significant.
+The user has an option to force the rejection of the house-hold effect if it is necessary.
+
+The tests applied to fixed effects (covariates) are also performed by means of LRTs.
+In the table given below the alternative model for the test of significance of `age` covariate is shown.
+
+| Alternative model   | Free parameters | Restricted parameters  |
+|----------|-----------|-------|
+| No age effect | $\sigma_g^2$, $\sigma_c^2$, $\sigma_e^2$      | $\beta_{age}$ = 0|
+
+
+### Multivariate polygenic model in `SOLAR`
+
+In principle, one can estimate the multivariate polygenic model 
+by simply performing the univariate analysis in an appropriate way.
+Consider two traits $y_1$ and $y_2$ measured in each of $n$ individuals,
+assuming that each trait follows the same univariate polygenic analysis.
+Then the $2 \times n$ dimensional column vector of observations 
+is denoted by the stack of univariate vectors,
+and the polygenic model has the matrix form:
+
+$$
+\begin{pmatrix}
+  y_1 \\
+  y_2
+\end{pmatrix}_{2n \times 1} =
+\begin{pmatrix}
+  X_1 & 0 \\
+  0 & X_2
+\end{pmatrix}_{2n \times nk}
+\begin{pmatrix}
+  \beta_1 \\
+  \beta_2
+\end{pmatrix}_{2n \times 1}
++
+\begin{pmatrix}
+  g_1 \\
+  g_2
+\end{pmatrix}_{2n \times 1}
++
+\begin{pmatrix}
+  e_1 \\
+  e_2
+\end{pmatrix}_{2n \times 1}
+$$
+
+$$
+G_{2n \times 2n} = C_{2 \times 2} \otimes A_{n \times n} =
+\begin{pmatrix}
+  c_{11} A & c_{12} A \\
+  c_{21} A & c_{21} A
+\end{pmatrix} =
+\begin{pmatrix}
+  \sigma_{1}^2 A & \rho \sigma_{1} \sigma_{2} A \\
+  \rho \sigma_{1} \sigma_{2} A & \sigma_{2}^2 A
+\end{pmatrix}_{g}
+$$
+
+$$
+R_{2n \times 2n} = E_{2 \times 2} \otimes I_{n \times n} =
+\begin{pmatrix}
+  e_{11} I & e_{12} I \\
+  e_{21} I & e_{21} I
+\end{pmatrix} =
+\begin{pmatrix}
+  \sigma_{1}^2 I & \rho \sigma_{1} \sigma_{2} I \\
+  \rho \sigma_{1} \sigma_{2} I & \sigma_{2}^2 I
+\end{pmatrix}_{e}
+$$
+
+The model can be generalized to $k$ traits,
+and other random effects such as house-hold can be added in the similar way.
+The _Kronecker product_ notation $\otimes$ is convinient for denoting the covariance matrices.
+More details on the multivariate analysis are given in [@Lynch1998, Chapter 26, Multiple Traits, pp. 774].
+
+The multivariate analysis implemented in `SOLAR` allows for any number of traits,
+but the tests for significance of the correlation coefficients are performed only for the bivariate models.
+The following table describes the main LRTs available in `SOLAR` for the bivariate analysis.
+
+| Alternative model | Free parameters | Restricted parameters |
+---|---|---|
+No genetic correlation | $(\sigma_1^2, \sigma_2^2)_g$, $(\sigma_1^2, \sigma_2^2, \rho)_e$ | $\rho_g = 0$ |
+Complete pleiotropy  | $(\sigma_1^2, \sigma_2^2)_g$, $(\sigma_1^2, \sigma_2^2, \rho)_e$ | $\rho_g = 1$ |
+No environmental correlation | $(\sigma_1^2, \sigma_2^2, \rho)_g$, $(\sigma_1^2, \sigma_2^2)_e$ | $\rho_e = 0$ |
+
+It is important to note that the transformation of discrete traits in the multivariate analysis
+is automatically performed by `SOLAR`.
+
+## Linkage model in `SOLAR`
+
+`SOLAR` introduces sequential oligogenic linkage analysis, as stated in its name abbreviation.
+Consider the linkage model with a single QTL, which is described by another random effect $q$.
+
+$$y = X\beta + g + c + q + e$$
+
+$$
+  \mbox{ where } \mbox{ } \mbox{ } g \sim (0, \sigma_g^2 A) 
+  \mbox{ and } \mbox{ } \mbox{ } c \sim (0, \sigma_c^2 H)
+  \mbox{ and } \mbox{ } \mbox{ } q \sim (0, \sigma_q^2 M)
+  \mbox{ and } \mbox{ } \mbox{ } e \sim (0, \sigma_e^2 I)
+$$ 
+  
+$$ \mbox{ implying } \mbox{ } \mbox{ } y \sim (X\beta, V) = (X\beta, \sigma_g^2 A + \sigma_c^2 H + \sigma_q^2 M + \sigma_e^2)$$
+
+The QTL under study $q$ corresponds to a specific position in the genome and an identity-by-descent (IBD) matrix.
+The genome-wide linkage analysis assumes that the highly informative markers, such as micro-satellites, are available in the study,
+in order to estimate the two-point or multipoint IBD matrices by `SOLAR` or other specific program like `MERLIN`.
+Once the IBD matrices are calculated, the genome-wide scan is conducted by sequentially running the linkage model for each genome position.
+
+The alternative model for testing the significance of a single QTL effect 
+is the same as the polygenic model.
+
+Alternative model | Free parameters | Restricted parameters |
+---|---|---|
+No linkage | $\beta, \sigma_g^2, \sigma_c^2$, $\sigma_e^2$ | $\sigma_q^2$ = 0 |
+
+Traditionally, the logarithm (base 10) of the odds (LOD) values are used to score the QTLs.
+If the LRT statistics for the linkage model is denoted as $\Lambda$, 
+then the correspondent LOD score is equal to $\Lambda / (2 ln(10))$.
+
+`SOLAR` also allows for multi-pass linkage scan,
+that means that any further scan can be conditioned to QTLs found in the previous scans.
+For example, the second-pass scan conditioned to the previously found QTL $q_1$ has the form:
+
+$$y = X\beta + g + c + q_1 + q + e$$
+
+The second-pass LRT test now looks like in the table below.
+
+Alternative model | Free parameters | Restricted parameters |
+---|---|---|
+No linkage | $\beta, \sigma_g^2, \sigma_c^2$, $\sigma_{q_1}^2$, $\sigma_e^2$ | $\sigma_q^2$ = 0 |
+
+The linkage model is extended to deal with many traits or discrete traits in the same way as for the polygenic model.
+
+Additional information related to the linkage modeling in `SOLAR` 
+can be found in related publications [@Almasy1998], [@Almasy1997], [@Williams1999],
+the `SOLAR` tutorial [@SOLARDOC, Chapter 3 [Tutorial](http://helix.nih.gov/Documentation/solar-6.6.2-doc/03.chapter.html)],
+and the `SOLAR` manual, for example, [@SOLARDOC, Apendix 1, [multipoint](http://helix.nih.gov/Documentation/solar-6.6.2-doc/91.appendix_1_text.html#multipoint) command].
+
+## Association model in `SOLAR`
+
+A basic association model in `SOLAR` is extended from the polygenic model
+by simply adding a new covariate (fixed effect) `snp`.
+
+$$ y = X\beta + \beta_{snp} * snp + g + c + e$$
+
+$$\mbox{ where } \mbox{ } \mbox{ } g \sim (0, \sigma_g^2 A) 
+  \mbox{ and } \mbox{ } \mbox{ } c \sim (0, \sigma_c^2 H)
+  \mbox{ and } \mbox{ } \mbox{ } e \sim (0, \sigma_e^2 I)$$ 
+  
+$$ \mbox{ implying } \mbox{ } \mbox{ } y \sim (X\beta, V) = (X\beta, \sigma_g^2 A + \sigma_c^2 H + \sigma_e^2 I)$$
+
+In the genome-wide association scan `SOLAR` passes through SNPs variants under the study one by one 
+according to the equation given above.
+The p-value of association between trait $y$ and SNP $snp$ is again based on LRT test
+with the alternative model outlined in the table below.
+This alternative model is the same as the polygenic model.
+
+Alternative model | Free parameters | Restricted parameters |
+---|---|---|
+No association | $\beta, \sigma_g^2, \sigma_c^2$, $\sigma_e^2$ | $\beta_{snp} = 0$ |
+
+More details on implementation of the association analysis in `SOLAR`
+can be found in the `SOLAR` manual, for example, [@SOLARDOC, Apendix 1, [mga](http://helix.nih.gov/Documentation/solar-6.6.2-doc/91.appendix_1_text.html#mga) and [snp](http://helix.nih.gov/Documentation/solar-6.6.2-doc/91.appendix_1_text.html#snp) commands].
+
+
+# Software
+
+The idea of the proposed software (the R package `solareclipser`) 
+is to perform the calculus in `SOLAR` at the back-end
+and to offer the user interface in R at the front-end. 
+The table given below shows a basic description of the software
+via implementation of the main three models: polygenic, association and linkage.
+
+
+|Model | `SOLAR` command | `solareclipser` function | `solareclipser` S3 classes of returned object| Parallel computation | 
+|---|---|---|---|---|
+| Polygenic   | `polygenic` | `solarPolygenic` | `solarPolygenic` | None | 
+| Association | `mga` | `solarAssoc`     | `solarAssoc`, `solarPolygenic` | Automatic or custom (by SNP file) | 
+| Linkage     | `multipoint` | `solarMultipoint`| `solarMultipoint`, `solarPolygenic` | Custom (by chromosome) | 
+
+One can see how the software benefits from both `SOLAR` and R sides.
+On the side of `SOLAR`, the `SOLAR` commands `polygenic`, `mga` and `multipoint`
+do all the hard job on estimating the variance component models
+with control via a set of parameters and settings.
+On the side of `R`, the `solareclipser` functions `solarPolygenic`, `solarAssoc` and `solarMultipoint`
+prepare the input data for the analysis, pass the arguments to the commands 
+and set up other necessary settings, and finally read the output `SOLAR` files 
+and store the results into R objects of S3 classes in R.
+
+The main advantage of running the `SOLAR` models in `solareclipser` instead of `SOLAR`
+is that the analysis is conduced by only one function call,
+while the same analysis in `SOLAR` could require typing more commands 
+with appropriate options and settings (to be learned from the `SOLAR` manual).
+The `solareclipser` functions just automate the analysis flow and 
+keep configuration options via the R function arguments, if such configuration is required. 
+Another advantage of using the R package `solareclipser` 
+is that the results are stored in objects of especially designed S3 classes
+with associated methods like print, summary, plot and others.
+
+The last column of the table given above contains the information
+related to parallel computation available for the models.
+The implementation of parallel calculations is straightforward in `solareclipser` package, 
+since the association and linkage analyses are _embarrassingly parallel_ problems
+(easily divisible into different identical independent task)
+and the R environment offers a number of packages with parallel interfaces.
+
+More information about the `solareclipser` functions is available in the software manual of the package,
+and the practical guide of using the functions is presented in the next section dedicated to examples.
+Meantime, some points should to be stressed to describe some other features and drawbacks of the `solareclipser` package.
+
+* The `solareclipser` functions, by default, do not create any directories visible to the user,
+  though the analysis flow in `SOLAR` is heavily based on storing the data in directories and files.
+  However, the input phenotype and genotype data might be stored in CSV data format and passed to the functions.
+  The user can specify a special directory (`dir` argument for the `solarPolygenic`, `solarAssoc` and `solarMultipoint` functions), 
+  where the `SOLAR` output will be saved in addition to the output R object.
+* The `tcl` scripts used by `SOLAR` for automation are not visible to the user.
+  The routine of executing either `SOLAR` separate commands or a block of commands in a `tcl` script
+  is internally organized in the functions of `solareclipser`.
+* The work on parsing the output of `SOLAR` analysis is implemented in the functions in `solareclipser`,
+  and the user does not need to manually look for the analysis results.
+* The `SOLAR` commands used to compute the analysis and some `SOLAR` output files
+  are saved in the returned objects.
+  This feature might be necessary for those users who are familiar with `SOLAR`.
+  It is also helps to go back to `SOLAR` and repeat or extend the analysis in the `SOLAR` environment,
+  if it is necessary.
+* The package `solareclipser` offers only three analyses 
+  via the most powerful `SOLAR` commands `polygenic`, `mga` and `multipoint`.
+  If a more specific genetic analysis is required, the user needs to go back to `SOLAR`.
+
+## Installation
+
+The installation process has three steps: install `SOLAR`, register `SOLAR` and install `solareclipser`.
+
+### `SOLAR` installation
+
+The `SOLAR` distribution is available on the official web page [http://solar.txbiomedgenetics.org/](http://solar.txbiomedgenetics.org/)
+for the most popular operating systems (Linux, Mac OS, Windows).
+
+In the case of [Linux](http://solar.txbiomedgenetics.org/solarlinux.html), 
+the installation files are compressed in `solar_linux.tar.gz` archive.
+Once the archive is downloaded to a local machine of the user and 
+the installation files are unpacked, one can find the `README` file and `install_solar` script. 
+In particular, the script copies the necessary library, binary and documentation files
+into an installation directory defined by the user.
+A special bash script called `solar` is also created and copied to the system path defined by the user,
+e.g. `/usr/local/bin/solar`, so that the program can be executed by simply typing `solar` in the terminal.
+
+An example of the installation command might be the following.
+
+```
+./install_solar /opt/appl/solar/7.6.6 /usr/local/bin solar
+```
+
+As a result of execution of the command,
+the library, binary and documentation files of `SOLAR` version `7.6.6`
+will be copied to `/opt/appl/solar/7.6.6` directory,
+and `solar` execution script will be copied to `/usr/local/bin` system directory.
+
+After the installation process the new user 
+is required to obtain a registration key,
+as it is explained by the message that appears when `SOLAR` program starts.
+The registration key has to be stored in `.solar_reg` file in the home directory of the user.
+
+Once both installation and registration processes are finished,
+something similar to the following message will be displayed when `SOLAR` is executed.
+
+```
+SOLAR Eclipse version 7.6.6 (Experimental), last updated on December 11, 2014
+Copyright (c) 1995-2014 Texas Biomedical Research Institute
+Enter help for help, exit to exit, doc to browse documentation.
+
+solar>
+```
+
+### Installation problems with SOLAR
+
+**SOLAR version for Windows**. Currently, SOLAR does not have an appropriated version for Windows. 
+As stated in the official web page of SOLAR [http://solar.txbiomedgenetics.org/solarwindows.html](http://solar.txbiomedgenetics.org/solarwindows.html):
+
+>Because SOLAR requires a Unix OS or equivalent, we have prepared a VMware Virtual Machine containing SOLAR plus the Xubuntu edition of linux which runs on Windows XP or later using the free VMware Player. Beware this requires a very large multi 1.4 Gb download, and will require more than 10 gigabytes free disc space during installation. 
+
+
+This is a clear limitation of `solareclipser` package that comes from the dependency on SOLAR.
+Starting from version 3.*, `solareclipser` is not supported for Windows.
+[DESCRIPTION](https://github.com/ugcd/solarius/blob/master/DESCRIPTION) file
+has a line `OS_type: unix`.
+
+### `solareclipser` installation
+
+`solareclipser` package is available in the CRAN repository for R packages 
+[http://cran.r-project.org/web/packages/solareclipser/](http://cran.r-project.org/web/packages/solareclipser/),
+so it can be install by calling the usual R function `install.packages`.
+
+```
+install.packages(solareclipser)
+```
+
+The code repository of `solareclipser` package is hosted in the public GitHub repository 
+of the UGCD group [https://github.com/ugcd/solarius](https://github.com/ugcd/solarius).
+The R package `devtools` allows to install 
+the development version of the package hosted at GitHub.
+The installation commands are the following.
+
+```
+library(devtools)
+install_github("ugcd/solareclipser")
+```
+
+### Installation problems with solareclipser
+
+`solareclipser` has several R packages as dependencies
+(that can be seen in [DESCRIPTION](https://github.com/ugcd/solareclipser/blob/master/DESCRIPTION) file).
+Installation of these packages should be straightforward using the standard R function `install.packages`.
+
+In the case of problems in the installation process, web pages of the packages are the main source of information.
+
+Imported packages:
+
+* [https://github.com/hadley/plyr](https://github.com/hadley/plyr) for `plyr`.
+* [https://github.com/hadley/ggplot2](https://github.com/hadley/ggplot2) for `ggplot2`.
+* [https://github.com/Rdatatable/data.table](https://github.com/Rdatatable/data.table) for `data.table`.
+    * See also [CRAN_Release.cmd](https://github.com/Rdatatable/data.table/blob/master/CRAN_Release.cmd) document.
+
+
+**Installation of data.table R package**. 
+If the user experiences problems installing `data.table` package,
+we recommend to upgrade the R environment to the latest stable version.
+
+## `solareclipser` R package structure
+
+`solareclipser` is organized as a standard R package,
+and its structure can be seen in the code repository web site [https://github.com/ugcd/solarius](https://github.com/ugcd/solarius).
+
+* [R](https://github.com/ugcd/solarius/tree/master/R) directory contains `*.R` files with functions, classes and methods.
+* [data](https://github.com/ugcd/solarius/tree/master/data) directory has data sets distributed with the package and stored in `*.RData` files.
+* `man` directory includes documentation organized in `Rd` files (**R** **d**ocumentation files).
+* [inst](https://github.com/ugcd/solarius/tree/master/inst) directory includes directories,
+  where some extra data in any format can be stored for the R package.
+  Sub-directories in `inst` directory will be copied to the installation directory of the package 
+  and, thus, will be available within the package via `system.file` function.
+    * [inst/examples](https://github.com/ugcd/solarius/tree/master/inst/examples) has `*.R` scripts with code examples.
+    * [inst/extdata](https://github.com/ugcd/solarius/tree/master/inst/extdata) mostly contains `SOLAR` data files
+    for data sets of the package.
+    * [inst/tests](https://github.com/ugcd/solarius/tree/master/inst/tests) has `*.R` scripts for testing units
+    during development of the package (R package `testthat`). 
+* [vignettes](https://github.com/ugcd/solarius/tree/master/vignettes) directory includes vignettes,
+  which are known as a long-form documentation for an R package. 
+  Typically, vignettes has a form of a technical report or an academic paper,
+  that describes the problem that your package is designed to solve.
+  Files with `Rmd` extension are the source files of the vignettes.
+
+## Documentation
+
+The source files of documentation are stored in `man` directory as `Rd` files.
+R package `staticdocs` converts this documentation into html pages.
+The documentation for `solarius` is published on [http://ugcd.github.io/solarius/doc/](http://ugcd.github.io/solarius/doc/).
+
+In the R environment the help for a function of the package, for example `solarPolygenic` function,
+can be obtained by the standard `?solarPolygenic` R comand.
+The content of the documentation for `solarPolygenic` function is the same as 
+on [http://ugcd.github.io/solarius/doc/solarPolygenic.html](http://ugcd.github.io/solarius/doc/solarPolygenic.html).
+
+## Vignettes
+
+The vignetts are created by `rmarkdown` R package and published as html pages on the web.
+
+* [http://ugcd.github.io/solarius/vignettes/tutorial.html](http://ugcd.github.io/solarius/vignettes/tutorial.html):
+  The vignette presents a tutotial of the package.
+* [http://ugcd.github.io/solarius/vignettes/minimal.html](http://ugcd.github.io/solarius/vignettes/minimal.html):
+  The vignette gives a minial example of the package. It includes three analyses, polygenic, association and linkage,
+  applied to `dat30` data set.
+* [http://ugcd.github.io/solarius/vignettes/modelsGAIT1.html](http://ugcd.github.io/solarius/vignettes/modelsGAIT1.html):
+  The vignette reports results on the real family-based data set GAIT1.
+  The traits under study are the FXI levels in blood, the BMI and the Thrombosis affection.
+  Although the original calculus were conducted with `SOLAR`,
+  the code presented in the vignette is based on `solareclipser`.
+  The produced results are the same as those reported in the published articles.
+  
+
+## Load `solareclipser`
+
+To start using `solareclipser` package, the user needs to load the package with `library` function.
+
+```{r fake_inc_solareclipser, echo = FALSE, message = FALSE}
+#library(solareclipser)
+#library(devtools)
+#load_all("../")
+```
+
+```{r inc_solareclipser, eval = FALSE}
+library(solareclipser)
+```
+
+The version of `solareclipser` loaded here is:
+
+```{r ver_solareclipser}
+packageVersion("solareclipser")
+```
+
+Other R packages will be needed for the tutorial.
+
+```{r inc_other}
+library(plyr)
+```
+
+## Minimal example
+
+The following code shows how the main functions 
+(`solarPolygenic`, `solarMultipoint` and `solarAssoc`)
+of the package work.
+
+```{r minimal, cache = TRUE}
+# load library
+library(solareclipser)
+
+# load data set
+data(dat30)
+
+# univariate polygenic model
+mod1 <- solarPolygenic(trait1 ~ 1, dat30)
+
+# bivariate polygenic model
+mod2 <- solarPolygenic(trait1 + trait2 ~ 1, dat30,
+  polygenic.options = '-testrhoe -testrhog')
+
+# specify directory with IBD matrices and run linkage model
+mibddir <- system.file('extdata', 'solarOutput',
+  'solarMibdsCsv', package = 'solareclipser') 
+link <- solarMultipoint(trait1 ~ 1, dat30,
+  mibddir = mibddir, chr = 5)
+
+# run association model in parallel
+assoc <- solarAssoc(trait1 ~ 1, dat30, cores = 2,
+  snpcovdata = genocovdat30, snpmap = mapdat30)
+```  
+
+The user can think of this block of code as a quick start in using `solareclipser`.
+The material given further will provide 
+more details and all necesseary information on the usage of `solareclipser`.
+
+## Data sets
+
+The genome-wide QTL analysis typically involves large-scale data sets.
+Data sets distributed within `solareclipser` package contain relatively small simulated data,
+which are used for reproducible demonstrations of how functions of the package work.
+There are three data sets available in `solareclipser`:
+
+* An adapted version of the simulated data from the R package `multic` [@Andrade2006] (polygenic and linkage models);
+    * A smaller subset of these data is given in `dat30` data set (polygenic, linkage and association models);
+* An adapted version of the simulated data `dat50` from the R package [FFBSKAT](http://mga.bionet.nsc.ru/soft/FFBSKAT/) (polygenic model and association model, both with custom kinship matrix);
+* GAW10 data distributed within `SOLAR` (polygenic and linkage models).
+
+The simulated data set (in `SOLAR` format) from `multic` R package 
+is placed in [inst/extdata/solarOutput](https://github.com/ugcd/solarius/tree/master/inst/extdata/solarOutput)
+directory of `solareclipser` package.
+1200 individuals in 200 families are included in the study.
+The simulated phenotypes include two traits `trait1` and `trait2` and two covariates `age` and `sex`.
+The two traits possess a high genetic correlation.
+For the linkage analysis 6 IBD matrices for chromosome 5 
+6 IBD matrices for chromosome 2 are available.
+The six matrices of chromosome 5 are the original data from `multic` package,
+while the six matrices of chromosome 2 are the exact copies of those of chromosome 5.
+Data for the two chromosomes are needed
+to test parallel calculation (separated by chromosome) of the linkage model.
+
+A smaller subset of the simulated data from `multic` package is provided in `dat30` data set
+(`dat30.RData` file in [data](https://github.com/ugcd/solarius/tree/master/data) directory).
+This smaller data set contains only 174 individuals in 29 families.
+
+* The phenotypes (`dat30` data frame) are the same as in the complete data described above.
+* A hundred of synthetic SNPs (`genocovdat30` matrix) 
+were randomly generated to run the association analysis on these data
+(see the script [inst/scripts/generate-genocovdat30.R](https://github.com/ugcd/solarius/blob/master/inst/scripts/generate-genocovdat30.R)). 
+* Annotation information (mapdat30 data frame) also was generated, mainly in order to plot the association results with Manhattan plot.
+
+Documentation of `dat30` data set is available on the page [dat30](http://ugcd.github.io/solarius/doc/dat30.html).
+
+The simulated data from the R package `FFBSKAT` are stored in `dat50` data set
+(`dat50.RData` file in [data](https://github.com/ugcd/solarius/tree/master/data) directory).
+This data set is adapted from `example.data` data set in the R package `FFBSKAT`. 
+The following variables are included.
+
+* `phenodata`: A data.frame with the phenotypes `trait`, `sex` and `age` given for 66 individuals (related and unrelated).
+* `genodata`: A matrix of 50 genetic variants (columns) given for 66 individuals (rows).
+  The genotypes are coded in the format such as `1/1`, `1/2` and `2/2`.
+* `genocovdata`: A matrix of covariates derived from the genotype data (the additive model).
+  The covariates are coded as integers 0, 1 and 2.
+* `snpdata`: A data.frame of annotation for genetic variants. 
+   The variables name of the variant `name`, chromosome `chrom`, 
+   gene name `gene` and position in bp `position`.
+* `kin`: A kinship matrix for 66 individuals.
+
+Documentation of `dat50` data set is available on the page [dat50](http://ugcd.github.io/solarius/doc/dat50.html).
+
+The simulated data from the workshop GAW10 are described elsewhere
+[@SOLARDOC, Chapter 3 [Tutorial](http://helix.nih.gov/Documentation/solar-6.6.2-doc/03.chapter.html)].
+
+# Examples
+
+## Loading data
+
+To load both data sets `dat30` and `dat50`,
+the user needs to use the standard R function `data`
+A quick view to the data tables might be performed by means of `str` function.
+
+```{r dat30, cache = TRUE}
+data(dat30)
+str(dat30)
+str(genocovdat30)
+str(mapdat30)
+```
+ 
+```{r dat50, cache = TRUE}
+data(dat50)
+str(phenodata)
+str(genodata)
+str(genocovdata)
+```
+
+`loadMulticPhen` function in `solareclipser` package 
+loads the complete version of the data from the R package `multic`
+(1200 individuals).
+
+```{r multic, cache = TRUE}
+mdat <- loadMulticPhen()
+str(mdat)
+```
+
+`loadExamplesPhen` function
+returns the GAW10 data sets available in `SOLAR`.
+
+```{r ex, cache = TRUE}
+#gawdat <- loadExamplesPhen()
+#str(gawdat)
+```
+
+Both `loadMulticPhen` and `loadExamplesPhen` functions
+are based on a more general function `readPhen`,
+which reads the phenotype data from text files of a table format.
+The data from the R package `multic` can be also loaded by means of `readPhen` function.
+
+```{r, eval = FALSE}
+dat.dir <- system.file("extdata", "solarOutput", package = "solareclipser")
+
+mdat <- readPhen(phen.file = file.path(dat.dir, "simulated.phen"), sep.phen = ",", 
+  ped.file = file.path(dat.dir, "simulated.ped"), sep.ped = ",")
+```
+
+## Data exploration
+
+### Plot kinship matrix
+
+The two times kinship coefficients describe the relatedness among individuals
+in the family-based sample.
+Two functions `solarKinship2` and `plotKinship2`
+allows to compute and plot the kinship matirx of a given data set.
+`solarKinship2` function runs `SOLAR` for estimation of the kinship coefficients
+based on the ID fields in the data.
+The returned value of the function is two times kinship coefficients in a matrix form.
+`plotKinship2` plots the two times kinship matrix by using the R package `Matrix`.
+
+For example, the kinship matrix for `dat50` data sets has the following image.
+
+```{r kin_dat30, cache = TRUE}
+plotKinship2(2*kin)
+```
+
+One can see that both unrelated and related individuals appear in `dat50` data set.
+
+The relationships among individuals in `dat30` data set 
+is examined in the following two lines of code.
+
+```{r kin_solar, cache = TRUE}
+kin2.dat30 <- solarKinship2(dat30)
+plotKinship2(kin2.dat30)
+```
+
+The structure of patterns in the kinship matrix can be explored more closely
+if the first 30 individuals are plotted.
+
+```{r sub_kin_plot, cache = TRUE}
+plotKinship2(kin2.dat30[1:30, 1:30])
+```
+
+It seems that the simulated data 
+include only sib-pair relationships.
+Such an observation can be visually confirmed 
+by `histKinship2` function.
+
+```{r hist_kin, cache = TRUE}
+histKinship2(kin2.dat30)
+```
+
+One see that all the related individuals have the twice kinship coefficient equal to `0.5`.
+The unique values of `kin2.dat30` matrix can also be extracted by the following code.
+
+```{r unique_k2, cahce = TRUE}
+unique(as.vector(kin2.dat30))
+```
+
+### Plot pedigrees
+
+The family trees are plotted by `plotPed`,
+which reuses some routines from the R package `kinship2`.
+The family with index `2` from `dat30` data set is plotted in the following code.
+
+```{r dat30_ped_2, cache = TRUE}
+plotPed(dat30, 2)
+```
+
+### Transform traits
+
+To show an example of trait transformation,
+a trait with an anomalous distribution `exp_trait1` is created in `dat30` data set.
+
+```{r exp_trait1}
+dat30 <- mutate(dat30,
+  exp_trait1 = exp(trait1))
+```
+
+The list of available transforms in `solareclipser` 
+is returned by `availableTransforms` function.
+
+```{r}
+availableTransforms()
+```
+
+The following code plots the distribution of the original values of `exp_trait1`
+and its transformed values.
+
+```{r plot_transform, cache = TRUE}
+library(ggplot2)
+library(gridExtra)
+
+theme_set(theme_bw())
+
+with(dat30, {
+  grid.arrange(
+    qplot(exp_trait1),
+    qplot(transformTrait(exp_trait1, "out")),
+    qplot(transformTrait(exp_trait1, "log")),
+    qplot(transformTrait(exp_trait1, "inormal"))
+  )
+})
+```
+
+
+## Polygenic model (univariate)
+
+`solarPolygenic` function runs the polygenic analysis in `SOLAR` 
+and returns back the results in R.
+The basic call looks like the standard call of `lm` function with the formula interface.
+
+```{r M1, cache = TRUE}
+M1 <- solarPolygenic(trait1 ~ age + sex, dat30)
+M1
+```
+
+The print method for the returned object of class `solarPolygenic`
+shows the output produced by `SOLAR`.
+The tables of the results are printed by `summary` method.
+
+```{r M1_sum, cache = TRUE}
+summary(M1)
+```
+
+### Testing covariates
+
+By default `SOLAR` does not perform the LRT tests for the covariates.
+`covtest` argument of `solarPolygenic` function tells to `SOLAR` to make this job.
+
+```{r M2, cache = TRUE}
+M2 <- solarPolygenic(trait1 ~ age + sex, dat30, covtest = TRUE)
+M2
+```
+
+The test statistics and p-values are stored in `cf` slot of the returned object `M2`.
+
+```{r M2_cf, cache = TRUE}
+M2$cf
+```
+
+### Custom kinship matrix
+
+The custom kinship matrix is passed by `kinship` argument.
+The following code shows such an example of `dat50` data set,
+which phenotype data are stored in `phenodata` data.frame.
+
+```{r M3, cache = TRUE}
+M3 <- solarPolygenic(trait ~ 1, phenodata, kinship = kin)
+M3
+```
+
+The polygenic and sporadic models have the same LRT statistics,
+that means `SOLAR` was not able to make the polygenic analysis in a proper way.
+
+```{r M3_lf, cache = TRUE}
+M3$lf
+```
+
+This bug seems the case of unrelated individuals or the individuals withount 
+such ID fields as `fa` and `mo`.
+
+## Polygenic model (bivariate)
+
+The bivariate polygenic analysis is run in the same way as the univariate one.
+
+```{r B1, cache = TRUE}
+B1 <- solarPolygenic(trait1 + trait2 ~ 1, dat30)
+B1
+```
+
+### Testing correlations
+
+The test of significance of environmental and genetic correlation coefficients
+is indicated by `polygenic.options` argument of `solarPolygenic` function.
+
+```{r B2, cache = TRUE}
+B2 <- solarPolygenic(trait1 + trait2 ~ 1, dat30, polygenic.options = "-testrhoe -testrhog")
+B2
+```
+
+The results are stored in `vcf` slot of the returned object.
+
+```{r B2_vcf, cache = TRUE}
+B2$vcf
+```
+
+### Trait-specific covariates
+
+It might happen that traits in the multivariate polygenic analysis 
+have different covariates.
+Trait-specific covariates are passed to `solarPolygenic` function
+according the specification of `SOLAR`.
+
+```{r B3, cache = TRUE}
+B3 <- solarPolygenic(trait1 + trait2 ~ sex + age(trait2), dat30)
+B3
+```
+
+In the results of this analysis,
+`sex` covariate is common for both traits,
+while `age` covariate is applied only to `trait2`.
+The given model specification can be ckecked
+by looking at the model files from `SOLAR`.
+
+```{r tail_mod}
+tail(B3$solar$files$model$poly.mod, 3)
+
+```
+
+## Association model
+
+`solarAssoc` function runs the association analysis in `SOLAR`,
+in particular via [mga](http://helix.nih.gov/Documentation/solar-6.6.2-doc/91.appendix_1_text.html#mga) command.
+The genotype data are passed to `solarAssoc` function in the form of 
+SNP genotypes (`snpdata` argument) or covariates
+(`snpcovdata` or `genocov.files` arguments).
+The later case assumes that the user 
+has converted the genotypes to covariates by some method (outside `solareclipser` package)
+before computing the association model.
+
+The function returns an object of class `solarAssoc`.
+This class has additional methods such as `annotate`, `plotQQ` and `plotManh`
+for exploration of the association results.
+The main table of the results is `snpf` slot of the returned object,
+which class is `data.table` from the R package `data.table`.
+
+The association analysis is shown
+with `dat50` data set with 66 individuals and 50 SNP variants.
+The kinship matrix `kin` of this data set is also used.
+
+### SNP data by `snpdata` argument
+
+The option of using `snpdata` is recommended in the case
+when the small number of SNPs is to be tested.
+
+```{r genodata, cache = TRUE}
+A1 <- solarAssoc(trait ~ 1, phenodata, snpdata = genodata, kinship = kin)
+A1
+```
+
+`summary` method reports the number of significant SNPs
+based on Bonferroni correction.
+
+```{r A1_summary}
+summary(A1)
+```
+
+The significance threshold can be passed as `alpha` parameter of `summary` method.
+
+```{r A1_summary_2}
+summary(A1, alpha = 1)
+```
+
+
+### SNP data by `snpcovdata` argument
+
+SNP covariates are passed to the association model by `snpcovdata` parameter.
+
+```{r genocovdata, cache = TRUE}
+A2 <- solarAssoc(trait ~ 1, phenodata, snpcovdata = genocovdata, kinship = kin)
+A2
+```
+
+The values of the SNP covariates 
+can take any numerical values.
+That means dosage format of imputed SNP data is allowed.
+
+The previous example is repeated for the SNP covariate data,
+where values of `2` are replaced by `1.9`.
+
+```{r genocovdata2, cache = TRUE}
+genocovdata2 <- genocovdata
+genocovdata2[genocovdata2 == 2] <- 1.9
+
+A2 <- solarAssoc(trait ~ 1, phenodata, snpcovdata = genocovdata2, kinship = kin)
+A2
+```
+
+
+### SNP data by `genocov.files` (single value)
+ 
+`genocov.files` argument is supported to pass the SNP covariate data in files
+of the appropriate `SOLAR` format.
+This option suits for large-scale calculations,
+when the real genome-wide scan is run.
+Both arguments `genocov.files` and `snplists.files` are required,
+and `snpmap.files` argument is optional.
+ 
+```{r genocov, cache = TRUE}
+dir <- package.file("extdata", "solarAssoc", package = "solareclipser")
+genocov.files <- file.path(dir, "snp.genocov")
+snplists.files <- file.path(dir, c("snp.geno-list1", "snp.geno-list2"))
+
+A3 <- solarAssoc(trait ~ 1, phenodata, 
+  genocov.files = genocov.files, snplists.files = snplists.files)
+A3
+```
+
+### SNP data by `genocov.files` (many values)
+
+Many values can be passed to `genocov.files` parameter,
+but this case is thought for parallel calculations.
+ 
+```{r genocov2, cache = TRUE}
+dir <- package.file("extdata", "solarAssoc", package = "solareclipser")
+genocov.files <- file.path(dir, c("snp.genocov1", "snp.genocov2"))
+snplists.files <- file.path(dir, c("snp.geno-list1", "snp.geno-list2"))
+
+A4 <- solarAssoc(trait ~ 1, phenodata, 
+  genocov.files = genocov.files, snplists.files = snplists.files)
+A4
+```
+
+### Exploration of association results
+
+QQ and Manhattan plots
+help to explore the association results visually.
+
+```{r assoc_map, cache = TRUE}
+A5 <- solarAssoc(trait ~ 1, phenodata, snpdata = genodata, snpmap = snpdata, kinship = kin)
+```
+
+```{r manh_plot, cache = TRUE}
+plot(A5)
+```
+
+```{r manh_qq, cache = TRUE}
+plot(A5, "qq")
+```
+
+### Parallel computation 
+
+Parallelization of the association analysis is an easy task with `solareclipser`.
+The user only needs to specify how many cores are to be used for the computation.
+
+```{r A6, cache = TRUE}
+A6 <- solarAssoc(trait ~ 1, phenodata, snpdata = genodata, kinship = kin, cores = 2)
+```
+
+The gain in CPU time is not obvious,
+as the number of SNPs (50) is too small.
+
+```{r A16}
+A1$assoc$tprofile$cputime.sec
+A6$assoc$tprofile$cputime.sec
+```
+
+`dat30` data set contains 100 SNPs (`genocovdat30` matrix).
+The same test on speed up by parallel computing looks as following.
+
+```{r A7, cache = TRUE}
+A7 <- solarAssoc(trait1 ~ 1, dat30, 
+  snpcovdata = genocovdat30, snpmap = mapdat30)
+```
+
+```{r A8, cache = TRUE}
+A8 <- solarAssoc(trait1 ~ 1, dat30, 
+  snpcovdata = genocovdat30, snpmap = mapdat30,
+  cores = 2)
+```
+
+```{r A_78}
+A7$assoc$tprofile$cputime.sec
+A8$assoc$tprofile$cputime.sec
+```
+
+## Linkage model
+
+`solarMultipoint` function performs the linkage analysis
+by calling `SOLAR` command [multipoint](http://helix.nih.gov/Documentation/solar-6.6.2-doc/91.appendix_1_text.html#multipoint).
+The function looks for multipoint IBD matrices in the directory pointed out by `mibddir` argument.
+The analysis can be customized by combination of options via 
+`multipoint.options` and `multipoint.settings` arguments.
+
+Phenotypes in `dat30` data set and IBD matrices are placed
+in [inst/extdata/solarOutput](https://github.com/ugcd/solarius/tree/master/inst/extdata/solarOutput) directory of the package.
+
+### Basic linkage model
+
+The basic model requires only the path to a directory with IBD matrices (`mibddir` argument).
+By default, all `SOLAR` specific files, which represent IBD matrices, will be used in the analysis.
+
+```{r data_multic_link}
+mibddir <- package.file("extdata", "solarOutput", "solarMibdsCsv", package = "solareclipser")  
+list.files(mibddir)
+```
+
+```{r L1, cache = TRUE}
+L1 <- solarMultipoint(trait1 ~ 1, dat30, mibddir = mibddir)
+L1
+```
+
+Methods `print`, `summary` and `plot` help to explore the results of analysis.
+The data table of results is stored in `lodf` slot of the returned object.
+
+```{r L1_sum}
+summary(L1)
+```
+
+```{r plot_L1, cache = TRUE}
+plot(L1)
+```
+
+The results for chromosomes 2 and 5 are identical,
+since the IBD matrices for chromosome 2 are duplicates of the matrices for chromosome 5.
+
+### Linkage options
+
+The following code shows an example of a custom linkage analysis.
+In particular, the linkage is run on chromosome 5 with a 2 cM interval,
+Fine mapping is disabled and the second pass is enables via `multipoint.options` argument.
+
+```{r L2, cache = TRUE}
+L2 <- solarMultipoint(trait1 ~ 1, dat30, mibddir = mibddir, chr = 5, interval = 2, 
+  multipoint.settings = "finemap off", multipoint.options = "3")
+summary(L2)
+```
+
+The LOD scores for the second path (stored in `lodf2`) are plotted with the code given below.
+
+```{r plot_L2, cache = TRUE}
+plot(L2, pass = 2)
+```
+
+### Bivariate linkage
+
+The bivariate linkage analysis is performed in the same way as the bivariate polygenic analysis.
+
+```{r L3, cache = TRUE}
+L3 <- solarMultipoint(trait1 + trait2 ~ 1, dat30, mibddir = mibddir, chr = 5, 
+  interval = 2, multipoint.settings = "finemap off")
+summary(L3)
+```
+
+```{r L4, cache = TRUE}
+L4 <- solarMultipoint(trait1 + trait2 ~ age + sex(trait1), dat30, 
+  mibddir = mibddir, chr = 5, interval = 2, multipoint.settings = "finemap off")
+summary(L4)
+```
+
+### Parallel computation
+
+Parallelization of the linkage analysis
+is again parametrized with `cores` argument,
+but the chromosome values are expected to be a vector of values.
+That means that each core does the job on a single chromosome.
+
+```{r L5, cache = TRUE}
+L5 <- solarMultipoint(trait1 ~ 1, dat30, mibddir = mibddir,
+  chr = c(2, 5), cores = 2)
+```
+
+```{r L1_cpu}
+L1$multipoint$tprofile$cputime.sec
+L5$multipoint$tprofile$cputime.sec
+```
+
+# Miscellaneous material
+
+## `SOLAR` references
+
+
+A list of references given on the official web page of `SOLAR` 
+[solar-eclipse-genetics.org](https://solar-eclipse-genetics.org):
+
+* The main reference for SOLAR, including theoretical explanations of the variance component linkage method and the approximate multipoint IBD calculations in pedigrees, is [@Almasy1998];
+* Bivariate Quantitative trait linkage is described in the following papers: [@Almasy1997], [@Williams1999];
+* The Liability Threshold model for discrete traits is described in the preceding paper as well as the following one: [@Duggirala1997];
+* Gene By Environment Interaction is discussed in: [@Towne1997], [@Blangero2009];
+* An examination of LOD adjustment is given in: [@Blangero2000], [@Blangero2001];
+* Additional references include: [@Blangero1997], [@Williams2004], [@Williams1999b].
+
+# R session info
+
+```{r session_info}
+sessionInfo()
+```
+
+# License
+
+This document is licensed under the Creative Commons Attribution 4.0 International Public License. 
+
+[![Creative Commons License](http://i.creativecommons.org/l/by/4.0/88x31.png)](http://creativecommons.org/licenses/by/4.0/)
+
+
+# References
