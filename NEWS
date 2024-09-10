@@ -1,0 +1,63 @@
+solareclipser 0.3.2
+==================
+
+* Added Z-scores and p-value based on Z-scores for bi-variate polygenic analysis 
+  (slot `vcf`, columns `Z` and `pvalZ`).
+  In general, it is not suggested to use Z-scores to derive p-values, 
+  but this info. can be useful, when the models are prone to convergence failure
+  and LRT is not possible.
+  
+solareclipser 0.3.1
+==================
+
+* Fix `annotateSNPs` function when no rs* SNPs are given.
+
+solareclipser 0.3.0
+==================
+
+* Support for Windows OS is depreciated because of SOLAR issues with Windows.
+  `OS_type: unix` line is added to DESCRIPTION file.
+
+solareclipser 0.2.4
+==================
+
+* Changes in response to the Reviewers' comments (the manuscript submitted to Bioinformatics).
+    * `NCBI2R` package is replaced by `rsnps` package.
+* Added two series of functions `solarPar*` and `solarModel*` to extract 
+  parameters of SOLAR and solareclipser models, respectively.
+* Added `tabplot` S3 method for `solarAssoc` class.
+* Initiated new SOLAR models: `solarPolyAssoc`, `solarBayesAvg` and `solarMultivar`.
+  Still under development.
+
+solareclipser 0.2.3
+==================
+
+* Changes for the official release on CRAN.
+    * `doMC` package is preferred to `doParallel` package (suggestion from CRAN maintainers).
+    * `require` command is replaced by `requireNamespace` command.
+
+solareclipser 0.2.2
+==================
+
+* All three main analyses (polygenic, association and linkage) are implemented.
+* A number of vignettes are provided.
+    * http://ugcd.github.io/solareclipser/vignettes/tutorial.html
+    * http://ugcd.github.io/solareclipser/vignettes/minimal.html
+    * http://ugcd.github.io/solareclipser/vignettes/modelsGAIT1.html
+* The first version for CRAN is prepared.
+* LazyLoad for data is disabled.
+
+solareclipser 0.1.1
+==================
+
+* The house-hold effect is processed. Expected fields in a data set include 
+  `HHID` and `hhid`. See `inst/tests/test-household.R`.
+* Other fields supported by SOLAR are `MZTWIN`, `PROBND`. See `matchIdNames`
+  for more details.
+
+solareclipser 0.1.0
+==================
+
+* Initial version.
+
+
