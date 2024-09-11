@@ -1,12 +1,12 @@
 lib/solar900/
 inst/lib/
-tests/release/
 docs/si/
 
 tests/debug/
 tests/debug.tar.gz
 tests/output/
 tests/input/solar/
+tests/release/
 
 *.Rproj
 .Rproj.user

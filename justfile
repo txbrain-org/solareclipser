@@ -10,6 +10,8 @@ tests_release_pkg := tests_release + '/' + pkg
 
 user_libs := `find ~/Work/nGit/R -type d -iname "r_libs_user_linux"`
 
+solar_output_files := 'tests/output/solar'
+
 re := 'Rscript -e'
 inspect_r := "\"source('tests/input/inspect.R')\""
 
@@ -25,6 +27,7 @@ run-tests:
 # cp {{release_pkg}} {{tests_release}}
 build:
   {{re}} 'devtools::build(path = "release/")'
+  @if [ ! -d {{tests_release}} ]; then mkdir {{tests_release}}; fi
   cp {{release_pkg}} {{tests_release}}
 
 # devtools::build_readme()
@@ -39,12 +42,16 @@ check:
   {{re}} 'devtools::check()'
 
 # rm {{user_libs}}/{{pkg}}
-install-clean:
+clean-install:
   @if [ -f {{user_libs}}/{{pkg}} ]; then rm -Irf {{user_libs}}/{{pkg}}; fi
 
 # devtools::install("release/")
-install: install-clean
+install: clean-install
   {{re}} 'devtools::install("release/")'
+
+# rm {{solar_output_files}}
+clean-solar-outputs:
+  @if [ -d {{solar_output_files}} ]; then rm -Irf {{solar_output_files}}/*; fi
 
 # rm release/{{pkg}} && tests/release/{{pkg}}
 clean:
