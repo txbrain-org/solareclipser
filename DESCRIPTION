@@ -27,7 +27,6 @@ URL: https://github.com/enigma-1590c46634/solareclipser
 LazyData: false
 OS_type: unix
 Imports:
-    devtools,
     stringr
 Suggests:
     testthat (>= 3.0.0),

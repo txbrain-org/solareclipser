@@ -23,13 +23,15 @@ polygen
 \item \href{#method-SolarCommand-covariate}{\code{SolarCommand$covariate()}}
 \item \href{#method-SolarCommand-polygenic}{\code{SolarCommand$polygenic()}}
 \item \href{#method-SolarCommand-create_evd_data}{\code{SolarCommand$create_evd_data()}}
+\item \href{#method-SolarCommand-fphi}{\code{SolarCommand$fphi()}}
+\item \href{#method-SolarCommand-get_save_output_dir}{\code{SolarCommand$get_save_output_dir()}}
 \item \href{#method-SolarCommand-get_load}{\code{SolarCommand$get_load()}}
 \item \href{#method-SolarCommand-get_loads}{\code{SolarCommand$get_loads()}}
 \item \href{#method-SolarCommand-get_trait}{\code{SolarCommand$get_trait()}}
 \item \href{#method-SolarCommand-get_covariate}{\code{SolarCommand$get_covariate()}}
 \item \href{#method-SolarCommand-get_polygenic}{\code{SolarCommand$get_polygenic()}}
 \item \href{#method-SolarCommand-get_create_evd_data}{\code{SolarCommand$get_create_evd_data()}}
-\item \href{#method-SolarCommand-get_save_output_dir}{\code{SolarCommand$get_save_output_dir()}}
+\item \href{#method-SolarCommand-get_fphi}{\code{SolarCommand$get_fphi()}}
 \item \href{#method-SolarCommand-print}{\code{SolarCommand$print()}}
 \item \href{#method-SolarCommand-print_private}{\code{SolarCommand$print_private()}}
 \item \href{#method-SolarCommand-finalize}{\code{SolarCommand$finalize()}}
@@ -104,7 +106,35 @@ polygen
 \if{latex}{\out{\hypertarget{method-SolarCommand-create_evd_data}{}}}
 \subsection{Method \code{create_evd_data()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$create_evd_data(output_fpath = NULL, plink_fpath = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$create_evd_data(
+  output_fbasename = NULL,
+  plink_fbasename = NULL,
+  use_covs = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarCommand-fphi"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarCommand-fphi}{}}}
+\subsection{Method \code{fphi()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$fphi(
+  opts = NULL,
+  opts_fname = NULL,
+  precision = NULL,
+  mask = NULL,
+  evd_data = NULL
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarCommand-get_save_output_dir"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarCommand-get_save_output_dir}{}}}
+\subsection{Method \code{get_save_output_dir()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$get_save_output_dir()}\if{html}{\out{</div>}}
 }
 
 }
@@ -163,11 +193,11 @@ polygen
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-get_save_output_dir"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-get_save_output_dir}{}}}
-\subsection{Method \code{get_save_output_dir()}}{
+\if{html}{\out{<a id="method-SolarCommand-get_fphi"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarCommand-get_fphi}{}}}
+\subsection{Method \code{get_fphi()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$get_save_output_dir()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$get_fphi()}\if{html}{\out{</div>}}
 }
 
 }

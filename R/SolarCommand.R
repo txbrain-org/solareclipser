@@ -21,18 +21,21 @@ SolarCommand <- R6Class("SolarCommand",
     .covariate = NULL,
     .polygenic = NULL,
     .create_evd_data = NULL,
+    .fphi = NULL,
 
     .do_polygenic = FALSE,
+    .do_create_evd_data = FALSE,
+    .do_fphi = FALSE,
     .save_output_dir = NULL
   ),
 
   public = list(
     initialize = function(save_output_dir = NULL) {
+      # TODO: check which should be initialized here
       private$.load <- Load$new()
       private$.trait <- Trait$new()
       private$.covariate <- Covariate$new()
       private$.polygenic <- Polygenic$new()
-      private$.create_evd_data <- CreateEvdData$new()
 
       if (!is.null(save_output_dir)) {
         if (!dir.exists(save_output_dir)) {
@@ -110,12 +113,20 @@ SolarCommand <- R6Class("SolarCommand",
       #print_string_info(covariate)
       #cat("covariate =", covariate, "\n")
 
+      create_evd_data <- self$get_create_evd_data()
+      #create_evd_data$print()
+
+      fphi <- self$get_fphi()
+      #fphi$print()
+
       polygenic <- self$get_polygenic()
       polygenic <- polygenic$get_opts()
       #print_string_info(polygenic)
       #cat("polygenic =", polygenic, "\n")
 
+
       cat("------------------------------------------------------------\n")
+
 
       strs <- c()
       i <- 1
@@ -136,6 +147,38 @@ SolarCommand <- R6Class("SolarCommand",
       if (!is.null(covariate)) {
         covariate <- str_c("covariate", covariate, sep = " ")
       }
+
+      create_evd_data_fmt <- NULL
+      if (private$.do_create_evd_data) {
+        create_evd_data_fmt <-
+          str_c("create_evd_data --o ", create_evd_data$get_output_fbasename())
+
+        if (!is.null(create_evd_data$get_plink_fbasename())) {
+          create_evd_data_fmt <-
+            str_c(create_evd_data_fmt, " --plink ",
+                  create_evd_data$get_plink_fbasename())
+        }
+
+        if (create_evd_data$get_use_covs() == TRUE) {
+          create_evd_data_fmt <- str_c(create_evd_data_fmt, " --use_covs")
+        }
+      }
+
+      # TODO: implement the rest of the options
+      # .opts = NULL, # -fast -debug -list
+      # .opts_fname = NULL, # -list <file containing trait names>
+      # .precision = NULL, # -precision <h2 decimal count>
+      # .mask = NULL, # -mask <name of nifti template volume>
+      # .evd_data = NULL # -evd_data <base filename of EVD data
+      if (private$.do_fphi) {
+        if (!is.null(fphi$get_evd_data())) {
+          fphi_fmt <-
+            str_c("fphi --evd_data", fphi$get_opts(), fphi$get_opts_fname(),
+                  fphi$get_precision(), fphi$get_mask(), fphi$get_evd_data(),
+                  sep = " ")
+        }
+      }
+
       if (private$.do_polygenic) {
         polygenic <- str_c("polygenic", polygenic, sep = " ")
       }
@@ -144,6 +187,8 @@ SolarCommand <- R6Class("SolarCommand",
       #cat(trait, "\n")
       #cat(covariate, "\n")
       #cat(polygenic, "\n")
+      #cat(create_evd_data_fmt, "\n")
+      #cat(fphi_fmt, "\n")
 
       for (file in fpath) {
         if (!file.exists(file)) {
@@ -162,13 +207,23 @@ SolarCommand <- R6Class("SolarCommand",
       tcl_f_basename <- basename(tcl_f_realpath)
       # remove .tcl from basename
       tcl_proc_name <- gsub("\\.tcl", "", tcl_f_basename)
-      cat("tcl_f_realpath =", tcl_f_realpath, "\n")
-      cat("tcl_f_basename =", tcl_f_basename, "\n")
-      cat("tcl_proc_name =", tcl_proc_name, "\n")
+      #cat("tcl_f_realpath =", tcl_f_realpath, "\n")
+      #cat("tcl_f_basename =", tcl_f_basename, "\n")
+      #cat("tcl_proc_name =", tcl_proc_name, "\n")
 
       # proc tcl_proc_name {} { ... }
       cmd_fn_def_begin <- paste("proc", tcl_proc_name, "{} {", sep = " ")
-      cmd_fn_body <- str_c(loads_str, trait, covariate, polygenic, sep = "\n")
+
+      if (private$.do_create_evd_data) {
+        if (private$.do_fphi) {
+          cmd_fn_body <- str_c(loads_str, trait, covariate, create_evd_data_fmt, fphi_fmt, sep = "\n")
+        } else {
+          cmd_fn_body <- str_c(loads_str, trait, covariate, create_evd_data_fmt, sep = "\n")
+        }
+      }
+      if (private$.do_polygenic) {
+        cmd_fn_body <- str_c(loads_str, trait, covariate, polygenic, sep = "\n")
+      }
       # indent the body of the function
       cmd_fn_body <- sapply(strsplit(cmd_fn_body, "\n"), function(x) paste("  ", x, sep = ""))
       cmd_fn_def_end <- "}"
@@ -205,7 +260,6 @@ SolarCommand <- R6Class("SolarCommand",
       invisible(self)
     },
 
-    #load = function(obj, file_name) {
     load = function(obj = NULL, opts = NULL, fpath = NULL, cond = NULL) {
       private$.load <- Load$new(obj, opts, fpath, cond)
       private$.loads <- c(private$.loads, private$.load)
@@ -228,9 +282,27 @@ SolarCommand <- R6Class("SolarCommand",
       invisible(self)
     },
 
-    create_evd_data = function(output_fpath = NULL, plink_fpath = NULL) {
-      private$.create_evd_data <- CreateEvdData$new(output_fpath, plink_fpath)
+    create_evd_data = function(output_fbasename = NULL,
+                               plink_fbasename = NULL,
+                               use_covs = FALSE) {
+
+      private$.create_evd_data <-
+        CreateEvdData$new(output_fbasename, plink_fbasename, use_covs)
+
+      private$.do_create_evd_data <- TRUE
       invisible(self)
+    },
+
+    fphi = function(opts = NULL, opts_fname = NULL,
+                    precision = NULL, mask = NULL,
+                    evd_data = NULL) {
+      private$.fphi <- FPHI$new(opts, opts_fname, precision, mask, evd_data)
+      private$.do_fphi <- TRUE
+      invisible(self)
+    },
+
+    get_save_output_dir = function() {
+      private$.save_output_dir
     },
 
     get_load = function() {
@@ -257,8 +329,8 @@ SolarCommand <- R6Class("SolarCommand",
       private$.create_evd_data
     },
 
-    get_save_output_dir = function() {
-      private$.save_output_dir
+    get_fphi = function() {
+      private$.fphi
     },
 
     print = function() {
@@ -273,6 +345,7 @@ SolarCommand <- R6Class("SolarCommand",
         private$.covariate$print()
         private$.polygenic$print()
         private$.create_evd_data$print()
+        private$.fphi$print()
         invisible(self)
         return()
       }
@@ -292,7 +365,10 @@ SolarCommand <- R6Class("SolarCommand",
         private$.polygenic$print()
       }
       if (field == "create_evd_data") {
-        private$.solar_files$print()
+        private$.create_evd_data$print()
+      }
+      if (field == "fphi") {
+        private$.fphi$print()
       }
       invisible(self)
     },
@@ -487,7 +563,7 @@ Trait <- R6Class("Trait",
 #'
 Covariate <- R6Class("Covariate",
   private = list(
-    .args = c()
+    .args = NULL
     # TODO: Add valid covar, this will have to come after the file loaded
     # .valid_covars = c()
   ),
@@ -595,31 +671,139 @@ Polygenic <- R6Class("Polygenic",
 #'   <output base filename>.eigenvalues --list of eigenvalues
 #'   <output base filename>.eigenvectors --list of eigenvectors
 #'   <output base filename>.notes --notes on the creation of the EVD data set
+#'
 CreateEvdData <- R6Class("CreateEvdData",
   private = list(
-    output_fpath = NULL,
-    plink_fpath = NULL
+    .output_fbasename = NULL,
+    .plink_fbasename = NULL,
+    .use_covs = FALSE
   ),
   public = list(
-    initialize = function(output_fpath = NULL, plink_fpath = NULL) {
-      if (!is.null(output_fpath)) {
-        private$.output_fpath <- output_fpath
+    initialize = function(output_fbasename = NULL, plink_fbasename = NULL,
+                          use_covs = FALSE) {
+
+      if (!is.null(output_fbasename)) {
+        private$.output_fbasename <- output_fbasename
+      } else {
+        stop("CreateEvdData: output_fbasename is required")
       }
-      if (!is.null(plink_fpath)) {
-        private$.plink_fpath <- plink_fpath
+
+      if (!is.null(plink_fbasename)) {
+        private$.plink_fbasename <- plink_fbasename
+      }
+      if (!is.null(use_covs)) {
+        private$.use_covs <- use_covs
       }
     },
     print = function() {
-      if (!is.null(private$.args)) {
-        cat(format(self), sep = "\n")
-        invisible(self)
-      }
+      cat(format(self), sep = "\n")
+      invisible(self)
     },
     finalize = function() {
       #message("finalize(Trait)")
     },
-    get_args = function() {
-      private$.args
+    get_output_fbasename = function() {
+      private$.output_fbasename
+    },
+    get_plink_fbasename = function() {
+      private$.plink_fbasename
+    },
+    get_use_covs = function() {
+      private$.use_covs
+    }
+  )
+)
+
+#' R6 Class FPHI
+#'
+#' @description
+#' TODO: Add description
+#'
+#' @details
+#'   From the Solar manual:
+#'   Purpose: Fast test and heritability approximation
+#'
+#' USAGE:
+#' fphi [optional
+#'      -fast -debug -list <file containing trait names>
+#'      -precision <h2 decimal count>
+#'      -mask <name of nifti template volume>
+#'      -evd_data <base filename of EVD data]
+#'
+#'      -fast Performs a quick estimation run
+#'      -debug Displays values at each iteration
+#'      -list performs fast fphi on a list of trait (does not include covariate
+#'        data)
+#'      -precision number of decimals to calculate h2r
+#'      -mask outputs fphi -fast results of the list of voxels from -list option
+#'      -evd_data When using the -list option the EVD data option can be used
+#'        to avoid having to calculate EVD data within the command
+#'
+#' Fast permutation and heritability inference (FPHI). FPHI is based on the
+#' eigenvalue decomposition on the kinship matrix and a search through values
+#' of h2r for accurate approximation of heritability values and statistical
+#' inference. The default setting is the full search out to 9 decimal places of
+#' h2r. The "-fast" option uses the Wald approximation. Both use log likelyhood
+#' p-value estimation.  The default setting should provide very accurate h2
+#' estimates that are nearly identical to the standard maximum likelihood
+#' inference. The h2 values obtained using Wald approximation are usually
+#' within 3% of the classical MLE values.  The same functionality is available
+#' for GPU computing. Use gpu_fphi for heritability calculations in very large
+#' datasets. For details see Ganjgahi et al., "Fast and powerful heritability
+#' inference for family-based neuroimaging studies”.
+#'
+#' EXAMPLES:
+#'
+FPHI <- R6Class("FPHI",
+  private = list(
+    .opts = NULL, # -fast -debug -list
+    .opts_fname = NULL, # -list <file containing trait names>
+
+    .precision = NULL, # -precision <h2 decimal count>
+    .mask = NULL, # -mask <name of nifti template volume>
+    .evd_data = NULL # -evd_data <base filename of EVD data
+  ),
+  public = list(
+    initialize = function(opts = NULL, opts_fname = NULL,
+                          precision = NULL, mask = NULL,
+                          evd_data = NULL) {
+      if (!is.null(opts)) {
+        private$.opts <- opts
+      }
+      if (!is.null(opts_fname)) {
+        private$.opts_fname <- opts_fname
+      }
+      if (!is.null(precision)) {
+        private$.precision <- precision
+      }
+      if (!is.null(mask)) {
+        private$.mask <- mask
+      }
+      if (!is.null(evd_data)) {
+        private$.evd_data <- evd_data
+      }
+    },
+    print = function() {
+      cat(format(self), sep = "\n")
+      invisible(self)
+    },
+    finalize = function() {
+      #message("finalize(FPHI)")
+    },
+    get_opts = function() {
+      private$.opts
+    },
+    get_opts_fname = function() {
+      private$.opts_fname
+    },
+    get_precision = function() {
+      private$.precision
+    },
+    get_mask = function() {
+      private$.mask
+    },
+    get_evd_data = function() {
+      private$.evd_data
     }
   )
 )
