@@ -38,10 +38,10 @@ library(solareclipser)
 
 sc <- SolarCommand$new()
 sc$load(obj = "pedigree",
-        fpath = "tests/debug/solar/input/HCP_imputed_filtered_ped.csv",
+        fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
         cond = "-t 0")
 sc$load(obj = "phenotypes",
-        fpath = "tests/debug/solar/input/HCP_WM_ave_norm.csv")
+        fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
 sc$trait("CC")$polygenic()
 sc$run()
 ```
@@ -50,10 +50,10 @@ sc$run()
 library(solareclipser)
 sc <- SolarCommand$new()
 sc$load(obj = "pedigree",
-        fpath = "tests/debug/solar/input/HCP_imputed_filtered_ped.csv",
+        fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
         cond = "-t 0")
 sc$load(obj = "phenotypes",
-        fpath = "tests/debug/solar/input/HCP_WM_ave_norm.csv")
+        fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
 sc$trait("CC")
 sc$create_evd_data(output_fbasename = "CC_evd")
 sc$fphi(evd_data = "CC_evd")

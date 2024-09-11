@@ -11,7 +11,7 @@ tests_release_pkg := tests_release + '/' + pkg
 user_libs := `find ~/Work/nGit/R -type d -iname "r_libs_user_linux"`
 
 re := 'Rscript -e'
-inspect_r := "\"source('tests/debug/inspect.R')\""
+inspect_r := "\"source('tests/input/inspect.R')\""
 
 # run inspect.R (default)
 run:

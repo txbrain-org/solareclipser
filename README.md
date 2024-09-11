@@ -28,15 +28,15 @@ library(solareclipser)
 
 sc <- SolarCommand$new()
 sc$load(obj = "pedigree",
-        fpath = "tests/debug/solar/input/HCP_imputed_filtered_ped.csv",
+        fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
         cond = "-t 0")
 sc$load(obj = "phenotypes",
-        fpath = "tests/debug/solar/input/HCP_WM_ave_norm.csv")
+        fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
 sc$trait("CC")$polygenic()
 sc$run()
 #> ------------------------------------------------------------
 #> 
-#> proc file50227c6a5776 {} {
+#> proc filef121515ba200 {} {
 #>   load pedigree HCP_imputed_filtered_ped.csv -t 0
 #>   load phenotypes HCP_WM_ave_norm.csv
 #>   trait CC
@@ -50,17 +50,17 @@ sc$run()
 library(solareclipser)
 sc <- SolarCommand$new()
 sc$load(obj = "pedigree",
-        fpath = "tests/debug/solar/input/HCP_imputed_filtered_ped.csv",
+        fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
         cond = "-t 0")
 sc$load(obj = "phenotypes",
-        fpath = "tests/debug/solar/input/HCP_WM_ave_norm.csv")
+        fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
 sc$trait("CC")
 sc$create_evd_data(output_fbasename = "CC_evd")
 sc$fphi(evd_data = "CC_evd")
 sc$run()
 #> ------------------------------------------------------------
 #> 
-#> proc file5022750317bb {} {
+#> proc filef1212354c81a {} {
 #>   load pedigree HCP_imputed_filtered_ped.csv -t 0
 #>   load phenotypes HCP_WM_ave_norm.csv
 #>   trait CC
