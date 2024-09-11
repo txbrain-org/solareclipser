@@ -35,15 +35,37 @@ sc$load(obj = "phenotypes",
 sc$trait("CC")$polygenic()
 sc$run()
 #> ------------------------------------------------------------
-#> tcl_f_realpath = /tmp/RtmpoR9ID2/file832733512319.tcl 
-#> tcl_f_basename = file832733512319.tcl 
-#> tcl_proc_name = file832733512319 
 #> 
-#> proc file832733512319 {} {
+#> proc file50227c6a5776 {} {
 #>   load pedigree HCP_imputed_filtered_ped.csv -t 0
 #>   load phenotypes HCP_WM_ave_norm.csv
 #>   trait CC
 #>   polygenic
+#> }
+#> 
+#> ------------------------------------------------------------
+```
+
+``` r
+library(solareclipser)
+sc <- SolarCommand$new()
+sc$load(obj = "pedigree",
+        fpath = "tests/debug/solar/input/HCP_imputed_filtered_ped.csv",
+        cond = "-t 0")
+sc$load(obj = "phenotypes",
+        fpath = "tests/debug/solar/input/HCP_WM_ave_norm.csv")
+sc$trait("CC")
+sc$create_evd_data(output_fbasename = "CC_evd")
+sc$fphi(evd_data = "CC_evd")
+sc$run()
+#> ------------------------------------------------------------
+#> 
+#> proc file5022750317bb {} {
+#>   load pedigree HCP_imputed_filtered_ped.csv -t 0
+#>   load phenotypes HCP_WM_ave_norm.csv
+#>   trait CC
+#>   create_evd_data --o CC_evd
+#>   fphi --evd_data CC_evd
 #> }
 #> 
 #> ------------------------------------------------------------

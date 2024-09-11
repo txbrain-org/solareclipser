@@ -33,7 +33,7 @@ install_github("enigma-1590c46634/solareclipser")
 
 ## Minimal example
 
-```{r example}
+```{r polygenic}
 library(solareclipser)
 
 sc <- SolarCommand$new()
@@ -43,6 +43,20 @@ sc$load(obj = "pedigree",
 sc$load(obj = "phenotypes",
         fpath = "tests/debug/solar/input/HCP_WM_ave_norm.csv")
 sc$trait("CC")$polygenic()
+sc$run()
+```
+
+```{r fphi}
+library(solareclipser)
+sc <- SolarCommand$new()
+sc$load(obj = "pedigree",
+        fpath = "tests/debug/solar/input/HCP_imputed_filtered_ped.csv",
+        cond = "-t 0")
+sc$load(obj = "phenotypes",
+        fpath = "tests/debug/solar/input/HCP_WM_ave_norm.csv")
+sc$trait("CC")
+sc$create_evd_data(output_fbasename = "CC_evd")
+sc$fphi(evd_data = "CC_evd")
 sc$run()
 ```
 

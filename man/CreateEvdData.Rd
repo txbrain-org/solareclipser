@@ -36,7 +36,9 @@ Output consists of three files labeled:
 \item \href{#method-CreateEvdData-new}{\code{CreateEvdData$new()}}
 \item \href{#method-CreateEvdData-print}{\code{CreateEvdData$print()}}
 \item \href{#method-CreateEvdData-finalize}{\code{CreateEvdData$finalize()}}
-\item \href{#method-CreateEvdData-get_args}{\code{CreateEvdData$get_args()}}
+\item \href{#method-CreateEvdData-get_output_fbasename}{\code{CreateEvdData$get_output_fbasename()}}
+\item \href{#method-CreateEvdData-get_plink_fbasename}{\code{CreateEvdData$get_plink_fbasename()}}
+\item \href{#method-CreateEvdData-get_use_covs}{\code{CreateEvdData$get_use_covs()}}
 \item \href{#method-CreateEvdData-clone}{\code{CreateEvdData$clone()}}
 }
 }
@@ -45,7 +47,11 @@ Output consists of three files labeled:
 \if{latex}{\out{\hypertarget{method-CreateEvdData-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CreateEvdData$new(output_fpath = NULL, plink_fpath = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CreateEvdData$new(
+  output_fbasename = NULL,
+  plink_fbasename = NULL,
+  use_covs = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 }
@@ -68,11 +74,29 @@ Output consists of three files labeled:
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CreateEvdData-get_args"></a>}}
-\if{latex}{\out{\hypertarget{method-CreateEvdData-get_args}{}}}
-\subsection{Method \code{get_args()}}{
+\if{html}{\out{<a id="method-CreateEvdData-get_output_fbasename"></a>}}
+\if{latex}{\out{\hypertarget{method-CreateEvdData-get_output_fbasename}{}}}
+\subsection{Method \code{get_output_fbasename()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CreateEvdData$get_args()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CreateEvdData$get_output_fbasename()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CreateEvdData-get_plink_fbasename"></a>}}
+\if{latex}{\out{\hypertarget{method-CreateEvdData-get_plink_fbasename}{}}}
+\subsection{Method \code{get_plink_fbasename()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CreateEvdData$get_plink_fbasename()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CreateEvdData-get_use_covs"></a>}}
+\if{latex}{\out{\hypertarget{method-CreateEvdData-get_use_covs}{}}}
+\subsection{Method \code{get_use_covs()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CreateEvdData$get_use_covs()}\if{html}{\out{</div>}}
 }
 
 }
