@@ -34,6 +34,10 @@ build:
 build-readme:
   {{re}} 'devtools::build_readme()'
 
+# devtools::document()
+build-document:
+  {{re}} 'devtools::document()'
+
 # build-release: build build-readme
 build-release: build build-readme
 

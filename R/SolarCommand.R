@@ -500,6 +500,7 @@ Trait <- R6Class("Trait",
     # .valid_args = c()
   ),
   public = list(
+    #TODO: trim whitespace at end of args
     initialize = function(args = NULL) {
       if (!is.null(args)) {
         private$.args <- args
