@@ -2,7 +2,7 @@
 % Please edit documentation in R/SolarCommand.R
 \name{SolarCommand}
 \alias{SolarCommand}
-\title{R6 Class Solar}
+\title{R6 Class SolarCommand}
 \description{
 TODO: add description.
 }
@@ -16,15 +16,12 @@ polygen
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-SolarCommand-new}{\code{SolarCommand$new()}}
-\item \href{#method-SolarCommand-run}{\code{SolarCommand$run()}}
-\item \href{#method-SolarCommand-about}{\code{SolarCommand$about()}}
-\item \href{#method-SolarCommand-load}{\code{SolarCommand$load()}}
-\item \href{#method-SolarCommand-trait}{\code{SolarCommand$trait()}}
-\item \href{#method-SolarCommand-covariate}{\code{SolarCommand$covariate()}}
-\item \href{#method-SolarCommand-polygenic}{\code{SolarCommand$polygenic()}}
-\item \href{#method-SolarCommand-create_evd_data}{\code{SolarCommand$create_evd_data()}}
-\item \href{#method-SolarCommand-fphi}{\code{SolarCommand$fphi()}}
-\item \href{#method-SolarCommand-get_save_output_dir}{\code{SolarCommand$get_save_output_dir()}}
+\item \href{#method-SolarCommand-set_load}{\code{SolarCommand$set_load()}}
+\item \href{#method-SolarCommand-set_trait}{\code{SolarCommand$set_trait()}}
+\item \href{#method-SolarCommand-set_covariate}{\code{SolarCommand$set_covariate()}}
+\item \href{#method-SolarCommand-set_polygenic}{\code{SolarCommand$set_polygenic()}}
+\item \href{#method-SolarCommand-set_create_evd_data}{\code{SolarCommand$set_create_evd_data()}}
+\item \href{#method-SolarCommand-set_fphi}{\code{SolarCommand$set_fphi()}}
 \item \href{#method-SolarCommand-get_load}{\code{SolarCommand$get_load()}}
 \item \href{#method-SolarCommand-get_loads}{\code{SolarCommand$get_loads()}}
 \item \href{#method-SolarCommand-get_trait}{\code{SolarCommand$get_trait()}}
@@ -43,70 +40,52 @@ polygen
 \if{latex}{\out{\hypertarget{method-SolarCommand-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$new(save_output_dir = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$new()}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-run"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-run}{}}}
-\subsection{Method \code{run()}}{
+\if{html}{\out{<a id="method-SolarCommand-set_load"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarCommand-set_load}{}}}
+\subsection{Method \code{set_load()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$run()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$set_load(obj = NULL, opts = NULL, fpath = NULL, cond = NULL)}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-about"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-about}{}}}
-\subsection{Method \code{about()}}{
+\if{html}{\out{<a id="method-SolarCommand-set_trait"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarCommand-set_trait}{}}}
+\subsection{Method \code{set_trait()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$about()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$set_trait(args = NULL)}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-load"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-load}{}}}
-\subsection{Method \code{load()}}{
+\if{html}{\out{<a id="method-SolarCommand-set_covariate"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarCommand-set_covariate}{}}}
+\subsection{Method \code{set_covariate()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$load(obj = NULL, opts = NULL, fpath = NULL, cond = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$set_covariate(covariate = NULL)}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-trait"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-trait}{}}}
-\subsection{Method \code{trait()}}{
+\if{html}{\out{<a id="method-SolarCommand-set_polygenic"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarCommand-set_polygenic}{}}}
+\subsection{Method \code{set_polygenic()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$trait(args = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$set_polygenic()}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-covariate"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-covariate}{}}}
-\subsection{Method \code{covariate()}}{
+\if{html}{\out{<a id="method-SolarCommand-set_create_evd_data"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarCommand-set_create_evd_data}{}}}
+\subsection{Method \code{set_create_evd_data()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$covariate(covariate = NULL)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-polygenic"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-polygenic}{}}}
-\subsection{Method \code{polygenic()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$polygenic()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-create_evd_data"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-create_evd_data}{}}}
-\subsection{Method \code{create_evd_data()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$create_evd_data(
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$set_create_evd_data(
   output_fbasename = NULL,
   plink_fbasename = NULL,
   use_covs = FALSE
@@ -115,26 +94,17 @@ polygen
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-fphi"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-fphi}{}}}
-\subsection{Method \code{fphi()}}{
+\if{html}{\out{<a id="method-SolarCommand-set_fphi"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarCommand-set_fphi}{}}}
+\subsection{Method \code{set_fphi()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$fphi(
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$set_fphi(
   opts = NULL,
   opts_fname = NULL,
   precision = NULL,
   mask = NULL,
   evd_data = NULL
 )}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-get_save_output_dir"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-get_save_output_dir}{}}}
-\subsection{Method \code{get_save_output_dir()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$get_save_output_dir()}\if{html}{\out{</div>}}
 }
 
 }
