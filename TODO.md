@@ -4,6 +4,7 @@ feat:
     - [ ] create class for reading in solar output files.
         - read must happen in SolarCommand$run(). 
     - [ ] create class for parsing solar output from stdout.
+    - [ ] create class for pedifromsnp
     - [x] add option to save output dir & relates to an input dir option.
     - [x] create class `fphi`
 build:
