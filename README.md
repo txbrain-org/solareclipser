@@ -14,29 +14,30 @@ models: polygenic, fphi.
 
 ## Installation
 
-You can install the development version of solareclipser like so:
+You can install solareclipser like so:
 
 ``` r
 library(devtools)
-install_github("enigma-1590c46634/solareclipser")
+install_github("txbrain-org/solareclipser")
 ```
 
-## Minimal example
+## Examples
 
 ``` r
 library(solareclipser)
 
-sc <- SolarCommand$new()
-sc$load(obj = "pedigree",
-        fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
-        cond = "-t 0")
-sc$load(obj = "phenotypes",
-        fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
-sc$trait("CC")$polygenic()
-sc$run()
+s <- Solar$new()
+s$load(obj = "pedigree",
+       fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
+       cond = "-t 0")
+s$load(obj = "phenotypes",
+       fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
+s$trait("CC")
+s$polygenic()
+s$run()
 #> ------------------------------------------------------------
 #> 
-#> proc filecb118d5ccf1 {} {
+#> proc filec42c1f5d9591 {} {
 #>   load pedigree HCP_imputed_filtered_ped.csv -t 0
 #>   load phenotypes HCP_WM_ave_norm.csv
 #>   trait CC
@@ -48,19 +49,20 @@ sc$run()
 
 ``` r
 library(solareclipser)
-sc <- SolarCommand$new()
-sc$load(obj = "pedigree",
-        fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
-        cond = "-t 0")
-sc$load(obj = "phenotypes",
-        fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
-sc$trait("CC")
-sc$create_evd_data(output_fbasename = "CC_evd")
-sc$fphi(evd_data = "CC_evd")
-sc$run()
+
+s <- Solar$new()
+s$load(obj = "pedigree",
+       fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
+       cond = "-t 0")
+s$load(obj = "phenotypes",
+       fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
+s$trait("CC")
+s$create_evd_data(output_fbasename = "CC_evd")
+s$fphi(evd_data = "CC_evd")
+s$run()
 #> ------------------------------------------------------------
 #> 
-#> proc filecb115f03fb08 {} {
+#> proc filec42c64b3f9f7 {} {
 #>   load pedigree HCP_imputed_filtered_ped.csv -t 0
 #>   load phenotypes HCP_WM_ave_norm.csv
 #>   trait CC
@@ -72,7 +74,7 @@ sc$run()
 ```
 
 ``` r
-SolarCommand$new(save_output_dir = "path/to/dir") # to save output files
+s <- Solar$new(save_output_dir = "path/to/dir") # to save output files
 ```
 
 ## Tutorial
