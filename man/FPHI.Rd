@@ -43,6 +43,7 @@ EXAMPLES:
 \itemize{
 \item \href{#method-FPHI-new}{\code{FPHI$new()}}
 \item \href{#method-FPHI-print}{\code{FPHI$print()}}
+\item \href{#method-FPHI-print_self}{\code{FPHI$print_self()}}
 \item \href{#method-FPHI-finalize}{\code{FPHI$finalize()}}
 \item \href{#method-FPHI-get_opts}{\code{FPHI$get_opts()}}
 \item \href{#method-FPHI-get_opts_fname}{\code{FPHI$get_opts_fname()}}
@@ -73,6 +74,15 @@ EXAMPLES:
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{FPHI$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-FPHI-print_self"></a>}}
+\if{latex}{\out{\hypertarget{method-FPHI-print_self}{}}}
+\subsection{Method \code{print_self()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FPHI$print_self()}\if{html}{\out{</div>}}
 }
 
 }

@@ -58,12 +58,15 @@ Solar <- R6Class("Solar",
       #message("finalize(SolarCommand)")
     },
 
-    get_solar_command = function() {
-      private$.solar_command
-      invisible(self)
-    },
     set_solar_command = function(solar_command) {
       private$.solar_command <- solar_command
+      invisible(self)
+    },
+    get_solar_command = function() {
+      private$.solar_command
+    },
+    print_solar_command = function() {
+      print(private$.solar_command)
       invisible(self)
     },
 
@@ -73,6 +76,9 @@ Solar <- R6Class("Solar",
     },
     get_loads = function() {
       private$.loads
+    },
+    print_loads = function() {
+      print(private$.loads)
       invisible(self)
     },
 
@@ -82,6 +88,9 @@ Solar <- R6Class("Solar",
     },
     get_run_rc = function() {
       private$.run_rc
+    },
+    print_run_rc = function() {
+      print(private$.run_rc)
       invisible(self)
     },
 
@@ -132,7 +141,6 @@ Solar <- R6Class("Solar",
     },
 
     run = function() {
-      #private$.solar_command$run()
       proj_wd <- getwd()
       temp_wd <- tempdir()
 
@@ -142,68 +150,13 @@ Solar <- R6Class("Solar",
         temp_wd <- private$.save_output_dir
       }
 
-      # (obj = NULL, opts = NULL, fpath = NULL, cond = NULL)
-      #-- Section creating the string for loads
-      loads <- private$.loads
-      #print(private$.loads)
-
-      obj <- sapply(private$.loads, function(x) x$get_obj())
-      obj <- unlist(obj)
-      #print_string_info(obj)
-      #cat("obj =", obj, "\n")
-
-      opts <- sapply(private$.loads, function(x) x$get_opts())
-      opts <- unlist(opts)
-      #print_string_info(opts)
-      #cat("opts =", opts, "\n")
-
-      fpath <- sapply(private$.loads, function(x) x$get_fpath())
-      fpath <- unlist(fpath)
-      #print_string_info(fpath)
-      #cat("fpath =", fpath, "\n")
-
-      cond <- sapply(private$.loads, function(x) x$get_cond())
-      cond <- unlist(cond)
-      #print_string_info(cond)
-      #cat("cond =", cond, "\n")
-
-      fpath_basename <- sapply(fpath, function(x) basename(x))
-      fpath_basename <- unlist(fpath_basename)
-      #print_string_info(fpath_basename)
-      #cat("fpath_basename =", fpath_basename, "\n")
-
       trait <- private$.solar_command$get_trait()$get_args()
-      #print_string_info(trait)
-      #cat("trait =", trait, "\n")
-
       covariate <- private$.solar_command$get_covariate()$get_args()
-      #print_string_info(covariate)
-      #cat("covariate =", covariate, "\n")
-
       create_evd_data <- private$.solar_command$get_create_evd_data()
-      #create_evd_data$print()
-
       fphi <- private$.solar_command$get_fphi()
-      ##fphi$print()
-
       polygenic <- private$.solar_command$get_polygenic()$get_opts()
-      #polygenic <- polygenic$get_opts()
-      #print_string_info(polygenic)
-      #cat("polygenic =", polygenic, "\n")
 
-      cat("------------------------------------------------------------\n")
-
-      strs <- c()
-      i <- 1
-      for (load in loads) {
-        obj <- load$get_obj()
-        opts <- load$get_opts()
-        fpath_bn <- fpath_basename[i]
-        cond <- load$get_cond()
-        str <- str_c("load", obj, opts, fpath_bn, cond, sep = " ")
-        strs <- c(strs, str)
-        i <- i + 1
-      }
+      strs <- load_strs_fmt(private)
       #print_string_info(strs)
       #for (str in strs) { print_string_info(str) }
 
@@ -215,18 +168,7 @@ Solar <- R6Class("Solar",
 
       create_evd_data_fmt <- NULL
       if (private$.do_create_evd_data) {
-        create_evd_data_fmt <-
-          str_c("create_evd_data --o ", create_evd_data$get_output_fbasename())
-
-        if (!is.null(create_evd_data$get_plink_fbasename())) {
-          create_evd_data_fmt <-
-            str_c(create_evd_data_fmt, " --plink ",
-                  create_evd_data$get_plink_fbasename())
-        }
-
-        if (create_evd_data$get_use_covs() == TRUE) {
-          create_evd_data_fmt <- str_c(create_evd_data_fmt, " --use_covs")
-        }
+        create_evd_data_fmt <- create_evd_data_str_fmt(create_evd_data)
       }
 
       # TODO: implement the rest of the options
@@ -248,52 +190,39 @@ Solar <- R6Class("Solar",
         polygenic <- str_c("polygenic", polygenic, sep = " ")
       }
 
-      #cat(loads_str, "\n")
-      #cat(trait, "\n")
-      #cat(covariate, "\n")
-      #cat(polygenic, "\n")
-      #cat(create_evd_data_fmt, "\n")
-      #cat(fphi_fmt, "\n")
-
-      for (file in fpath) {
-        if (!file.exists(file)) {
-          stop("File does not exist: ", file)
+      for (load in private$.loads) {
+        if (!file.exists(load$get_fpath())) {
+          stop("File does not exist: ", load$get_fpath())
         } else {
-          # copy file to temp dir
-          file.copy(file, temp_wd)
+          file.copy(load$get_fpath(), temp_wd)
         }
       }
 
       tcl_f_realpath <- tempfile(fileext = ".tcl")
       # TODO: fix the naming of this variable
       if (!is.null(private$.save_output_dir)) {
-        tcl_f_realpath <- file.path(private$.save_output_dir, basename(tcl_f_realpath))
+        tcl_f_realpath <- file.path(private$.save_output_dir,
+                                    basename(tcl_f_realpath))
       }
       tcl_f_basename <- basename(tcl_f_realpath)
-      # remove .tcl from basename
       tcl_proc_name <- gsub("\\.tcl", "", tcl_f_basename)
-      #cat("tcl_f_realpath =", tcl_f_realpath, "\n")
-      #cat("tcl_f_basename =", tcl_f_basename, "\n")
-      #cat("tcl_proc_name =", tcl_proc_name, "\n")
-
-      # proc tcl_proc_name {} { ... }
-      cmd_fn_def_begin <- paste("proc", tcl_proc_name, "{} {", sep = " ")
 
       if (private$.do_create_evd_data) {
         if (private$.do_fphi) {
-          cmd_fn_body <- str_c(loads_str, trait, covariate, create_evd_data_fmt, fphi_fmt, sep = "\n")
+          cmd_fn_body <- str_c(loads_str, trait, covariate,
+                               create_evd_data_fmt, fphi_fmt, sep = "\n")
         } else {
-          cmd_fn_body <- str_c(loads_str, trait, covariate, create_evd_data_fmt, sep = "\n")
+          cmd_fn_body <- str_c(loads_str, trait, covariate,
+                               create_evd_data_fmt, sep = "\n")
         }
       }
       if (private$.do_polygenic) {
         cmd_fn_body <- str_c(loads_str, trait, covariate, polygenic, sep = "\n")
       }
-      # indent the body of the function
-      cmd_fn_body <- sapply(strsplit(cmd_fn_body, "\n"), function(x) paste("  ", x, sep = ""))
-      cmd_fn_def_end <- "}"
-      cmd_fn_all <- c(cmd_fn_def_begin, cmd_fn_body, cmd_fn_def_end)
 
+      cmd_fn_all <- cmd_str_fmt(tcl_proc_name, cmd_fn_body)
+
+      cat("------------------------------------------------------------\n")
       cat("\n")
       cat(cmd_fn_all, sep = "\n")
       cat("\n")
@@ -306,15 +235,10 @@ Solar <- R6Class("Solar",
           writeLines(cmd_fn_all, con = f_con)
           close(f_con)
           #file.show(tcl_f_realpath)
-
-          # run tcl file
           setwd(temp_wd)
-          # print the current working directory
           #print(getwd())
 
-          
           private$.run_rc <- system2("solar", args = tcl_proc_name)
-          #system2("ls", args = "-l")
         }
       }
 
@@ -323,6 +247,112 @@ Solar <- R6Class("Solar",
     }
   )
 )
+
+cmd_str_fmt <- function(tcl_proc_name, cmd_fn_body) {
+    # proc tcl_proc_name {} { ... }
+    cmd_fn_def_begin <- paste("proc", tcl_proc_name, "{} {", sep = " ")
+    # indent the body of the function
+    cmd_fn_body <- sapply(strsplit(cmd_fn_body, "\n"),
+                          function(x) paste("  ", x, sep = ""))
+    cmd_fn_def_end <- "}"
+    cmd_fn_all <- c(cmd_fn_def_begin, cmd_fn_body, cmd_fn_def_end)
+    return(cmd_fn_all)
+}
+
+create_evd_data_str_fmt <- function(create_evd_data) {
+  create_evd_data_fmt <-
+    str_c("create_evd_data --o ", create_evd_data$get_output_fbasename())
+
+  if (!is.null(create_evd_data$get_plink_fbasename())) {
+    create_evd_data_fmt <-
+      str_c(create_evd_data_fmt, " --plink ",
+            create_evd_data$get_plink_fbasename())
+  }
+
+  if (create_evd_data$get_use_covs() == TRUE) {
+    create_evd_data_fmt <- str_c(create_evd_data_fmt, " --use_covs")
+  }
+
+  return(create_evd_data_fmt)
+}
+
+load_strs_fmt <- function(private) {
+  strs <- c()
+  i <- 1
+  for (load in private$.loads) {
+    str <- str_c("load", private$.loads[[i]]$get_obj(),
+                 private$.loads[[i]]$get_opts(),
+                 basename(private$.loads[[i]]$get_fpath()),
+                 private$.loads[[i]]$get_cond(),
+                 sep = " ")
+    strs <- c(strs, str)
+    i <- i + 1
+  }
+  return(strs)
+}
+
+extract_load_fields <- function(loads, solar_command, debug = FALSE) {
+  obj <- sapply(loads, function(x) x$get_obj())
+  obj <- unlist(obj)
+  
+  opts <- sapply(loads, function(x) x$get_opts())
+  opts <- unlist(opts)
+
+  fpath <- sapply(loads, function(x) x$get_fpath())
+  fpath <- unlist(fpath)
+
+  cond <- sapply(loads, function(x) x$get_cond())
+  cond <- unlist(cond)
+
+  fpath_basename <- sapply(fpath, function(x) basename(x))
+  fpath_basename <- unlist(fpath_basename)
+
+  trait <- solar_command$get_trait()$get_args()
+  covariate <- solar_command$get_covariate()$get_args()
+  create_evd_data <- solar_command$get_create_evd_data()
+  fphi <- solar_command$get_fphi()
+  polygenic <- solar_command$get_polygenic()$get_opts()
+  
+  ret <- list(obj = obj, opts = opts, fpath = fpath, cond = cond,
+              fpath_basename = fpath_basename, trait = trait,
+              covariate = covariate, create_evd_data = create_evd_data,
+              fphi = fphi, polygenic = polygenic)
+
+  if (debug) {
+    message("extract_load_fields() => {")
+    message("  loads = {")
+    message("    obj =", ret$obj)
+    message("    opts =", ret$opts)
+    message("    fpath =", ret$fpath)
+    message("    cond =", ret$cond)
+    message("    fpath_basename =", ret$fpath_basename)
+    message("  }")
+    message("  covariate = {")
+    message("    opts =", ret$covariate)
+    message("  }")
+    message("  fphi = {")
+    message("    opts =", ret$fphi$get_opts())
+    message("    opts_fname =", ret$fphi$get_opts_fname())
+    message("    precision =", ret$fphi$get_precision())
+    message("    mask =", ret$fphi$get_mask())
+    message("    evd_data =", ret$fphi$get_evd_data())
+    message("  }")
+    message("  trait = {")
+    message("    args =", ret$trait)
+    message("  }")
+    message("  polygenic = {")
+    message("    opts =", ret$polygenic)
+    message("  }")
+  }
+
+  return(ret)
+}
+
+print_tcl_f_info <- function(tcl_f_realpath, tcl_f_basename, tcl_proc_name) {
+  cat("tcl_f_realpath =", tcl_f_realpath, "\n")
+  cat("tcl_f_basename =", tcl_f_basename, "\n")
+  cat("tcl_proc_name =", tcl_proc_name, "\n")
+}
 
 print_string_info <- function(str) {
   message()

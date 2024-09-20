@@ -18,10 +18,15 @@ polygen
 \item \href{#method-Solar-new}{\code{Solar$new()}}
 \item \href{#method-Solar-print}{\code{Solar$print()}}
 \item \href{#method-Solar-finalize}{\code{Solar$finalize()}}
-\item \href{#method-Solar-get_solar_command}{\code{Solar$get_solar_command()}}
 \item \href{#method-Solar-set_solar_command}{\code{Solar$set_solar_command()}}
+\item \href{#method-Solar-get_solar_command}{\code{Solar$get_solar_command()}}
+\item \href{#method-Solar-print_solar_command}{\code{Solar$print_solar_command()}}
 \item \href{#method-Solar-set_loads}{\code{Solar$set_loads()}}
 \item \href{#method-Solar-get_loads}{\code{Solar$get_loads()}}
+\item \href{#method-Solar-print_loads}{\code{Solar$print_loads()}}
+\item \href{#method-Solar-set_run_rc}{\code{Solar$set_run_rc()}}
+\item \href{#method-Solar-get_run_rc}{\code{Solar$get_run_rc()}}
+\item \href{#method-Solar-print_run_rc}{\code{Solar$print_run_rc()}}
 \item \href{#method-Solar-load}{\code{Solar$load()}}
 \item \href{#method-Solar-trait}{\code{Solar$trait()}}
 \item \href{#method-Solar-covariate}{\code{Solar$covariate()}}
@@ -60,6 +65,15 @@ polygen
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Solar-set_solar_command"></a>}}
+\if{latex}{\out{\hypertarget{method-Solar-set_solar_command}{}}}
+\subsection{Method \code{set_solar_command()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Solar$set_solar_command(solar_command)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Solar-get_solar_command"></a>}}
 \if{latex}{\out{\hypertarget{method-Solar-get_solar_command}{}}}
 \subsection{Method \code{get_solar_command()}}{
@@ -69,11 +83,11 @@ polygen
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-set_solar_command"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-set_solar_command}{}}}
-\subsection{Method \code{set_solar_command()}}{
+\if{html}{\out{<a id="method-Solar-print_solar_command"></a>}}
+\if{latex}{\out{\hypertarget{method-Solar-print_solar_command}{}}}
+\subsection{Method \code{print_solar_command()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$set_solar_command(solar_command)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Solar$print_solar_command()}\if{html}{\out{</div>}}
 }
 
 }
@@ -92,6 +106,42 @@ polygen
 \subsection{Method \code{get_loads()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Solar$get_loads()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Solar-print_loads"></a>}}
+\if{latex}{\out{\hypertarget{method-Solar-print_loads}{}}}
+\subsection{Method \code{print_loads()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Solar$print_loads()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Solar-set_run_rc"></a>}}
+\if{latex}{\out{\hypertarget{method-Solar-set_run_rc}{}}}
+\subsection{Method \code{set_run_rc()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Solar$set_run_rc(run_rc = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Solar-get_run_rc"></a>}}
+\if{latex}{\out{\hypertarget{method-Solar-get_run_rc}{}}}
+\subsection{Method \code{get_run_rc()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Solar$get_run_rc()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Solar-print_run_rc"></a>}}
+\if{latex}{\out{\hypertarget{method-Solar-print_run_rc}{}}}
+\subsection{Method \code{print_run_rc()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Solar$print_run_rc()}\if{html}{\out{</div>}}
 }
 
 }
