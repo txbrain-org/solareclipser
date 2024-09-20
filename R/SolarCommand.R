@@ -549,6 +549,14 @@ FPHI <- R6Class("FPHI",
       }
     },
     print = function() {
+      cat(".opts = ", private$.opts, "\n")
+      cat(".opts_fname = ", private$.opts_fname, "\n")
+      cat(".precision = ", private$.precision, "\n")
+      cat(".mask = ", private$.mask, "\n")
+      cat(".evd_data = ", private$.evd_data, "\n")
+      invisible(self)
+    },
+    print_self = function() {
       cat(format(self), sep = "\n")
       invisible(self)
     },

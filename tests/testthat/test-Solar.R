@@ -1,3 +1,5 @@
+library(testthat)
+
 proj_root <- dirname(dirname(getwd()))
 solar_output_dir <- file.path(proj_root, "tests/output/solar")
 solar_input_dir <- file.path(proj_root, "tests/input/solar")
@@ -8,10 +10,10 @@ c_evd_out_fbn <- file.path("CC_evd")
 test_that("run() - polygenic", {
   solar <- Solar$new(save_output_dir = solar_output_dir)
   solar$load(obj = "pedigree",
-          fpath = pedigree_fpath,
-          cond = "-t 0")
+             fpath = pedigree_fpath,
+             cond = "-t 0")
   solar$load(obj = "phenotypes",
-          fpath = phenotypes_fpath)
+             fpath = phenotypes_fpath)
   solar$trait("CC")
   solar$polygenic()
   solar$run()
@@ -28,10 +30,10 @@ test_that("run() - fphi)", {
 
   solar <- Solar$new(save_output_dir = solar_output_dir)
   solar$load(obj = "pedigree",
-          fpath = pedigree_fpath,
-          cond = "-t 0")
+             fpath = pedigree_fpath,
+             cond = "-t 0")
   solar$load(obj = "phenotypes",
-          fpath = phenotypes_fpath)
+             fpath = phenotypes_fpath)
   solar$trait("CC")
   solar$create_evd_data(output_fbasename = c_evd_out_fbn)
   solar$fphi(evd_data = c_evd_out_fbn)
