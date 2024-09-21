@@ -59,6 +59,12 @@ install.packages("release/solareclipser_0.3.3.tar.gz", dependancies = TRUE)
 1. CLI R script call: `Rscript main.R`
 2. CLI inline: `Rscript -e "source('main.R')"`
 
+### roxygen2
+
+```r
+vignette("rd-formatting") # roxygen2 markdown formatting
+```
+
 ## References
 
 - https://r6.r-lib.org/articles/Introduction.html
