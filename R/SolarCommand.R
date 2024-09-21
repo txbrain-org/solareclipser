@@ -12,7 +12,6 @@ library(stringr)
 #'   trait CC
 #'   polygen
 #'
-#' @export
 SolarCommand <- R6Class("SolarCommand",
   private = list(
     .load = NULL,
@@ -21,7 +20,8 @@ SolarCommand <- R6Class("SolarCommand",
     .covariate = NULL,
     .polygenic = NULL,
     .create_evd_data = NULL,
-    .fphi = NULL
+    .fphi = NULL,
+    .pedifromsnps = NULL
   ),
 
   public = list(
@@ -30,6 +30,9 @@ SolarCommand <- R6Class("SolarCommand",
       private$.trait <- Trait$new()
       private$.covariate <- Covariate$new()
       private$.polygenic <- Polygenic$new()
+      private$.create_evd_data <- CreateEvdData$new()
+      private$.fphi <- FPHI$new()
+      private$.pedifromsnps <- PedifromSNPs$new()
     },
 
     set_load = function(obj = NULL, opts = NULL, fpath = NULL, cond = NULL) {
@@ -69,6 +72,18 @@ SolarCommand <- R6Class("SolarCommand",
       invisible(self)
     },
 
+    set_pedifromsnps = function(input_fbase = NULL, output_fbase = NULL,
+                                freq_fbase = NULL, corr = NULL,
+                                per_chromo = FALSE, king = FALSE,
+                                method_two = FALSE, batch_size = NULL,
+                                id_list = NULL, n_threads = NULL) {
+      private$.pedifromsnps <-
+        PedifromSNPs$new(input_fbase, output_fbase, freq_fbase, corr,
+                         per_chromo, king, method_two, batch_size, id_list,
+                         n_threads)
+      invisible(self)
+    },
+
     get_load = function() {
       private$.load
     },
@@ -97,43 +112,12 @@ SolarCommand <- R6Class("SolarCommand",
       private$.fphi
     },
 
-    print = function() {
-      cat(format(self), sep = "\n")
-      invisible(self)
+    get_pedifromsnps = function() {
+      private$.pedifromsnps
     },
 
-    print_private = function(field = NULL) {
-      if (is.null(field)) {
-        private$.load$print()
-        private$.trait$print()
-        private$.covariate$print()
-        private$.polygenic$print()
-        private$.create_evd_data$print()
-        private$.fphi$print()
-        invisible(self)
-        return()
-      }
-      if (field == "load") {
-        private$.load$print()
-      }
-      if (field == "loads") {
-        sapply(private$.loads, function(x) x$print())
-      }
-      if (field == "trait") {
-        private$.trait$print()
-      }
-      if (field == "covariate") {
-        private$.covariate$print()
-      }
-      if (field == "polygenic") {
-        private$.polygenic$print()
-      }
-      if (field == "create_evd_data") {
-        private$.create_evd_data$print()
-      }
-      if (field == "fphi") {
-        private$.fphi$print()
-      }
+    print = function() {
+      cat(format(self), sep = "\n")
       invisible(self)
     },
 
@@ -151,7 +135,7 @@ SolarCommand <- R6Class("SolarCommand",
 #' @details
 #' From the Solar manual:
 #'
-#'   load <object-type> [<opts>] <args>
+#' USAGE: load <object-type> [<opts>] <args>
 #'
 #' EXAMPLES:
 #'   load pedigree    <filename>
@@ -485,24 +469,34 @@ CreateEvdData <- R6Class("CreateEvdData",
 #' TODO: Add description
 #'
 #' @details
-#'   From the Solar manual:
-#'   Purpose: Fast test and heritability approximation
+#' From the Solar manual:
+#'
+#' Purpose: Fast test and heritability approximation
 #'
 #' USAGE:
-#' fphi [optional
-#'      -fast -debug -list <file containing trait names>
-#'      -precision <h2 decimal count>
-#'      -mask <name of nifti template volume>
-#'      -evd_data <base filename of EVD data]
+#'    fphi [options]
 #'
-#'      -fast Performs a quick estimation run
-#'      -debug Displays values at each iteration
-#'      -list performs fast fphi on a list of trait (does not include covariate
+#' OPTIONAL
+#'    -fast -debug -list <file containing trait names>
+#'    -precision <h2 decimal count>
+#'    -mask <name of nifti template volume>
+#'    -evd_data <base filename of EVD data]
+#'
+#' DESCRIPTION
+#'    -fast
+#'        Performs a quick estimation run
+#'    -debug
+#'        Displays values at each iteration
+#'    -list
+#'        performs fast fphi on a list of trait (does not include covariate
 #'        data)
-#'      -precision number of decimals to calculate h2r
-#'      -mask outputs fphi -fast results of the list of voxels from -list option
-#'      -evd_data When using the -list option the EVD data option can be used
-#'        to avoid having to calculate EVD data within the command
+#'    -precision
+#'        number of decimals to calculate h2r
+#'    -mask
+#'        outputs fphi -fast results of the list of voxels from -list option
+#'    -evd_data
+#'        When using the -list option the EVD data option can be used to avoid
+#'        having to calculate EVD data within the command
 #'
 #' Fast permutation and heritability inference (FPHI). FPHI is based on the
 #' eigenvalue decomposition on the kinship matrix and a search through values
@@ -577,6 +571,161 @@ FPHI <- R6Class("FPHI",
     },
     get_evd_data = function() {
       private$.evd_data
+    }
+  )
+)
+
+#' R6 Class Pedifromsnps
+#'
+#' @description
+#' TODO: add description.
+#'
+#' @details
+#' From the Solar manual:
+#'
+#' Purpose: Creates a empirical pedigree matrix from a plink data set
+#'
+#' USAGE:
+#' pedifromsnps -i <input base name of plink data>
+#'              -o <output csv file name>
+#'              --freq <file made with plink_freq>
+#' OPTIONAL:
+#'    -corr <alpha value>
+#'    -per-chromo -king -method_two -normalize
+#'    -batch_size <batch size value>
+#'    -id_list <file w/ subject IDs>
+#'    -n_threads <number of CPU threads>
+#'
+#' DESCPRIPTION:
+#'    -i <file>
+#'        The base file name of the plink .bed, .bim, and .fam files.
+#'    -o <file>
+#'        The base file name for the output.
+#'    -freq <file>
+#'        Name of output file from plink_freq command.
+#'    -n_threads <n>
+#'        Number of CPU threads used for matrix calculation.
+#'        Default: Automatically set based on hardware
+#'    -per-chromo
+#'        Outputs a separate matrix for each chromosome.
+#'        Default: Disabled
+#'    -corr <alpha value>
+#'        Compute method one correlation GRM using this alpha value.
+#'        Default: -1
+#'	  -method_two
+#'        Computes correlation GRM using a second method described below.
+#'        Default: Disabled
+#'    -king
+#'        Computes Robust King GRM instead of using a correlation method.
+#'	      Default: Disabled
+#'    -batch_size <batch size value>
+#'        Number of loci computed at a single time per CPU thread.
+#'        Default: 500
+#'    -id_list <file w/ subject IDs>
+#'        Specified file contains a list of subject IDs separated by spaces.
+#'        The resulting GRM will only use these IDs and excluded all others.
+#'        Default: All IDs are used
+#'    -normalize
+#'        When used during the creation of a correlation GRM the final
+#'        values are normalized using the square roots of the diagonal values.
+#'        The result being that diagonal elements are 1 and off-diagonal
+#'        elements are bounded by 1 and -1.  Z*_i_j = Z_i_j/sqrt(Z_i_i*Z_j_j)
+#'        where Z* is the final value and Z is the unnormalized value, i refers
+#'        to the index of subject i while j refers to the index of subject j.
+#'
+PedifromSNPs <- R6Class("PedifromSNPs",
+  private = list(
+    # Required
+    .input_fbase = NULL,
+    .output_fbase = NULL,
+    .freq_fbase = NULL,
+    # Optional
+    .corr = NULL,
+    .per_chromo = FALSE,
+    .king = FALSE,
+    .method_two = FALSE,
+    .batch_size = NULL,
+    .id_list = NULL,
+    .n_threads = NULL
+  ),
+  public = list(
+    initialize = function(input_fbase = NULL, output_fbase = NULL,
+                          freq_fbase = NULL, corr = NULL, per_chromo = FALSE,
+                          king = FALSE, method_two = FALSE, batch_size = NULL,
+                          id_list = NULL, n_threads = NULL) {
+      if (!is.null(input_fbase)) {
+        private$.input_fbase <- input_fbase
+      } else {
+        stop("Pedifromsnps: input_fbase is required")
+      }
+      if (!is.null(output_fbase)) {
+        private$.output_fbase <- output_fbase
+      } else {
+        stop("Pedifromsnps: output_fbase is required")
+      }
+      if (!is.null(freq_fbase)) {
+        private$.freq_fbase <- freq_fbase
+      } else {
+        stop("Pedifromsnps: freq_fbase is required")
+      }
+      if (!is.null(corr)) {
+        private$.corr <- corr
+      }
+      if (!is.null(per_chromo)) {
+        private$.per_chromo <- per_chromo
+      }
+      if (!is.null(king)) {
+        private$.king <- king
+      }
+      if (!is.null(method_two)) {
+        private$.method_two <- method_two
+      }
+      if (!is.null(batch_size)) {
+        private$.batch_size <- batch_size
+      }
+      if (!is.null(id_list)) {
+        private$.id_list <- id_list
+      }
+      if (!is.null(n_threads)) {
+        private$.n_threads <- n_threads
+      }
+    },
+    print = function() {
+      cat(format(self), sep = "\n")
+      invisible(self)
+    },
+    finalize = function() {
+      #message("finalize(Pedifromsnps)")
+    },
+    get_input_fbase = function() {
+      private$.input_fbase
+    },
+    get_output_fbase = function() {
+      private$.output_fbase
+    },
+    get_freq_fbase = function() {
+      private$.freq_fbase
+    },
+    get_corr = function() {
+      private$.corr
+    },
+    get_per_chromo = function() {
+      private$.per_chromo
+    },
+    get_king = function() {
+      private$.king
+    },
+    get_method_two = function() {
+      private$.method_two
+    },
+    get_batch_size = function() {
+      private$.batch_size
+    },
+    get_id_list = function() {
+      private$.id_list
+    },
+    get_n_threads = function() {
+      private$.n_threads
     }
   )
 )

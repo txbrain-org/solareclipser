@@ -22,6 +22,7 @@ polygen
 \item \href{#method-SolarCommand-set_polygenic}{\code{SolarCommand$set_polygenic()}}
 \item \href{#method-SolarCommand-set_create_evd_data}{\code{SolarCommand$set_create_evd_data()}}
 \item \href{#method-SolarCommand-set_fphi}{\code{SolarCommand$set_fphi()}}
+\item \href{#method-SolarCommand-set_pedifromsnps}{\code{SolarCommand$set_pedifromsnps()}}
 \item \href{#method-SolarCommand-get_load}{\code{SolarCommand$get_load()}}
 \item \href{#method-SolarCommand-get_loads}{\code{SolarCommand$get_loads()}}
 \item \href{#method-SolarCommand-get_trait}{\code{SolarCommand$get_trait()}}
@@ -29,8 +30,8 @@ polygen
 \item \href{#method-SolarCommand-get_polygenic}{\code{SolarCommand$get_polygenic()}}
 \item \href{#method-SolarCommand-get_create_evd_data}{\code{SolarCommand$get_create_evd_data()}}
 \item \href{#method-SolarCommand-get_fphi}{\code{SolarCommand$get_fphi()}}
+\item \href{#method-SolarCommand-get_pedifromsnps}{\code{SolarCommand$get_pedifromsnps()}}
 \item \href{#method-SolarCommand-print}{\code{SolarCommand$print()}}
-\item \href{#method-SolarCommand-print_private}{\code{SolarCommand$print_private()}}
 \item \href{#method-SolarCommand-finalize}{\code{SolarCommand$finalize()}}
 \item \href{#method-SolarCommand-clone}{\code{SolarCommand$clone()}}
 }
@@ -109,6 +110,26 @@ polygen
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarCommand-set_pedifromsnps"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarCommand-set_pedifromsnps}{}}}
+\subsection{Method \code{set_pedifromsnps()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$set_pedifromsnps(
+  input_fbase = NULL,
+  output_fbase = NULL,
+  freq_fbase = NULL,
+  corr = NULL,
+  per_chromo = FALSE,
+  king = FALSE,
+  method_two = FALSE,
+  batch_size = NULL,
+  id_list = NULL,
+  n_threads = NULL
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-get_load"></a>}}
 \if{latex}{\out{\hypertarget{method-SolarCommand-get_load}{}}}
 \subsection{Method \code{get_load()}}{
@@ -172,20 +193,20 @@ polygen
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarCommand-get_pedifromsnps"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarCommand-get_pedifromsnps}{}}}
+\subsection{Method \code{get_pedifromsnps()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$get_pedifromsnps()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-print"></a>}}
 \if{latex}{\out{\hypertarget{method-SolarCommand-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$print()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-print_private"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-print_private}{}}}
-\subsection{Method \code{print_private()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$print_private(field = NULL)}\if{html}{\out{</div>}}
 }
 
 }

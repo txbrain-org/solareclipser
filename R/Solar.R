@@ -4,13 +4,42 @@ library(stringr)
 #' R6 Class Solar
 #'
 #' @description
-#' TODO: add description.
+#' This class is used to interact with `solar` and the files that are
+#' created during analysis. The interface's methods and their arguments mimic
+#' the `solar` CLI and their arguments when appropriate.
 #'
 #' @details
-#' Example solar command steps:
-#'   load phen HCP_WM_ave_norm.csv
-#'   trait CC
-#'   polygen
+#' TODO: add more details
+#'
+#' @examples
+#' \dontrun{
+#'
+#' #==================== Ex. fphi() ====================
+#' solar <- Solar$new()
+#' solar$load(obj = "pedigree",
+#'            fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
+#'            cond = "-t 0")
+#' solar$load(obj = "phenotypes",
+#'            fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
+#' solar$trait("CC")
+#' solar$create_evd_data(output_fbasename = "evd_data")
+#' solar$fphi(evd_data = "evd_data")
+#' solar$run()
+#'
+#' #==================== Ex. polygenic() ====================
+#' solar <- Solar$new()
+#' solar$load(obj = "pedigree",
+#'            fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
+#'            cond = "-t 0")
+#' solar$load(obj = "phenotypes",
+#'            fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
+#' solar$trait("CC")$polygenic()
+#' solar$run()
+#'
+#' #==================== Ex. save_output_dir ====================
+#' solar <- Solar$new(save_output_dir = solar_output_dir)
+#'
+#' }
 #'
 #' @export
 Solar <- R6Class("Solar",
