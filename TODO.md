@@ -1,21 +1,23 @@
 # TODO
 
-feat:
-    - [ ] create class for reading in solar output files.
-        - read must happen in SolarCommand$run(). 
-    - [ ] create class for parsing solar output from stdout.
+- feat:
     - [ ] create class for pedifromsnp
+    - [ ] create class for parsing solar output from stdout.
+    - [x] create class for reading in solar output files.
+        - read must happen in `Solar$run()`. 
     - [x] add option to save output dir & relates to an input dir option.
     - [x] create class `fphi`
-build:
+
+- build:
     - [ ] lib/solar900 needs to not be in the release package.
     - [ ] bundle solar versions.
-tests:
-    `SolarCommand`:
-        - [x] `fphi()`
+
+- tests:
+    - `Solar$run()`
         - [x] `polygenic()`
-        - [x] `new()`
-docs:
+        - [x] `fphi()`
+
+- docs:
     - [ ] inline comments class/methods
     - [ ] examples class/methods
     - [ ] tutorial vignette
