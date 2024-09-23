@@ -1,78 +1,93 @@
+## https://just.systems/man/en/recipe-parameters.html
+## https://just.systems/man/en/documentation-comments.html?highlight=comments#documentation-comments
+
+set shell := ["bash", "-cu"]
+
 proj := 'solareclipser'
 version := `grep -r Version DESCRIPTION | awk '{print $2}'`
 pkg := proj + '_' + version + '.tar.gz'
 
 release := 'release'
-tests_release := 'tests/release'
+#tests_release := 'tests/release'
 
 release_pkg := release + '/' + pkg
-tests_release_pkg := tests_release + '/' + pkg
+#tests_release_pkg := tests_release + '/' + pkg
 
 user_libs := `find ~/Work/nGit/R -type d -iname "r_libs_user_linux"`
 
 solar_output_files := 'tests/output/solar'
 
 re := 'Rscript -e'
+tests_d := 'tests/input'
+tests_r := `find tests/input -type f -iname "*.R" -exec basename {} \;`
 inspect_r := "\"source('tests/input/inspect.R')\""
 
-# run inspect.R (default)
-run:
-  {{re}} {{inspect_r}}
+#alias t := test
+#alias ts := tests
+#alias dt := devtools
+#alias b := build
+#alias c := clean
+#alias i := install
 
-# run devtools::test()
-run-tests:
-  {{re}} 'devtools::test()'
+# lists tests in {{tests_d}}
+_tests-show:
+  @find {{tests_d}} -type f -iname "*.R" -exec basename {} \;
 
-# devtools::build(path = "release/")'
-# cp {{release_pkg}} {{tests_release}}
-build:
-  {{re}} 'devtools::build(path = "release/")'
-  @if [ ! -d {{tests_release}} ]; then mkdir {{tests_release}}; fi
-  cp {{release_pkg}} {{tests_release}}
+# just tests [show, {{t}}]
+tests param:
+  if [[ {{param}} == "show" ]]; then \
+    just _tests-show; \
+  else \
+    {{re}} "source('tests/input/{{param}}')"; \
+  fi
 
-# devtools::build_readme()
-build-readme:
-  {{re}} 'devtools::build_readme()'
+# just devtools [test, check, document, build, readme, install]
+devtools param:
+  @if [[ {{param}} == "test" ]]; then {{re}} 'devtools::test()'; fi
+  @if [[ {{param}} == "check" ]]; then {{re}} 'devtools::test()'; fi
+  @if [[ {{param}} == "document" ]]; then {{re}} 'devtools::document()'; fi
+  @if [[ {{param}} == "build" ]]; then {{re}} 'devtools::build(path = "release/")'; fi
+  @if [[ {{param}} == "readme" ]]; then {{re}} 'devtools::build_readme()'; fi
+  @if [[ {{param}} == "install" ]]; then {{re}} 'devtools::install("release/")'; fi
 
-# devtools::document()
-build-document:
-  {{re}} 'devtools::document()'
+# just devtools build
+_build:
+  devtools build
 
-# build-release: build build-readme
-build-release: build build-readme
+# just _build && just devtools readme
+_build-all: _build (devtools "readme")
 
-# devtools::check()
-check:
-  {{re}} 'devtools::check()'
+# build [all, readme]
+build param:
+  @if [[ {{param}} == "all" ]]; then just _build-all; fi
+  @if [[ {{param}} == "readme" ]]; then just devtools readme; fi
 
 # rm {{user_libs}}/{{pkg}}
-clean-install:
+_clean-install:
   @if [ -f {{user_libs}}/{{pkg}} ]; then rm -Irf {{user_libs}}/{{pkg}}; fi
 
-# devtools::install("release/")
-install: clean-install
-  {{re}} 'devtools::install("release/")'
-
 # rm {{solar_output_files}}
-clean-solar-outputs:
+_clean-solar-output:
   @if [ -d {{solar_output_files}} ]; then rm -Irf {{solar_output_files}}/*; fi
 
 # rm release/{{pkg}} && tests/release/{{pkg}}
-clean:
+_clean-release:
   @if [ -f {{release_pkg}} ]; then rm -fI {{release_pkg}}; fi
-  @if [ -f {{tests_release_pkg}} ]; then rm -fI {{tests_release_pkg}}; fi
 
-# install.packages("{{tests_release_pkg}}", dependencies=TRUE)
-test-release:
-  {{re}} 'install.packages("{{tests_release_pkg}}", dependencies=TRUE)'
+# clean install, solar-output, release
+_clean param:
+  @if [[ {{param}} == "install" ]]; then just _clean-install; fi
+  @if [[ {{param}} == "solar-output" ]]; then just _clean-solar-output; fi
+  @if [[ {{param}} == "release" ]]; then just _clean-release; fi
 
-# print justfile variables
-vars:
-  @echo proj = {{proj}}
-  @echo version = {{version}}
-  @echo pkg = {{pkg}}
-  @echo release = {{release}}
-  @echo tests_release = {{tests_release}}
-  @echo release_pkg = {{release_pkg}}
-  @echo tests_release_pkg = {{tests_release_pkg}}
-  @echo user_libs = {{user_libs}}
+_clean-all: (_clean "install solar-output release")
+
+# clean [all, install, solar-output, release]
+clean param:
+  @if [[ {{param}} == "all" ]]; then just _clean-all; fi
+  @if [[ {{param}} == "install" ]]; then just _clean-install; fi
+  @if [[ {{param}} == "solar-output" ]]; then just _clean-solar-output; fi
+  @if [[ {{param}} == "release" ]]; then just _clean-release; fi
+  
+# clean install
+install: (clean "install")

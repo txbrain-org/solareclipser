@@ -3,3 +3,5 @@
 ^release$
 ^tests/debug$
 ^tests$
+^doc$
+^Meta$

@@ -30,9 +30,9 @@ SolarCommand <- R6Class("SolarCommand",
       private$.trait <- Trait$new()
       private$.covariate <- Covariate$new()
       private$.polygenic <- Polygenic$new()
-      private$.create_evd_data <- CreateEvdData$new()
-      private$.fphi <- FPHI$new()
-      private$.pedifromsnps <- PedifromSNPs$new()
+      #private$.create_evd_data <- CreateEvdData$new()
+      #private$.fphi <- FPHI$new()
+      #private$.pedifromsnps <- PedifromSNPs$new()
     },
 
     set_load = function(obj = NULL, opts = NULL, fpath = NULL, cond = NULL) {

@@ -45,7 +45,7 @@ library(stringr)
 Solar <- R6Class("Solar",
   private = list(
     .solar_command = NULL,
-    .save_output_dir = NULL,
+    #.save_output_dir = NULL,
 
     .loads = NULL,
 
@@ -53,33 +53,36 @@ Solar <- R6Class("Solar",
     .do_create_evd_data = FALSE,
     .do_fphi = FALSE,
 
-    .run_rc = NULL
+    .run_rc = NULL,
+
+    .settings = list(
+      output = list(
+        dir = NULL,
+        tcl = FALSE,
+        stdout_and_stderr = FALSE
+      )
+    )
   ),
 
   public = list(
-    initialize = function(save_output_dir = NULL) {
-      if (!is.null(save_output_dir)) {
-        private$.save_output_dir <- save_output_dir
-      } else {
-        private$.save_output_dir <- tempdir()
+    initialize = function(settings = NULL) {
+      if (!is.null(settings)) {
+        # TODO: check for existence of settings$output$dir
+        if (!is.null(settings$output$dir)) {
+          private$.settings$output$dir <- settings$output$dir
+        }
+        if (!is.null(settings$output$tcl)) {
+          private$.settings$output$tcl <- settings$output$tcl
+        }
+        if (!is.null(settings$output$stdout_and_stderr)) {
+          private$.settings$output$stdout_and_stderr <-
+            settings$output$stdout_and_stderr
+        }
       }
-      private$.solar_command <-
-        SolarCommand$new()
+      private$.solar_command <- SolarCommand$new()
       invisible(self)
     },
-    print = function(opts = NULL) {
-      if (!is.null(opts)) {
-        if (opts == "all") {
-          cat("<Solar>\n")
-          cat("  save_output_dir:    ", private$.save_output_dir, "\n")
-          cat("  do_polygenic:       ", private$.do_polygenic, "\n")
-          cat("  do_create_evd_data: ", private$.do_create_evd_data, "\n")
-          cat("  do_fphi:            ", private$.do_fphi, "\n")
-          print(private$.loads)
-          print(private$.solar_command)
-        }
-        return(invisible(self))
-      }
+    print = function() {
       cat(format(self), sep = "\n")
       invisible(self)
     },
@@ -121,6 +124,14 @@ Solar <- R6Class("Solar",
     print_run_rc = function() {
       print(private$.run_rc)
       invisible(self)
+    },
+
+    set_settings = function(settings = NULL) {
+      private$.settings <- settings
+      invisible(self)
+    },
+    get_settings = function() {
+      private$.settings
     },
 
     load = function(obj = NULL, opts = NULL, fpath = NULL, cond = NULL) {
@@ -175,8 +186,8 @@ Solar <- R6Class("Solar",
 
       # NOTE: initialize checks if the directory exists
       # TODO: fix the naming of this variable
-      if (!is.null(private$.save_output_dir)) {
-        temp_wd <- private$.save_output_dir
+      if (!is.null(private$.settings$output$dir)) {
+        temp_wd <- private$.settings$output$dir
       }
 
       trait <- private$.solar_command$get_trait()$get_args()
@@ -229,8 +240,8 @@ Solar <- R6Class("Solar",
 
       tcl_f_realpath <- tempfile(fileext = ".tcl")
       # TODO: fix the naming of this variable
-      if (!is.null(private$.save_output_dir)) {
-        tcl_f_realpath <- file.path(private$.save_output_dir,
+      if (!is.null(private$.settings$output$dir)) {
+        tcl_f_realpath <- file.path(private$.settings$output$dir,
                                     basename(tcl_f_realpath))
       }
       tcl_f_basename <- basename(tcl_f_realpath)
@@ -251,12 +262,14 @@ Solar <- R6Class("Solar",
 
       cmd_fn_all <- cmd_str_fmt(tcl_proc_name, cmd_fn_body)
 
-      cat("------------------------------------------------------------\n")
-      cat("\n")
-      cat(cmd_fn_all, sep = "\n")
-      cat("\n")
-      cat("------------------------------------------------------------\n")
-
+      if (private$.settings$output$tcl) {
+        message("==============================> tcl <==============================\n")
+        cat("\n")
+        cat(cmd_fn_all, sep = "\n")
+        cat("\n")
+        message("===================================================================\n")
+      }
+      
       if(dir.exists(temp_wd)) {
         if(!file.exists(tcl_f_realpath)) {
           #message(tcl_f_realpath, " does not exist, creating...")
@@ -267,7 +280,24 @@ Solar <- R6Class("Solar",
           setwd(temp_wd)
           #print(getwd())
 
-          private$.run_rc <- system2("solar", args = tcl_proc_name)
+          if (private$.settings$output$stdout_and_stderr) {
+            # TODO: Maybe print solar settings here
+            #print("stdout_and_stderr = TRUE")
+            private$.run_rc <- system2("solar", args = tcl_proc_name,
+                                       stdout = TRUE, stderr = TRUE)
+
+            # do ==... stdout_and_stderr ... ===
+            message("=======================> stdout_and_stderr <=======================\n")
+            cat(private$.run_rc, sep = "\n")
+            message("===================================================================\n")
+          } else {
+            # TODO: Maybe print solar settings here
+            #print("stdout_and_stderr = FALSE")
+            message("Executing solar command... ", appendLF = FALSE)
+            private$.run_rc <- system2("solar", args = tcl_proc_name,
+                                       stdout = TRUE, stderr = TRUE)
+            message("Done.")
+          }
         }
       }
 

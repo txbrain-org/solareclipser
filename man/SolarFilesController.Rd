@@ -19,6 +19,9 @@ TODO: controller for SolarFiles
 \item \href{#method-SolarFilesController-print}{\code{SolarFilesController$print()}}
 \item \href{#method-SolarFilesController-set_polygenic_trait_d_files}{\code{SolarFilesController$set_polygenic_trait_d_files()}}
 \item \href{#method-SolarFilesController-get_polygenic_trait_d_files}{\code{SolarFilesController$get_polygenic_trait_d_files()}}
+\item \href{#method-SolarFilesController-get_mod_files}{\code{SolarFilesController$get_mod_files()}}
+\item \href{#method-SolarFilesController-get_out_files}{\code{SolarFilesController$get_out_files()}}
+\item \href{#method-SolarFilesController-get_stats_files}{\code{SolarFilesController$get_stats_files()}}
 \item \href{#method-SolarFilesController-clone}{\code{SolarFilesController$clone()}}
 }
 }
@@ -26,8 +29,8 @@ TODO: controller for SolarFiles
 <details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="solareclipser" data-topic="SolarFiles" data-id="get_fphi_files"><a href='../../solareclipser/html/SolarFiles.html#method-SolarFiles-get_fphi_files'><code>solareclipser::SolarFiles$get_fphi_files()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="solareclipser" data-topic="SolarFiles" data-id="get_path_to_files"><a href='../../solareclipser/html/SolarFiles.html#method-SolarFiles-get_path_to_files'><code>solareclipser::SolarFiles$get_path_to_files()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="solareclipser" data-topic="SolarFiles" data-id="get_polygenic_files"><a href='../../solareclipser/html/SolarFiles.html#method-SolarFiles-get_polygenic_files'><code>solareclipser::SolarFiles$get_polygenic_files()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="solareclipser" data-topic="SolarFiles" data-id="get_settings"><a href='../../solareclipser/html/SolarFiles.html#method-SolarFiles-get_settings'><code>solareclipser::SolarFiles$get_settings()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="solareclipser" data-topic="SolarFiles" data-id="get_shared_files"><a href='../../solareclipser/html/SolarFiles.html#method-SolarFiles-get_shared_files'><code>solareclipser::SolarFiles$get_shared_files()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="solareclipser" data-topic="SolarFiles" data-id="set_fphi_eigenvalues_f"><a href='../../solareclipser/html/SolarFiles.html#method-SolarFiles-set_fphi_eigenvalues_f'><code>solareclipser::SolarFiles$set_fphi_eigenvalues_f()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="solareclipser" data-topic="SolarFiles" data-id="set_fphi_eigenvectors_f"><a href='../../solareclipser/html/SolarFiles.html#method-SolarFiles-set_fphi_eigenvectors_f'><code>solareclipser::SolarFiles$set_fphi_eigenvectors_f()</code></a></span></li>
@@ -36,6 +39,7 @@ TODO: controller for SolarFiles
 <li><span class="pkg-link" data-pkg="solareclipser" data-topic="SolarFiles" data-id="set_fphi_notes_f"><a href='../../solareclipser/html/SolarFiles.html#method-SolarFiles-set_fphi_notes_f'><code>solareclipser::SolarFiles$set_fphi_notes_f()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="solareclipser" data-topic="SolarFiles" data-id="set_polygenic"><a href='../../solareclipser/html/SolarFiles.html#method-SolarFiles-set_polygenic'><code>solareclipser::SolarFiles$set_polygenic()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="solareclipser" data-topic="SolarFiles" data-id="set_polygenic_trait_d"><a href='../../solareclipser/html/SolarFiles.html#method-SolarFiles-set_polygenic_trait_d'><code>solareclipser::SolarFiles$set_polygenic_trait_d()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="solareclipser" data-topic="SolarFiles" data-id="set_settings"><a href='../../solareclipser/html/SolarFiles.html#method-SolarFiles-set_settings'><code>solareclipser::SolarFiles$set_settings()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -72,6 +76,33 @@ TODO: controller for SolarFiles
 \subsection{Method \code{get_polygenic_trait_d_files()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SolarFilesController$get_polygenic_trait_d_files()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFilesController-get_mod_files"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFilesController-get_mod_files}{}}}
+\subsection{Method \code{get_mod_files()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFilesController$get_mod_files()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFilesController-get_out_files"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFilesController-get_out_files}{}}}
+\subsection{Method \code{get_out_files()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFilesController$get_out_files()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFilesController-get_stats_files"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFilesController-get_stats_files}{}}}
+\subsection{Method \code{get_stats_files()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFilesController$get_stats_files()}\if{html}{\out{</div>}}
 }
 
 }
