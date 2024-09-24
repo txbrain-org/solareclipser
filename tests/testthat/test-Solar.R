@@ -17,13 +17,13 @@ settings <- list(
 
 test_that("run() - polygenic", {
   solar <- Solar$new(settings = settings)
-  solar$load(obj = "pedigree",
+  solar$cmd$load(obj = "pedigree",
              fpath = pedigree_fpath,
              cond = "-t 0")
-  solar$load(obj = "phenotypes",
+  solar$cmd$load(obj = "phenotypes",
              fpath = phenotypes_fpath)
-  solar$trait("CC")
-  solar$polygenic()
+  solar$cmd$trait("CC")
+  solar$cmd$polygenic()
   solar$run()
 
   expect_false(is.null(solar$get_run_rc()))
@@ -38,14 +38,14 @@ test_that("run() - fphi)", {
   )
 
   solar <- Solar$new(settings = settings)
-  solar$load(obj = "pedigree",
+  solar$cmd$load(obj = "pedigree",
              fpath = pedigree_fpath,
              cond = "-t 0")
-  solar$load(obj = "phenotypes",
+  solar$cmd$load(obj = "phenotypes",
              fpath = phenotypes_fpath)
-  solar$trait("CC")
-  solar$create_evd_data(output_fbasename = c_evd_out_fbn)
-  solar$fphi(evd_data = c_evd_out_fbn)
+  solar$cmd$trait("CC")
+  solar$cmd$create_evd_data(output_fbasename = c_evd_out_fbn)
+  solar$cmd$fphi(evd_data = c_evd_out_fbn)
   solar$run()
 
   expect_false(is.null(solar$get_run_rc()))

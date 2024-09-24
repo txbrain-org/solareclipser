@@ -35,48 +35,47 @@ SolarCommand <- R6Class("SolarCommand",
       #private$.pedifromsnps <- PedifromSNPs$new()
     },
 
-    set_load = function(obj = NULL, opts = NULL, fpath = NULL, cond = NULL) {
+
+    load = function(obj = NULL, opts = NULL, fpath = NULL, cond = NULL) {
       private$.load <- Load$new(obj, opts, fpath, cond)
+      private$.loads <- c(private$.loads, private$.load)
       invisible(self)
     },
 
-    set_trait = function(args = NULL) {
+    trait = function(args = NULL) {
       private$.trait <- Trait$new(args)
       invisible(self)
     },
 
-    set_covariate = function(covariate = NULL) {
-      private$.covariate <- Covariate$new(covariate)
+    polygenic = function(opts = NULL) {
+      private$.polygenic <- Polygenic$new(opts)
       invisible(self)
     },
 
-    set_polygenic = function() {
-      private$.polygenic <- Polygenic$new()
+    covariate = function(args = NULL) {
+      private$.covariate <- Covariate$new(args)
       invisible(self)
     },
 
-    set_create_evd_data = function(output_fbasename = NULL,
-                                   plink_fbasename = NULL,
-                                   use_covs = FALSE) {
-
+    create_evd_data = function(output_fbasename = NULL, plink_fbasename = NULL,
+                               use_covs = FALSE) {
       private$.create_evd_data <-
         CreateEvdData$new(output_fbasename, plink_fbasename, use_covs)
-
       invisible(self)
     },
 
-    set_fphi = function(opts = NULL, opts_fname = NULL,
-                        precision = NULL, mask = NULL,
-                        evd_data = NULL) {
+    fphi = function(opts = NULL, opts_fname = NULL,
+                    precision = NULL, mask = NULL,
+                    evd_data = NULL) {
       private$.fphi <- FPHI$new(opts, opts_fname, precision, mask, evd_data)
       invisible(self)
     },
 
-    set_pedifromsnps = function(input_fbase = NULL, output_fbase = NULL,
-                                freq_fbase = NULL, corr = NULL,
-                                per_chromo = FALSE, king = FALSE,
-                                method_two = FALSE, batch_size = NULL,
-                                id_list = NULL, n_threads = NULL) {
+    pedifromsnps = function(input_fbase = NULL, output_fbase = NULL,
+                            freq_fbase = NULL, corr = NULL,
+                            per_chromo = FALSE, king = FALSE,
+                            method_two = FALSE, batch_size = NULL,
+                            id_list = NULL, n_threads = NULL) {
       private$.pedifromsnps <-
         PedifromSNPs$new(input_fbase, output_fbase, freq_fbase, corr,
                          per_chromo, king, method_two, batch_size, id_list,
@@ -84,37 +83,14 @@ SolarCommand <- R6Class("SolarCommand",
       invisible(self)
     },
 
-    get_load = function() {
-      private$.load
-    },
-
-    get_loads = function() {
-      private$.loads
-    },
-
-    get_trait = function() {
-      private$.trait
-    },
-
-    get_covariate = function() {
-      private$.covariate
-    },
-
-    get_polygenic = function() {
-      private$.polygenic
-    },
-
-    get_create_evd_data = function() {
-      private$.create_evd_data
-    },
-
-    get_fphi = function() {
-      private$.fphi
-    },
-
-    get_pedifromsnps = function() {
-      private$.pedifromsnps
-    },
+    get_load = function() { private$.load },
+    get_loads = function() { private$.loads },
+    get_trait = function() { private$.trait },
+    get_covariate = function() { private$.covariate },
+    get_polygenic = function() { private$.polygenic },
+    get_create_evd_data = function() { private$.create_evd_data },
+    get_fphi = function() { private$.fphi },
+    get_pedifromsnps = function() { private$.pedifromsnps },
 
     print = function() {
       cat(format(self), sep = "\n")

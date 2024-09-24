@@ -36,9 +36,6 @@ solar$load(obj = "phenotypes",
 solar$trait("CC")$polygenic()
 solar$run()
 
-#==================== Ex. save_output_dir ====================
-solar <- Solar$new(save_output_dir = solar_output_dir)
-
 }
 
 }
@@ -48,23 +45,9 @@ solar <- Solar$new(save_output_dir = solar_output_dir)
 \item \href{#method-Solar-new}{\code{Solar$new()}}
 \item \href{#method-Solar-print}{\code{Solar$print()}}
 \item \href{#method-Solar-finalize}{\code{Solar$finalize()}}
-\item \href{#method-Solar-set_solar_command}{\code{Solar$set_solar_command()}}
-\item \href{#method-Solar-get_solar_command}{\code{Solar$get_solar_command()}}
-\item \href{#method-Solar-print_solar_command}{\code{Solar$print_solar_command()}}
-\item \href{#method-Solar-set_loads}{\code{Solar$set_loads()}}
-\item \href{#method-Solar-get_loads}{\code{Solar$get_loads()}}
-\item \href{#method-Solar-print_loads}{\code{Solar$print_loads()}}
 \item \href{#method-Solar-set_run_rc}{\code{Solar$set_run_rc()}}
 \item \href{#method-Solar-get_run_rc}{\code{Solar$get_run_rc()}}
-\item \href{#method-Solar-print_run_rc}{\code{Solar$print_run_rc()}}
 \item \href{#method-Solar-set_settings}{\code{Solar$set_settings()}}
-\item \href{#method-Solar-get_settings}{\code{Solar$get_settings()}}
-\item \href{#method-Solar-load}{\code{Solar$load()}}
-\item \href{#method-Solar-trait}{\code{Solar$trait()}}
-\item \href{#method-Solar-covariate}{\code{Solar$covariate()}}
-\item \href{#method-Solar-polygenic}{\code{Solar$polygenic()}}
-\item \href{#method-Solar-create_evd_data}{\code{Solar$create_evd_data()}}
-\item \href{#method-Solar-fphi}{\code{Solar$fphi()}}
 \item \href{#method-Solar-run}{\code{Solar$run()}}
 \item \href{#method-Solar-clone}{\code{Solar$clone()}}
 }
@@ -97,60 +80,6 @@ solar <- Solar$new(save_output_dir = solar_output_dir)
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-set_solar_command"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-set_solar_command}{}}}
-\subsection{Method \code{set_solar_command()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$set_solar_command(solar_command)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-get_solar_command"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-get_solar_command}{}}}
-\subsection{Method \code{get_solar_command()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$get_solar_command()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-print_solar_command"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-print_solar_command}{}}}
-\subsection{Method \code{print_solar_command()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$print_solar_command()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-set_loads"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-set_loads}{}}}
-\subsection{Method \code{set_loads()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$set_loads(loads = NULL)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-get_loads"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-get_loads}{}}}
-\subsection{Method \code{get_loads()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$get_loads()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-print_loads"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-print_loads}{}}}
-\subsection{Method \code{print_loads()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$print_loads()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Solar-set_run_rc"></a>}}
 \if{latex}{\out{\hypertarget{method-Solar-set_run_rc}{}}}
 \subsection{Method \code{set_run_rc()}}{
@@ -169,93 +98,11 @@ solar <- Solar$new(save_output_dir = solar_output_dir)
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-print_run_rc"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-print_run_rc}{}}}
-\subsection{Method \code{print_run_rc()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$print_run_rc()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Solar-set_settings"></a>}}
 \if{latex}{\out{\hypertarget{method-Solar-set_settings}{}}}
 \subsection{Method \code{set_settings()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Solar$set_settings(settings = NULL)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-get_settings"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-get_settings}{}}}
-\subsection{Method \code{get_settings()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$get_settings()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-load"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-load}{}}}
-\subsection{Method \code{load()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$load(obj = NULL, opts = NULL, fpath = NULL, cond = NULL)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-trait"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-trait}{}}}
-\subsection{Method \code{trait()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$trait(args = NULL)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-covariate"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-covariate}{}}}
-\subsection{Method \code{covariate()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$covariate(covariate = NULL)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-polygenic"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-polygenic}{}}}
-\subsection{Method \code{polygenic()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$polygenic()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-create_evd_data"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-create_evd_data}{}}}
-\subsection{Method \code{create_evd_data()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$create_evd_data(
-  output_fbasename = NULL,
-  plink_fbasename = NULL,
-  use_covs = FALSE
-)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-fphi"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-fphi}{}}}
-\subsection{Method \code{fphi()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$fphi(
-  opts = NULL,
-  opts_fname = NULL,
-  precision = NULL,
-  mask = NULL,
-  evd_data = NULL
-)}\if{html}{\out{</div>}}
 }
 
 }

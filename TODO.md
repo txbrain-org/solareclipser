@@ -52,6 +52,12 @@ Parallel:
 
 - https://testthat.r-lib.org/articles/parallel.html
 
+Adding a dev dependency:
+
+```R
+usethis::use_package("testthat", type = "Suggests")
+```
+
 ## Notes
 
 ### solar
@@ -64,6 +70,25 @@ Parallel:
 
 1. CLI R script call: `Rscript main.R`
 2. CLI inline: `Rscript -e "source('main.R')"`
+
+
+Installing from a different branch:
+
+```R
+devtools::install_github("username/mypackage", ref = "dev")
+```
+
+Installing from a url:
+
+```R
+devtools::install_url("example.com/mypackage.tar.gz")
+```
+
+Install from local package: 
+
+```R
+install.packages("path/to/pkg.tar.gz", repos = NULL, type = "source")
+```
 
 ### roxygen2
 

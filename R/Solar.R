@@ -36,17 +36,12 @@ library(stringr)
 #' solar$trait("CC")$polygenic()
 #' solar$run()
 #'
-#' #==================== Ex. save_output_dir ====================
-#' solar <- Solar$new(save_output_dir = solar_output_dir)
-#'
 #' }
 #'
 #' @export
 Solar <- R6Class("Solar",
   private = list(
     .solar_command = NULL,
-    #.save_output_dir = NULL,
-
     .loads = NULL,
 
     .do_polygenic = FALSE,
@@ -65,7 +60,54 @@ Solar <- R6Class("Solar",
   ),
 
   public = list(
+    cmd = NULL,
+
     initialize = function(settings = NULL) {
+      private$.solar_command <- SolarCommand$new()
+
+      self$cmd <- list(
+        load = function(obj = NULL, opts = NULL, fpath = NULL, cond = NULL) {
+          private$.solar_command$load(obj = obj, opts = opts,
+                                      fpath = fpath, cond = cond)
+          private$.loads <- private$.solar_command$get_loads()
+          invisible(self$cmd)
+        },
+        trait = function(args = NULL) {
+          private$.solar_command$trait(args)
+          invisible(self$cmd)
+        },
+        polygenic = function() {
+          private$.solar_command$polygenic()
+          private$.do_polygenic <- TRUE
+          invisible(self$cmd)
+        },
+        create_evd_data = function(output_fbasename = NULL,
+                                   plink_fbasename = NULL, use_covs = FALSE) {
+          private$.solar_command$create_evd_data(output_fbasename,
+                                                 plink_fbasename, use_covs)
+          private$.do_create_evd_data <- TRUE
+          invisible(self$cmd)
+        },
+        fphi = function(opts = NULL, opts_fname = NULL,
+                        precision = NULL, mask = NULL, evd_data = NULL) {
+          private$.solar_command$fphi(opts, opts_fname,
+                                      precision, mask, evd_data)
+          private$.do_fphi <- TRUE
+          invisible(self$cmd)
+        },
+        pedifromsnp = function(input_fbase = NULL, output_fbase = NULL,
+                               freq_fbase = NULL, corr = NULL,
+                               per_chromo = FALSE, king = FALSE,
+                               method_two = FALSE, batch_size = NULL,
+                               id_list = NULL, n_threads = NULL) {
+          private$.solar_command$pedifromsnps(input_fbase, output_fbase,
+                                              freq_fbase, corr, per_chromo,
+                                              king, method_two, batch_size,
+                                              id_list, n_threads)
+          invisible(self$cmd)
+        }
+      )
+
       if (!is.null(settings)) {
         # TODO: check for existence of settings$output$dir
         if (!is.null(settings$output$dir)) {
@@ -79,7 +121,6 @@ Solar <- R6Class("Solar",
             settings$output$stdout_and_stderr
         }
       }
-      private$.solar_command <- SolarCommand$new()
       invisible(self)
     },
     print = function() {
@@ -90,30 +131,6 @@ Solar <- R6Class("Solar",
       #message("finalize(SolarCommand)")
     },
 
-    set_solar_command = function(solar_command) {
-      private$.solar_command <- solar_command
-      invisible(self)
-    },
-    get_solar_command = function() {
-      private$.solar_command
-    },
-    print_solar_command = function() {
-      print(private$.solar_command)
-      invisible(self)
-    },
-
-    set_loads = function(loads = NULL) {
-      private$.loads <- loads
-      invisible(self)
-    },
-    get_loads = function() {
-      private$.loads
-    },
-    print_loads = function() {
-      print(private$.loads)
-      invisible(self)
-    },
-
     set_run_rc = function(run_rc = NULL) {
       private$.run_rc <- run_rc
       invisible(self)
@@ -121,62 +138,9 @@ Solar <- R6Class("Solar",
     get_run_rc = function() {
       private$.run_rc
     },
-    print_run_rc = function() {
-      print(private$.run_rc)
-      invisible(self)
-    },
 
     set_settings = function(settings = NULL) {
       private$.settings <- settings
-      invisible(self)
-    },
-    get_settings = function() {
-      private$.settings
-    },
-
-    load = function(obj = NULL, opts = NULL, fpath = NULL, cond = NULL) {
-      private$.solar_command$set_load(obj = obj,
-                                      opts = opts,
-                                      fpath = fpath,
-                                      cond = cond)
-      private$.loads <- c(private$.loads,
-                          private$.solar_command$get_load())
-      invisible(self)
-    },
-
-    trait = function(args = NULL) {
-      private$.solar_command$set_trait(args)
-      invisible(self)
-    },
-
-    covariate = function(covariate = NULL) {
-      private$.solar_command$set_covariate(covariate)
-      invisible(self)
-    },
-
-    polygenic = function() {
-      private$.solar_command$set_polygenic()
-      private$.do_polygenic <- TRUE
-      invisible(self)
-    },
-
-    create_evd_data = function(output_fbasename = NULL,
-                               plink_fbasename = NULL,
-                               use_covs = FALSE) {
-      private$.solar_command$set_create_evd_data(output_fbasename,
-                                                 plink_fbasename,
-                                                 use_covs)
-      private$.do_create_evd_data <- TRUE
-      invisible(self)
-    },
-
-    fphi = function(opts = NULL, opts_fname = NULL,
-                    precision = NULL, mask = NULL,
-                    evd_data = NULL) {
-      private$.solar_command$set_fphi(opts, opts_fname,
-                                      precision, mask,
-                                      evd_data)
-      private$.do_fphi <- TRUE
       invisible(self)
     },
 
@@ -350,7 +314,7 @@ load_strs_fmt <- function(private) {
   return(strs)
 }
 
-extract_load_fields <- function(loads, solar_command, debug = FALSE) {
+extract_load_fields <- function(loads, cmd, debug = FALSE) {
   obj <- sapply(loads, function(x) x$get_obj())
   obj <- unlist(obj)
   
@@ -366,11 +330,11 @@ extract_load_fields <- function(loads, solar_command, debug = FALSE) {
   fpath_basename <- sapply(fpath, function(x) basename(x))
   fpath_basename <- unlist(fpath_basename)
 
-  trait <- solar_command$get_trait()$get_args()
-  covariate <- solar_command$get_covariate()$get_args()
-  create_evd_data <- solar_command$get_create_evd_data()
-  fphi <- solar_command$get_fphi()
-  polygenic <- solar_command$get_polygenic()$get_opts()
+  trait <- cmd$get_trait()$get_args()
+  covariate <- cmd$get_covariate()$get_args()
+  create_evd_data <- cmd$get_create_evd_data()
+  fphi <- cmd$get_fphi()
+  polygenic <- cmd$get_polygenic()$get_opts()
   
   ret <- list(obj = obj, opts = opts, fpath = fpath, cond = cond,
               fpath_basename = fpath_basename, trait = trait,
