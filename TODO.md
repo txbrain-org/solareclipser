@@ -1,12 +1,10 @@
 # TODO
 
 - feat:
-    - [ ] create class for pedifromsnp
-    - [ ] create class for parsing solar output from stdout.
-    - [x] create class for reading in solar output files.
-        - read must happen in `Solar$run()`. 
-    - [x] add option to save output dir & relates to an input dir option.
-    - [x] create class `fphi`
+    - Pedifromsnp
+        - [ ] complete options, need files for testing.
+    - SolarFiles
+        - [ ] create a parser to load into dataframe for the specific files (e.g. polygenic.out)
 
 - build:
     - [ ] lib/solar900 needs to not be in the release package.
@@ -21,6 +19,10 @@
     - [ ] inline comments class/methods
     - [ ] examples class/methods
     - [ ] tutorial vignette
+        - [ ] installation
+        - [ ] usage
+            - [ ] `Solar$run()`
+            - [ ] `SolarFiles()`
 
 ## Tests
 

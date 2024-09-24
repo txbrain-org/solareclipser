@@ -12,7 +12,7 @@ library(stringr)
 #' @export
 SolarFiles <- R6Class("SolarFiles",
   private = list(
-    .path_to_files = NULL,
+    .settings = NULL,
     .shared = list(
       tclIndex_f = "tclIndex",
       pedigree_info_f = "pedigree.info",
@@ -21,12 +21,10 @@ SolarFiles <- R6Class("SolarFiles",
       phenotypes_info_f = "phenotypes.info",
       phi2_f = "phi2.gz"
     ),
-    ## polygenic
     .polygenic = list(
       trait_d = NULL, # ex. "CC, WM, etc."
       trait_d_files = NULL
     ),
-    ## fphi
     .fphi = list(
       evd_data_bn = NULL, # from fphi(evd_data = ...)
       eigenvalues_f = NULL,
@@ -36,11 +34,12 @@ SolarFiles <- R6Class("SolarFiles",
     )
   ),
   public = list(
-    initialize = function(path_to_files = NULL) {
-      if (!is.null(path_to_files)) {
-        private$.path_to_files <- path_to_files
+    initialize = function(settings = NULL) {
+      # NOTE: Solar checks if settings$output$dir exists
+      if (!is.null(settings)) {
+        private$.settings <- settings
       } else {
-        private$.path_to_files <- tempdir()
+        stop("SolarFiles: settings object null")
       }
       invisible(self)
     },
@@ -49,8 +48,8 @@ SolarFiles <- R6Class("SolarFiles",
       invisible(self)
     },
 
-    get_path_to_files = function() {
-      private$.path_to_files
+    get_settings = function() {
+      private$.settings
     },
     get_shared_files = function() {
       private$.shared
@@ -62,6 +61,10 @@ SolarFiles <- R6Class("SolarFiles",
       private$.fphi
     },
 
+    set_settings = function(settings) {
+      private$.settings <- settings
+      invisible(self)
+    },
     set_polygenic = function() {
       invisible(self)
     },
@@ -125,7 +128,7 @@ SolarFilesController <- R6Class("SolarFilesController",
     },
 
     set_polygenic_trait_d_files = function() {
-      path_to_files <- private$.sf$get_path_to_files()
+      path_to_files <- private$.sf$get_settings()$output$dir
       polygenic_files <- private$.sf$get_polygenic_files()
       ## if trait_d is "T1 T2 T3 ..." replace " " with "."
       polygenic_files$trait_d <-
@@ -138,7 +141,36 @@ SolarFilesController <- R6Class("SolarFilesController",
 
     get_polygenic_trait_d_files = function() {
       private$.sf$get_polygenic_files()$trait_d_files
+    },
+
+    get_mod_files = function() {
+      str <- private$.sf$get_polygenic_files()$trait_d_files
+      mod_files <- str[str_detect(str, ".mod$")]
+      mod_files
+    },
+
+    get_out_files = function() {
+      str <- private$.sf$get_polygenic_files()$trait_d_files
+      out_files <- str[str_detect(str, ".out$")]
+      out_files
+    },
+
+    get_stats_files = function() {
+      str <- private$.sf$get_polygenic_files()$trait_d_files
+      stats_files <- str[str_detect(str, ".stats$")]
+      stats_files
     }
+
   )
 )
 
+print_string_info <- function(str) {
+  message()
+  message("print_string_info() => {")
+  message("  str = \"", str, "\"")
+  message("  class(str) = ", class(str))
+  message("  nchar(str) = ", nchar(str))
+  message(str(str), appendLF = FALSE)
+  message("}")
+  message()
+}

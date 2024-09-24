@@ -14,10 +14,11 @@ TODO: add list of files created by solar
 \itemize{
 \item \href{#method-SolarFiles-new}{\code{SolarFiles$new()}}
 \item \href{#method-SolarFiles-print}{\code{SolarFiles$print()}}
-\item \href{#method-SolarFiles-get_path_to_files}{\code{SolarFiles$get_path_to_files()}}
+\item \href{#method-SolarFiles-get_settings}{\code{SolarFiles$get_settings()}}
 \item \href{#method-SolarFiles-get_shared_files}{\code{SolarFiles$get_shared_files()}}
 \item \href{#method-SolarFiles-get_polygenic_files}{\code{SolarFiles$get_polygenic_files()}}
 \item \href{#method-SolarFiles-get_fphi_files}{\code{SolarFiles$get_fphi_files()}}
+\item \href{#method-SolarFiles-set_settings}{\code{SolarFiles$set_settings()}}
 \item \href{#method-SolarFiles-set_polygenic}{\code{SolarFiles$set_polygenic()}}
 \item \href{#method-SolarFiles-set_polygenic_trait_d}{\code{SolarFiles$set_polygenic_trait_d()}}
 \item \href{#method-SolarFiles-set_polygenic_trait_d_files}{\code{SolarFiles$set_polygenic_trait_d_files()}}
@@ -34,7 +35,7 @@ TODO: add list of files created by solar
 \if{latex}{\out{\hypertarget{method-SolarFiles-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$new(path_to_files = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$new(settings = NULL)}\if{html}{\out{</div>}}
 }
 
 }
@@ -48,11 +49,11 @@ TODO: add list of files created by solar
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarFiles-get_path_to_files"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarFiles-get_path_to_files}{}}}
-\subsection{Method \code{get_path_to_files()}}{
+\if{html}{\out{<a id="method-SolarFiles-get_settings"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFiles-get_settings}{}}}
+\subsection{Method \code{get_settings()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$get_path_to_files()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$get_settings()}\if{html}{\out{</div>}}
 }
 
 }
@@ -80,6 +81,15 @@ TODO: add list of files created by solar
 \subsection{Method \code{get_fphi_files()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SolarFiles$get_fphi_files()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFiles-set_settings"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFiles-set_settings}{}}}
+\subsection{Method \code{set_settings()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$set_settings(settings)}\if{html}{\out{</div>}}
 }
 
 }

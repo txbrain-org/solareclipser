@@ -57,6 +57,8 @@ solar <- Solar$new(save_output_dir = solar_output_dir)
 \item \href{#method-Solar-set_run_rc}{\code{Solar$set_run_rc()}}
 \item \href{#method-Solar-get_run_rc}{\code{Solar$get_run_rc()}}
 \item \href{#method-Solar-print_run_rc}{\code{Solar$print_run_rc()}}
+\item \href{#method-Solar-set_settings}{\code{Solar$set_settings()}}
+\item \href{#method-Solar-get_settings}{\code{Solar$get_settings()}}
 \item \href{#method-Solar-load}{\code{Solar$load()}}
 \item \href{#method-Solar-trait}{\code{Solar$trait()}}
 \item \href{#method-Solar-covariate}{\code{Solar$covariate()}}
@@ -72,7 +74,7 @@ solar <- Solar$new(save_output_dir = solar_output_dir)
 \if{latex}{\out{\hypertarget{method-Solar-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$new(save_output_dir = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Solar$new(settings = NULL)}\if{html}{\out{</div>}}
 }
 
 }
@@ -81,7 +83,7 @@ solar <- Solar$new(save_output_dir = solar_output_dir)
 \if{latex}{\out{\hypertarget{method-Solar-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$print(opts = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Solar$print()}\if{html}{\out{</div>}}
 }
 
 }
@@ -172,6 +174,24 @@ solar <- Solar$new(save_output_dir = solar_output_dir)
 \subsection{Method \code{print_run_rc()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Solar$print_run_rc()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Solar-set_settings"></a>}}
+\if{latex}{\out{\hypertarget{method-Solar-set_settings}{}}}
+\subsection{Method \code{set_settings()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Solar$set_settings(settings = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Solar-get_settings"></a>}}
+\if{latex}{\out{\hypertarget{method-Solar-get_settings}{}}}
+\subsection{Method \code{get_settings()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Solar$get_settings()}\if{html}{\out{</div>}}
 }
 
 }

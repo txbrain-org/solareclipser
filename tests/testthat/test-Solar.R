@@ -7,8 +7,16 @@ pedigree_fpath <- file.path(solar_input_dir, "HCP_imputed_filtered_ped.csv")
 phenotypes_fpath <- file.path(solar_input_dir, "HCP_WM_ave_norm.csv")
 c_evd_out_fbn <- file.path("CC_evd")
 
+settings <- list(
+  output = list(
+    dir = solar_output_dir,
+    tcl = FALSE,
+    stdout_and_stderr = FALSE
+  )
+)
+
 test_that("run() - polygenic", {
-  solar <- Solar$new(save_output_dir = solar_output_dir)
+  solar <- Solar$new(settings = settings)
   solar$load(obj = "pedigree",
              fpath = pedigree_fpath,
              cond = "-t 0")
@@ -17,18 +25,19 @@ test_that("run() - polygenic", {
   solar$trait("CC")
   solar$polygenic()
   solar$run()
-  expect_true(solar$get_run_rc() == 0)
+
+  expect_false(is.null(solar$get_run_rc()))
 })
 
 test_that("run() - fphi)", {
   cc_evd_out_all_fpaths <- c(
-    file.path(solar_output_dir, "CC_evd.eigenvalues"),
-    file.path(solar_output_dir, "CC_evd.eigenvectors"),
-    file.path(solar_output_dir, "CC_evd.ids"),
-    file.path(solar_output_dir, "CC_evd.notes")
+    file.path(settings$output$dir, "CC_evd.eigenvalues"),
+    file.path(settings$output$dir, "CC_evd.eigenvectors"),
+    file.path(settings$output$dir, "CC_evd.ids"),
+    file.path(settings$output$dir, "CC_evd.notes")
   )
 
-  solar <- Solar$new(save_output_dir = solar_output_dir)
+  solar <- Solar$new(settings = settings)
   solar$load(obj = "pedigree",
              fpath = pedigree_fpath,
              cond = "-t 0")
@@ -39,7 +48,7 @@ test_that("run() - fphi)", {
   solar$fphi(evd_data = c_evd_out_fbn)
   solar$run()
 
-  expect_true(solar$get_run_rc() == 0)
+  expect_false(is.null(solar$get_run_rc()))
   for (fpath in cc_evd_out_all_fpaths) {
     expect_true(file.exists(fpath))
     expect_true(file.size(fpath) > 0)

@@ -37,7 +37,7 @@ s$polygenic()
 s$run()
 #> ------------------------------------------------------------
 #> 
-#> proc filec42c1f5d9591 {} {
+#> proc file6ab84f05c242 {} {
 #>   load pedigree HCP_imputed_filtered_ped.csv -t 0
 #>   load phenotypes HCP_WM_ave_norm.csv
 #>   trait CC
@@ -62,7 +62,7 @@ s$fphi(evd_data = "CC_evd")
 s$run()
 #> ------------------------------------------------------------
 #> 
-#> proc filec42c64b3f9f7 {} {
+#> proc file6ab82e918b5b {} {
 #>   load pedigree HCP_imputed_filtered_ped.csv -t 0
 #>   load phenotypes HCP_WM_ave_norm.csv
 #>   trait CC
