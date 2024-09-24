@@ -17,5 +17,4 @@ solareclipser.Rproj
 # temp shell scripts
 *.sh
 inst/doc
-/doc/
 /Meta/

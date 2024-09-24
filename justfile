@@ -15,7 +15,7 @@ release_pkg := release + '/' + pkg
 
 user_libs := `find ~/Work/nGit/R -type d -iname "r_libs_user_linux"`
 
-solar_output_files := 'tests/output/solar'
+solar_output_dir := 'tests/output/solar'
 
 re := 'Rscript -e'
 tests_d := 'tests/input'
@@ -52,7 +52,7 @@ devtools param:
 
 # just devtools build
 _build:
-  devtools build
+  @just devtools build
 
 # just _build && just devtools readme
 _build-all: _build (devtools "readme")
@@ -64,15 +64,15 @@ build param:
 
 # rm {{user_libs}}/{{pkg}}
 _clean-install:
-  @if [ -f {{user_libs}}/{{pkg}} ]; then rm -Irf {{user_libs}}/{{pkg}}; fi
+  @if [[ ! -z {{user_libs}} && -d {{user_libs}}/{{proj}} ]]; then rm -rfv {{user_libs}}/{{proj}} 2> /dev/null; fi
 
-# rm {{solar_output_files}}
+# rm {{solar_output_dir}}
 _clean-solar-output:
-  @if [ -d {{solar_output_files}} ]; then rm -Irf {{solar_output_files}}/*; fi
+  @if [[ ! -z {{solar_output_dir}} && -d {{solar_output_dir}} ]]; then rm -rfv {{solar_output_dir}}/* 2> /dev/null; fi
 
 # rm release/{{pkg}} && tests/release/{{pkg}}
 _clean-release:
-  @if [ -f {{release_pkg}} ]; then rm -fI {{release_pkg}}; fi
+  @if [[ ! -z {{release_pkg}} && -f {{release_pkg}} ]]; then rm -rfv {{release_pkg}}; fi
 
 # clean install, solar-output, release
 _clean param:
@@ -80,7 +80,7 @@ _clean param:
   @if [[ {{param}} == "solar-output" ]]; then just _clean-solar-output; fi
   @if [[ {{param}} == "release" ]]; then just _clean-release; fi
 
-_clean-all: (_clean "install solar-output release")
+_clean-all: (_clean "install") (_clean "solar-output") (_clean "release")
 
 # clean [all, install, solar-output, release]
 clean param:
@@ -90,4 +90,4 @@ clean param:
   @if [[ {{param}} == "release" ]]; then just _clean-release; fi
   
 # clean install
-install: (clean "install")
+install: (clean "install") (build "all") (devtools "install")

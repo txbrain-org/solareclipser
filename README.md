@@ -35,16 +35,7 @@ s$load(obj = "phenotypes",
 s$trait("CC")
 s$polygenic()
 s$run()
-#> ------------------------------------------------------------
-#> 
-#> proc file6ab84f05c242 {} {
-#>   load pedigree HCP_imputed_filtered_ped.csv -t 0
-#>   load phenotypes HCP_WM_ave_norm.csv
-#>   trait CC
-#>   polygenic
-#> }
-#> 
-#> ------------------------------------------------------------
+#> Executing solar command... Done.
 ```
 
 ``` r
@@ -60,17 +51,7 @@ s$trait("CC")
 s$create_evd_data(output_fbasename = "CC_evd")
 s$fphi(evd_data = "CC_evd")
 s$run()
-#> ------------------------------------------------------------
-#> 
-#> proc file6ab82e918b5b {} {
-#>   load pedigree HCP_imputed_filtered_ped.csv -t 0
-#>   load phenotypes HCP_WM_ave_norm.csv
-#>   trait CC
-#>   create_evd_data --o CC_evd
-#>   fphi --evd_data CC_evd
-#> }
-#> 
-#> ------------------------------------------------------------
+#> Executing solar command... Done.
 ```
 
 ``` r
@@ -83,7 +64,4 @@ See [tutorial](inst/doc/tutorial.md) for more infomation.
 
 ## SOLAR references
 
-  - The new [SOLAR web page](https://solar-eclipse-genetics.org/)
-    (SOLAR-Eclipse)
-  - [Appendix 1. SOLAR Command
-    Descriptions](http://helix.nih.gov/Documentation/solar-6.6.2-doc/91.appendix_1_text.html)
+  - [solar-eclipse-genetics.org](https://www.solar-eclipse-genetics.org/)

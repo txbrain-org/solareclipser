@@ -72,5 +72,4 @@ See [tutorial](inst/doc/tutorial.md) for more infomation.
 
 ## SOLAR references
 
-* The new [SOLAR web page](https://solar-eclipse-genetics.org/) (SOLAR-Eclipse)
-* [Appendix 1. SOLAR Command Descriptions](http://helix.nih.gov/Documentation/solar-6.6.2-doc/91.appendix_1_text.html)
+- [solar-eclipse-genetics.org](https://www.solar-eclipse-genetics.org/)
