@@ -132,7 +132,7 @@ solar$trait("CC")$polygenic()
 solar$run()
 ```
 
-## Additional References
+## Additional Resources
 
 - [education - solar-eclipse-genetics.org](https://solar-eclipse-genetics.org/education)
 - [solareclipse.pdf - solar-eclipse-genetics.org](https://solar-eclipse-genetics.org/downloads/solareclipser.pdf)

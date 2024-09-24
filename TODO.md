@@ -48,6 +48,10 @@ install_local("release/")
 install.packages("release/solareclipser_0.3.3.tar.gz", dependancies = TRUE)
 ```
 
+Parallel:
+
+- https://testthat.r-lib.org/articles/parallel.html
+
 ## Notes
 
 ### solar

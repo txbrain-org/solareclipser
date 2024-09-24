@@ -9,59 +9,32 @@
 
 ## Description
 
-`solareclipser` is an R package to interface SOLAR and to run its main
-models: polygenic, fphi.
+`solareclipser` is an R package to interface with
+[SOLAR-Eclipse](https://www.nitrc.org/projects/se_linux/).
 
 ## Installation
 
-You can install solareclipser like so:
+### Prerequisites
+
+`solareclipser` requires
+[`solar`](https://www.nitrc.org/projects/se_linux/).
+
+### solareclipser
 
 ``` r
-library(devtools)
-install_github("txbrain-org/solareclipser")
-```
-
-## Examples
-
-``` r
-library(solareclipser)
-
-s <- Solar$new()
-s$load(obj = "pedigree",
-       fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
-       cond = "-t 0")
-s$load(obj = "phenotypes",
-       fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
-s$trait("CC")
-s$polygenic()
-s$run()
-#> Executing solar command... Done.
-```
-
-``` r
-library(solareclipser)
-
-s <- Solar$new()
-s$load(obj = "pedigree",
-       fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
-       cond = "-t 0")
-s$load(obj = "phenotypes",
-       fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
-s$trait("CC")
-s$create_evd_data(output_fbasename = "CC_evd")
-s$fphi(evd_data = "CC_evd")
-s$run()
-#> Executing solar command... Done.
-```
-
-``` r
-s <- Solar$new(save_output_dir = "path/to/dir") # to save output files
+install.packages("devtools")
+devtools::install_github("txbrain-org/solareclipser")
 ```
 
 ## Tutorial
 
-See [tutorial](inst/doc/tutorial.md) for more infomation.
+See [tutorial](doc/solareclipser.html) for more infomation.
 
-## SOLAR references
+## Additional Resources
 
-  - [solar-eclipse-genetics.org](https://www.solar-eclipse-genetics.org/)
+  - [education -
+    solar-eclipse-genetics.org](https://solar-eclipse-genetics.org/education)
+  - [solareclipse.pdf -
+    solar-eclipse-genetics.org](https://solar-eclipse-genetics.org/downloads/solareclipser.pdf)
+  - [www.nitrc.org - solar
+    documents](https://www.nitrc.org/docman/?group_id=558)
