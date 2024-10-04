@@ -22,26 +22,26 @@ settings <- list(
 
 ## ----polygenic----------------------------------------------------------------
 solar <- Solar$new(settings = settings)
-solar$load(obj = "pedigree",
-           fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
-           cond = "-t 0")
-solar$load(obj = "phenotypes",
-           fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
-solar$trait("CC")$polygenic()
+solar$cmd$load(obj = "pedigree",
+               fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
+               cond = "-t 0")
+solar$cmd$load(obj = "phenotypes",
+               fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
+solar$cmd$trait("CC")$polygenic()
 solar$run()
 
 ## ----fphi---------------------------------------------------------------------
 library(solareclipser)
 
 solar <- Solar$new(settings = settings)
-solar$load(obj = "pedigree",
-           fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
-           cond = "-t 0")
-solar$load(obj = "phenotypes",
-           fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
-solar$trait("CC")
-solar$create_evd_data(output_fbasename = "evd_data")
-solar$fphi(evd_data = "evd_data")
+solar$cmd$load(obj = "pedigree",
+               fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
+               cond = "-t 0")
+solar$cmd$load(obj = "phenotypes",
+               fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
+solar$cmd$trait("CC")
+solar$cmd$create_evd_data(output_fbasename = "evd_data")
+solar$cmd$fphi(evd_data = "evd_data")
 solar$run()
 
 ## ----solarfiles_polygenic-----------------------------------------------------
@@ -71,11 +71,11 @@ settings <- list(
 )
 
 solar <- Solar$new(settings = settings)
-solar$load(obj = "pedigree",
-           fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
-           cond = "-t 0")
-solar$load(obj = "phenotypes",
-           fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
-solar$trait("CC")$polygenic()
+solar$cmd$load(obj = "pedigree",
+               fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
+               cond = "-t 0")
+solar$cmd$load(obj = "phenotypes",
+               fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
+solar$cmd$trait("CC")$polygenic()
 solar$run()
 

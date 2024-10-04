@@ -1,4 +1,5 @@
 lib/solar900/
+lib/solar901/
 inst/lib/
 docs/si/
 
@@ -16,5 +17,8 @@ solareclipser.Rproj
 
 # temp shell scripts
 *.sh
+
 inst/doc
 /Meta/
+/doc/testing*
+/doc/

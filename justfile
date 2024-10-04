@@ -1,5 +1,6 @@
 ## https://just.systems/man/en/recipe-parameters.html
 ## https://just.systems/man/en/documentation-comments.html?highlight=comments#documentation-comments
+## {{re}} 'rmarkdown::render("doc/solareclipser.Rmd", output_format = "all")'; \
 
 set shell := ["bash", "-cu"]
 
@@ -33,7 +34,7 @@ inspect_r := "\"source('tests/input/inspect.R')\""
 _tests-show:
   @find {{tests_d}} -type f -iname "*.R" -exec basename {} \;
 
-# just tests [show, {{t}}]
+# tests [show | {{t}}]
 tests param:
   if [[ {{param}} == "show" ]]; then \
     just _tests-show; \
@@ -41,25 +42,25 @@ tests param:
     {{re}} "source('tests/input/{{param}}')"; \
   fi
 
-# just devtools [test, check, document, build, readme, install]
+# devtools [test | check | document | build | readme | install]
 devtools param:
   @if [[ {{param}} == "test" ]]; then {{re}} 'devtools::test()'; fi
-  @if [[ {{param}} == "check" ]]; then {{re}} 'devtools::test()'; fi
   @if [[ {{param}} == "document" ]]; then {{re}} 'devtools::document()'; fi
+  @if [[ {{param}} == "vignettes" ]]; then {{re}} 'devtools::build_vignettes()'; fi
   @if [[ {{param}} == "build" ]]; then {{re}} 'devtools::build(path = "release/")'; fi
   @if [[ {{param}} == "readme" ]]; then {{re}} 'devtools::build_readme()'; fi
   @if [[ {{param}} == "install" ]]; then {{re}} 'devtools::install("release/")'; fi
 
-# just devtools build
-_build:
-  @just devtools build
+# _vignettes: install
+_vignettes: (clean "install") (devtools "build") (devtools "install") (devtools "vignettes")
 
-# just _build && just devtools readme
-_build-all: _build (devtools "readme")
+# _build && devtools readme
+_build-all: _vignettes (devtools "readme")
 
-# build [all, readme]
+# build [all | readme | vignettes]
 build param:
   @if [[ {{param}} == "all" ]]; then just _build-all; fi
+  @if [[ {{param}} == "vignettes" ]]; then just _vignettes; fi
   @if [[ {{param}} == "readme" ]]; then just devtools readme; fi
 
 # rm {{user_libs}}/{{pkg}}
@@ -74,7 +75,7 @@ _clean-solar-output:
 _clean-release:
   @if [[ ! -z {{release_pkg}} && -f {{release_pkg}} ]]; then rm -rfv {{release_pkg}}; fi
 
-# clean install, solar-output, release
+# _clean [clean install | solar-output | release]
 _clean param:
   @if [[ {{param}} == "install" ]]; then just _clean-install; fi
   @if [[ {{param}} == "solar-output" ]]; then just _clean-solar-output; fi
@@ -82,12 +83,12 @@ _clean param:
 
 _clean-all: (_clean "install") (_clean "solar-output") (_clean "release")
 
-# clean [all, install, solar-output, release]
+# clean [all | install | solar-output | release]
 clean param:
   @if [[ {{param}} == "all" ]]; then just _clean-all; fi
   @if [[ {{param}} == "install" ]]; then just _clean-install; fi
   @if [[ {{param}} == "solar-output" ]]; then just _clean-solar-output; fi
   @if [[ {{param}} == "release" ]]; then just _clean-release; fi
   
-# clean install
-install: (clean "install") (build "all") (devtools "install")
+# install : build all
+install: (build "all")
