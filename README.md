@@ -28,7 +28,7 @@ devtools::install_github("txbrain-org/solareclipser")
 
 ## Tutorial
 
-See [tutorial](doc/solareclipser.html) for more infomation.
+See [tutorial](doc/solareclipser.pdf) for more infomation.
 
 ## Additional Resources
 
