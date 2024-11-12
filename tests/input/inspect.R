@@ -3,7 +3,8 @@ devtools::load_all()
 library(solareclipser)
 library(stringr)
 
-solar_output_dir <- "tests/output/solar"
+#solar_output_dir <- "tests/output/solar"
+
 # populates settings with new values
 settings <- list(
   output = list(
@@ -35,3 +36,5 @@ solar$cmd$trait("CC")
 solar$cmd$create_evd_data(output_fbasename = "evd_data")
 solar$cmd$fphi(evd_data = "evd_data")
 solar$run()
+
+
