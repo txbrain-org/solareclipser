@@ -1,7 +1,7 @@
 Package: solareclipser
 Title: An R Interface to SOLAR
 Type: Package
-Version: 0.3.3
+Version: 1.0.0
 Date: 2024-05-02
 Authors@R: 
     person("William",
