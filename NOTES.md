@@ -43,6 +43,10 @@ install_local("release/")
 install.packages("release/solareclipser_0.3.3.tar.gz", dependancies = TRUE)
 ```
 
+```R
+install.packages("~/Downloads/myPackage_1.0.tar.gz", repos = NULL, type = "source")
+```
+
 Parallel:
 
 - https://testthat.r-lib.org/articles/parallel.html
@@ -75,6 +79,10 @@ Install from local package:
 install.packages("path/to/pkg.tar.gz", repos = NULL, type = "source")
 ```
 
+## Documentation
+
+- [rmarkdown](https://bookdown.org/yihui/rmarkdown-cookbook/rmarkdown-render.html)
+- [workflowr](https://bookdown.org/yihui/rmarkdown-cookbook/workflowr.html)
 
 ## Notes
 
@@ -93,6 +101,16 @@ install.packages("path/to/pkg.tar.gz", repos = NULL, type = "source")
 
 ```r
 vignette("rd-formatting") # roxygen2 markdown formatting
+```
+
+## VM setup
+
+```
+dnf install install epel-release
+sudo dnf install epel-release
+sudo dnf --set-enabled powertools
+sudo dnf config-manager --set-enabled powertools
+sudo dnf install R
 ```
 
 ## References

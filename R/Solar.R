@@ -257,6 +257,7 @@ Solar <- R6Class("Solar",
           } else {
             # TODO: Maybe print solar settings here
             #print("stdout_and_stderr = FALSE")
+            # TODO: maybe the message should be an optional output
             message("Executing solar command... ", appendLF = FALSE)
             private$.run_rc <- system2("solar", args = tcl_proc_name,
                                        stdout = TRUE, stderr = TRUE)

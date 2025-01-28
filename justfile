@@ -23,12 +23,38 @@ tests_d := 'tests/input'
 tests_r := `find tests/input -type f -iname "*.R" -exec basename {} \;`
 inspect_r := "\"source('tests/input/inspect.R')\""
 
-#alias t := test
-#alias ts := tests
-#alias dt := devtools
-#alias b := build
-#alias c := clean
-#alias i := install
+pd_defaults_yml := "\
+---
+# General
+# Reader
+# General Writer
+variables:
+  margin-left: .5in
+  margin-right: .5in
+  margin-top: .5in
+  margin-bottom: .5in
+  maxwidth: inherit
+  fontsize: 12pt
+  mainfont: Lato
+  monofont: FiraCode Nerd Font
+  linkcolor: blue
+  pagestyle: empty
+highlight-style: tango
+# Options affecting specific writers
+pdf-engine: wkhtmltopdf
+# ascii: true
+...
+"
+
+tmpyml := proj + ".yml"
+tmpmd := proj + ".md"
+tmppdf := proj + ".pdf"
+
+debug:
+  @echo -n "{{pd_defaults_yml}}"
+  @echo "tmpyml = {{tmpyml}}"
+  @echo "tmpmd  = {{tmpmd}}"
+  @echo "tmppdf = {{tmppdf}}"
 
 # lists tests in {{tests_d}}
 _tests-show:
@@ -42,16 +68,29 @@ tests param:
     {{re}} "source('tests/input/{{param}}')"; \
   fi
 
-# devtools [test | check | document | build | readme | install]
+# https://rstudio.github.io/cheatsheets/html/package-development.html
+# devtools [load_all | test | check | document | build | readme | install]
 devtools param:
+  @if [[ {{param}} == "load_all" ]]; then {{re}} 'devtools::load_all()'; fi
   @if [[ {{param}} == "test" ]]; then {{re}} 'devtools::test()'; fi
-  @if [[ {{param}} == "document" ]]; then {{re}} 'devtools::document()'; fi
-  @if [[ {{param}} == "vignettes" ]]; then {{re}} 'devtools::build_vignettes()'; fi
+  @if [[ {{param}} == "check" ]]; then {{re}} 'devtools::check()'; fi # -> pre commit
+  @if [[ {{param}} == "document" ]]; then {{re}} 'devtools::document()'; fi # -> ?fun
   @if [[ {{param}} == "build" ]]; then {{re}} 'devtools::build(path = "release/")'; fi
   @if [[ {{param}} == "readme" ]]; then {{re}} 'devtools::build_readme()'; fi
   @if [[ {{param}} == "install" ]]; then {{re}} 'devtools::install("release/")'; fi
+  @if [[ {{param}} == "vignettes" ]]; then \
+    {{re}} 'devtools::build_vignettes()' && \
+    tmpdir=$(mktemp -d /tmp/solareclipser.pandoc.XXXXXXXX) && \
+    touch $tmpdir/{{tmpyml}} && \
+    echo "{{pd_defaults_yml}}" > $tmpdir/{{tmpyml}} ;\
+    echo "touch $tmpdir/{{tmpmd}} &&"; \
+    touch $tmpdir/{{tmpmd}} && \
+    pandoc doc/solareclipser.html -t markdown -o $tmpdir/{{tmpmd}} ;\
+    touch $tmpdir/{{tmppdf}} && \
+    pandoc -d $tmpdir/{{tmpyml}} $tmpdir/{{tmpmd}} -t html -o $tmpdir/{{tmppdf}} && \
+    cp $tmpdir/{{tmppdf}} doc/ ;\
+  fi
 
-# _vignettes: install
 _vignettes: (clean "install") (devtools "build") (devtools "install") (devtools "vignettes")
 
 # _build && devtools readme

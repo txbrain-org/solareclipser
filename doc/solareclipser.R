@@ -6,10 +6,11 @@ knitr::opts_chunk$set(
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 
 ## ----installation, eval = FALSE-----------------------------------------------
-#  install.packages("devtools")
-#  devtools::install_github("txbrain-org/solareclipser")
+# install.packages("devtools")
+# devtools::install_github("txbrain-org/solareclipser")
 
-## ----settings-----------------------------------------------------------------
+## ----settings, error=TRUE-----------------------------------------------------
+try({
 library(solareclipser)
 
 settings <- list(
@@ -19,8 +20,10 @@ settings <- list(
     stdout_and_stderr = FALSE
   )
 )
+})
 
-## ----polygenic----------------------------------------------------------------
+## ----polygenic, error=TRUE----------------------------------------------------
+try({
 solar <- Solar$new(settings = settings)
 solar$cmd$load(obj = "pedigree",
                fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
@@ -29,8 +32,10 @@ solar$cmd$load(obj = "phenotypes",
                fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
 solar$cmd$trait("CC")$polygenic()
 solar$run()
+})
 
-## ----fphi---------------------------------------------------------------------
+## ----fphi, error=TRUE---------------------------------------------------------
+try({
 library(solareclipser)
 
 solar <- Solar$new(settings = settings)
@@ -43,9 +48,10 @@ solar$cmd$trait("CC")
 solar$cmd$create_evd_data(output_fbasename = "evd_data")
 solar$cmd$fphi(evd_data = "evd_data")
 solar$run()
+})
 
-## ----solarfiles_polygenic-----------------------------------------------------
-# trait_d => trait directory
+## ----solarfiles_polygenic, error=TRUE-----------------------------------------
+try({
 sf <- SolarFiles$new(settings = settings)
 sf$set_polygenic_trait_d(trait_d = "CC")
 sfc <- SolarFilesController$new(sf = sf)
@@ -58,8 +64,10 @@ stat_files <- sfc$get_stats_files()
 
 summary <- readLines(out_files[str_detect(out_files, "polygenic.out")])
 cat(str_trim(summary), sep = "\n")
+})
 
-## ----settings_tcl_true_stdout_and_stderr_true---------------------------------
+## ----settings_tcl_true_stdout_and_stderr_true, error=TRUE---------------------
+try({
 library(solareclipser)
 
 settings <- list(
@@ -78,4 +86,5 @@ solar$cmd$load(obj = "phenotypes",
                fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
 solar$cmd$trait("CC")$polygenic()
 solar$run()
+})
 

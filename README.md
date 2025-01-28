@@ -22,7 +22,7 @@
 ### solareclipser
 
 ``` r
-install.packages("devtools")
+install.packages("devtools", repos = "https://cloud.r-project.org/")
 devtools::install_github("txbrain-org/solareclipser")
 ```
 

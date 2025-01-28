@@ -1,15 +1,14 @@
 ---
 title: "solareclipser"
-output: 
-  pdf_document:
+output:
+  html_document:
     toc: true
-  html_vignette:
-    toc: true
-    toc-location: left
+    toc_depth: '6'
+    highlight: tango
 vignette: >
-  %\VignetteIndexEntry{solareclipser}
-  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{testing}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
@@ -20,17 +19,13 @@ knitr::opts_chunk$set(
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 ```
 
-## Introduction
+## Introduction and Installation
 
-`solareclipser` is an R package to interface with [SOLAR-Eclipse](https://www.nitrc.org/projects/se_linux/).
+`solareclipser` is an R package to interface with
+[SOLAR-Eclipse](https://www.nitrc.org/projects/se_linux/). `solareclipser`
+requires [`solar`](https://www.nitrc.org/projects/se_linux/).
 
-## Installation
-
-### Prerequisites
-
-`solareclipser` requires [`solar`](https://www.nitrc.org/projects/se_linux/).
-
-### solareclipser
+Install `solareclipser` from GitHub using `devtools` with the following:
 
 ```{r installation, eval = FALSE}
 install.packages("devtools")
@@ -39,14 +34,13 @@ devtools::install_github("txbrain-org/solareclipser")
 
 ## Usage
 
-`solareclipser` defaults to using a tmp directory for the output files. However,
-this can be overridden by passing settings to the `Solar` class.
+`solareclipser` defaults to using a tmp directory for the output files. However, this can be overridden by passing settings to the `Solar` class.
 
 ### `Solar` S6 class
 
 Set the settings for `Solar` class.
 
-```{r settings}
+```{r settings, error=TRUE}
 library(solareclipser)
 
 settings <- list(
@@ -62,9 +56,9 @@ Note: setting `dir` to a directory from a previous run will allow not needing to
 
 ### Models
 
-#### Polygenic
+#### `Polygenic`
 
-```{r polygenic}
+```{r polygenic, error=TRUE}
 solar <- Solar$new(settings = settings)
 solar$cmd$load(obj = "pedigree",
                fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
@@ -75,9 +69,9 @@ solar$cmd$trait("CC")$polygenic()
 solar$run()
 ```
 
-#### FPHI
+#### `FPHI`
 
-```{r fphi}
+```{r fphi, error=TRUE}
 library(solareclipser)
 
 solar <- Solar$new(settings = settings)
@@ -92,14 +86,11 @@ solar$cmd$fphi(evd_data = "evd_data")
 solar$run()
 ```
 
-### Output
-
-#### Using `SolarFiles`
+### `SolarFiles`
 
 `SolarFiles` class can be used to get all/individual output files.
 
-```{r solarfiles_polygenic}
-# trait_d => trait directory
+```{r solarfiles_polygenic, error=TRUE}
 sf <- SolarFiles$new(settings = settings)
 sf$set_polygenic_trait_d(trait_d = "CC")
 sfc <- SolarFilesController$new(sf = sf)
@@ -114,9 +105,11 @@ summary <- readLines(out_files[str_detect(out_files, "polygenic.out")])
 cat(str_trim(summary), sep = "\n")
 ```
 
-#### Using `settings`
+### Additional Examples
 
-```{r settings_tcl_true_stdout_and_stderr_true}
+Using settings to set `tcl` and `stdout_and_stderr` to `TRUE`.
+
+```{r settings_tcl_true_stdout_and_stderr_true, error=TRUE}
 library(solareclipser)
 
 settings <- list(
@@ -139,6 +132,6 @@ solar$run()
 
 ## Additional References
 
-- [education - solar-eclipse-genetics.org](https://solar-eclipse-genetics.org/education)
-- [solareclipse.pdf - solar-eclipse-genetics.org](https://solar-eclipse-genetics.org/downloads/solareclipser.pdf)
-- [www.nitrc.org - solar documents](https://www.nitrc.org/docman/?group_id=558)
+-   [education - solar-eclipse-genetics.org](https://solar-eclipse-genetics.org/education)
+-   [solareclipse.pdf - solar-eclipse-genetics.org](https://solar-eclipse-genetics.org/downloads/solareclipser.pdf)
+-   [www.nitrc.org - solar documents](https://www.nitrc.org/docman/?group_id=558)

@@ -15,10 +15,6 @@ tests/release/
 .Rhistory
 solareclipser.Rproj
 
-# temp shell scripts
-*.sh
-
 inst/doc
 /Meta/
-/doc/testing*
 /doc/
