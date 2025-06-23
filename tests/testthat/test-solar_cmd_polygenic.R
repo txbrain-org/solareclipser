@@ -2,6 +2,7 @@ library(testthat)
 library(withr)
 
 test_that("polygenic - testbench_init(tmp = TRUE)", {
+  skip_on_cran()
   testbench <- testbench_init(tmp = TRUE)
 
   solar <- Solar$new(settings = testbench$settings)
@@ -19,6 +20,7 @@ test_that("polygenic - testbench_init(tmp = TRUE)", {
 })
 
 test_that("polygenic - testbench_init(tmp = FALSE)", {
+  skip_on_cran()
   testbench <- testbench_init(tmp = FALSE)
 
   solar <- Solar$new(settings = testbench$settings)

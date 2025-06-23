@@ -7,6 +7,7 @@ tests/debug/
 tests/debug.tar.gz
 tests/output/
 tests/input/solar/
+tests/input.tar.gz
 tests/release/
 
 *.Rproj

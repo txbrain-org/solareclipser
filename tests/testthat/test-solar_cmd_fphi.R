@@ -2,6 +2,8 @@ library(testthat)
 library(withr)
 
 test_that("fphi - testbench_init(tmp = TRUE)", {
+  skip_on_cran()
+
   testbench <- testbench_init(tmp = TRUE)
   cc_evd_out_all_fpaths <- c(
     file.path(testbench$settings$output$dir, "CC_evd.eigenvalues"),
@@ -33,6 +35,8 @@ test_that("fphi - testbench_init(tmp = TRUE)", {
 })
 
 test_that("fphi - testbench_init(tmp = FALSE)", {
+  skip_on_cran()
+
   testbench <- testbench_init(tmp = FALSE)
   cc_evd_out_all_fpaths <- c(
     file.path(testbench$settings$output$dir, "CC_evd.eigenvalues"),

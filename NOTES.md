@@ -111,6 +111,10 @@ sudo dnf install epel-release
 sudo dnf --set-enabled powertools
 sudo dnf config-manager --set-enabled powertools
 sudo dnf install R
+sudo dnf install libxml2-devel
+sudo dnf install libcurl-devel
+sudo dnf install openssl-devel
+sudo dnf install harfbuzz-devel
 ```
 
 ## References

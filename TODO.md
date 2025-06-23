@@ -11,6 +11,7 @@
     - [ ] bundle solar versions.
 
 - tests:
+    - [ ] check install on vm, see [vm](dev/build/vm).
     - `Solar$run()`
         - [x] `polygenic()`
         - [x] `fphi()`
