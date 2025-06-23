@@ -1,12 +1,14 @@
 lib/solar900/
+lib/solar901/
 inst/lib/
-tests/release/
 docs/si/
 
 tests/debug/
 tests/debug.tar.gz
 tests/output/
 tests/input/solar/
+tests/input.tar.gz
+tests/release/
 
 *.Rproj
 .Rproj.user
@@ -14,5 +16,6 @@ tests/input/solar/
 .Rhistory
 solareclipser.Rproj
 
-# temp shell scripts
-*.sh
+inst/doc
+/Meta/
+/doc/
