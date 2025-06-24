@@ -9,79 +9,32 @@
 
 ## Description
 
-`solareclipser` is an R package to interface SOLAR and to run its main
-models: polygenic, fphi.
+`solareclipser` is an R package to interface with
+[SOLAR-Eclipse](https://www.nitrc.org/projects/se_linux/).
 
 ## Installation
 
-You can install the development version of solareclipser like so:
+### Prerequisites
+
+`solareclipser` requires
+[`solar`](https://www.nitrc.org/projects/se_linux/).
+
+### solareclipser
 
 ``` r
-library(devtools)
-install_github("enigma-1590c46634/solareclipser")
-```
-
-## Minimal example
-
-``` r
-library(solareclipser)
-
-sc <- SolarCommand$new()
-sc$load(obj = "pedigree",
-        fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
-        cond = "-t 0")
-sc$load(obj = "phenotypes",
-        fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
-sc$trait("CC")$polygenic()
-sc$run()
-#> ------------------------------------------------------------
-#> 
-#> proc filef121515ba200 {} {
-#>   load pedigree HCP_imputed_filtered_ped.csv -t 0
-#>   load phenotypes HCP_WM_ave_norm.csv
-#>   trait CC
-#>   polygenic
-#> }
-#> 
-#> ------------------------------------------------------------
-```
-
-``` r
-library(solareclipser)
-sc <- SolarCommand$new()
-sc$load(obj = "pedigree",
-        fpath = "tests/input/solar/HCP_imputed_filtered_ped.csv",
-        cond = "-t 0")
-sc$load(obj = "phenotypes",
-        fpath = "tests/input/solar/HCP_WM_ave_norm.csv")
-sc$trait("CC")
-sc$create_evd_data(output_fbasename = "CC_evd")
-sc$fphi(evd_data = "CC_evd")
-sc$run()
-#> ------------------------------------------------------------
-#> 
-#> proc filef1212354c81a {} {
-#>   load pedigree HCP_imputed_filtered_ped.csv -t 0
-#>   load phenotypes HCP_WM_ave_norm.csv
-#>   trait CC
-#>   create_evd_data --o CC_evd
-#>   fphi --evd_data CC_evd
-#> }
-#> 
-#> ------------------------------------------------------------
-```
-
-``` r
-SolarCommand$new(save_output_dir = "path/to/dir") # to save output files
+install.packages("devtools")
+devtools::install_github("txbrain-org/solareclipser")
 ```
 
 ## Tutorial
 
-See [tutorial](inst/doc/tutorial.md) for more infomation.
+See [tutorial](doc/solareclipser.pdf) for more infomation.
 
-## SOLAR references
+## Additional Resources
 
-  - The new [SOLAR web page](https://solar-eclipse-genetics.org/)
-    (SOLAR-Eclipse)
-  - [Appendix 1. SOLAR Command
-    Descriptions](http://helix.nih.gov/Documentation/solar-6.6.2-doc/91.appendix_1_text.html)
+  - [education -
+    solar-eclipse-genetics.org](https://solar-eclipse-genetics.org/education)
+  - [solareclipse.pdf -
+    solar-eclipse-genetics.org](https://solar-eclipse-genetics.org/downloads/solareclipser.pdf)
+  - [www.nitrc.org - solar
+    documents](https://www.nitrc.org/docman/?group_id=558)

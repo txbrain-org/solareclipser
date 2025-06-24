@@ -1,7 +1,7 @@
 library(R6)
 library(stringr)
 
-#' R6 Class Solar
+#' R6 Class SolarCommand
 #'
 #' @description
 #' TODO: add description.
@@ -12,7 +12,6 @@ library(stringr)
 #'   trait CC
 #'   polygen
 #'
-#' @export
 SolarCommand <- R6Class("SolarCommand",
   private = list(
     .load = NULL,
@@ -22,243 +21,20 @@ SolarCommand <- R6Class("SolarCommand",
     .polygenic = NULL,
     .create_evd_data = NULL,
     .fphi = NULL,
-
-    .do_polygenic = FALSE,
-    .do_create_evd_data = FALSE,
-    .do_fphi = FALSE,
-    .save_output_dir = NULL
+    .pedifromsnps = NULL
   ),
 
   public = list(
-    initialize = function(save_output_dir = NULL) {
-      # TODO: check which should be initialized here
+    initialize = function() {
       private$.load <- Load$new()
       private$.trait <- Trait$new()
       private$.covariate <- Covariate$new()
       private$.polygenic <- Polygenic$new()
-
-      if (!is.null(save_output_dir)) {
-        if (!dir.exists(save_output_dir)) {
-          stop("Directory does not exist: ", save_output_dir)
-        }
-        private$.save_output_dir <- save_output_dir
-      }
+      #private$.create_evd_data <- CreateEvdData$new()
+      #private$.fphi <- FPHI$new()
+      #private$.pedifromsnps <- PedifromSNPs$new()
     },
 
-    # Loads pedigree if it's an empirical pedigree
-    # you need to set the threshold with -t
-    #   load pedigree <pedigree filename>
-    #
-    # Loads phenotype file
-    #   load phenotype <phenotype filename>
-    #
-    # Select trait
-    #   trait <trait name>
-    #
-    # Select covariates
-    #   covar <list of covariates>
-    #
-    # Run polygenic or fphi
-    #   polygenic
-    # or
-    #   fphi
-    run = function() {
-      proj_wd <- getwd()
-      temp_wd <- tempdir()
-
-      # NOTE: initialize checks if the directory exists
-      # TODO: fix the naming of this variable
-      if (!is.null(private$.save_output_dir)) {
-        temp_wd <- private$.save_output_dir
-      }
-
-      # (obj = NULL, opts = NULL, fpath = NULL, cond = NULL)
-      #-- Section creating the string for loads
-      loads <- c()
-      loads <- self$get_loads()
-      #print_string_info(loads)
-
-      obj <- sapply(loads, function(x) x$get_obj())
-      obj <- unlist(obj)
-      #print_string_info(obj)
-      #cat("obj =", obj, "\n")
-
-      opts <- sapply(loads, function(x) x$get_opts())
-      opts <- unlist(opts)
-      #print_string_info(opts)
-      #cat("opts =", opts, "\n")
-
-      fpath <- sapply(loads, function(x) x$get_fpath())
-      fpath <- unlist(fpath)
-      #print_string_info(fpath)
-      #cat("fpath =", fpath, "\n")
-
-      cond <- sapply(loads, function(x) x$get_cond())
-      cond <- unlist(cond)
-      #print_string_info(cond)
-      #cat("cond =", cond, "\n")
-
-      fpath_basename <- sapply(fpath, function(x) basename(x))
-      fpath_basename <- unlist(fpath_basename)
-      #print_string_info(fpath_basename)
-      #cat("fpath_basename =", fpath_basename, "\n")
-
-      trait <- self$get_trait()
-      trait <- trait$get_args()
-      #print_string_info(trait)
-      #cat("trait =", trait, "\n")
-
-      covariate <- self$get_covariate()
-      covariate <- covariate$get_args()
-      #print_string_info(covariate)
-      #cat("covariate =", covariate, "\n")
-
-      create_evd_data <- self$get_create_evd_data()
-      #create_evd_data$print()
-
-      fphi <- self$get_fphi()
-      #fphi$print()
-
-      polygenic <- self$get_polygenic()
-      polygenic <- polygenic$get_opts()
-      #print_string_info(polygenic)
-      #cat("polygenic =", polygenic, "\n")
-
-
-      cat("------------------------------------------------------------\n")
-
-
-      strs <- c()
-      i <- 1
-      for (load in loads) {
-        obj <- load$get_obj()
-        opts <- load$get_opts()
-        fpath_bn <- fpath_basename[i]
-        cond <- load$get_cond()
-        str <- str_c("load", obj, opts, fpath_bn, cond, sep = " ")
-        strs <- c(strs, str)
-        i <- i + 1
-      }
-      #print_string_info(strs)
-      #for (str in strs) { print_string_info(str) }
-
-      loads_str <- str_c(strs, collapse = "\n")
-      trait <- str_c("trait", trait, sep = " ")
-      if (!is.null(covariate)) {
-        covariate <- str_c("covariate", covariate, sep = " ")
-      }
-
-      create_evd_data_fmt <- NULL
-      if (private$.do_create_evd_data) {
-        create_evd_data_fmt <-
-          str_c("create_evd_data --o ", create_evd_data$get_output_fbasename())
-
-        if (!is.null(create_evd_data$get_plink_fbasename())) {
-          create_evd_data_fmt <-
-            str_c(create_evd_data_fmt, " --plink ",
-                  create_evd_data$get_plink_fbasename())
-        }
-
-        if (create_evd_data$get_use_covs() == TRUE) {
-          create_evd_data_fmt <- str_c(create_evd_data_fmt, " --use_covs")
-        }
-      }
-
-      # TODO: implement the rest of the options
-      # .opts = NULL, # -fast -debug -list
-      # .opts_fname = NULL, # -list <file containing trait names>
-      # .precision = NULL, # -precision <h2 decimal count>
-      # .mask = NULL, # -mask <name of nifti template volume>
-      # .evd_data = NULL # -evd_data <base filename of EVD data
-      if (private$.do_fphi) {
-        if (!is.null(fphi$get_evd_data())) {
-          fphi_fmt <-
-            str_c("fphi --evd_data", fphi$get_opts(), fphi$get_opts_fname(),
-                  fphi$get_precision(), fphi$get_mask(), fphi$get_evd_data(),
-                  sep = " ")
-        }
-      }
-
-      if (private$.do_polygenic) {
-        polygenic <- str_c("polygenic", polygenic, sep = " ")
-      }
-
-      #cat(loads_str, "\n")
-      #cat(trait, "\n")
-      #cat(covariate, "\n")
-      #cat(polygenic, "\n")
-      #cat(create_evd_data_fmt, "\n")
-      #cat(fphi_fmt, "\n")
-
-      for (file in fpath) {
-        if (!file.exists(file)) {
-          stop("File does not exist: ", file)
-        } else {
-          # copy file to temp dir
-          file.copy(file, temp_wd)
-        }
-      }
-
-      tcl_f_realpath <- tempfile(fileext = ".tcl")
-      # TODO: fix the naming of this variable
-      if (!is.null(private$.save_output_dir)) {
-        tcl_f_realpath <- file.path(private$.save_output_dir, basename(tcl_f_realpath))
-      }
-      tcl_f_basename <- basename(tcl_f_realpath)
-      # remove .tcl from basename
-      tcl_proc_name <- gsub("\\.tcl", "", tcl_f_basename)
-      #cat("tcl_f_realpath =", tcl_f_realpath, "\n")
-      #cat("tcl_f_basename =", tcl_f_basename, "\n")
-      #cat("tcl_proc_name =", tcl_proc_name, "\n")
-
-      # proc tcl_proc_name {} { ... }
-      cmd_fn_def_begin <- paste("proc", tcl_proc_name, "{} {", sep = " ")
-
-      if (private$.do_create_evd_data) {
-        if (private$.do_fphi) {
-          cmd_fn_body <- str_c(loads_str, trait, covariate, create_evd_data_fmt, fphi_fmt, sep = "\n")
-        } else {
-          cmd_fn_body <- str_c(loads_str, trait, covariate, create_evd_data_fmt, sep = "\n")
-        }
-      }
-      if (private$.do_polygenic) {
-        cmd_fn_body <- str_c(loads_str, trait, covariate, polygenic, sep = "\n")
-      }
-      # indent the body of the function
-      cmd_fn_body <- sapply(strsplit(cmd_fn_body, "\n"), function(x) paste("  ", x, sep = ""))
-      cmd_fn_def_end <- "}"
-      cmd_fn_all <- c(cmd_fn_def_begin, cmd_fn_body, cmd_fn_def_end)
-
-      cat("\n")
-      cat(cmd_fn_all, sep = "\n")
-      cat("\n")
-      cat("------------------------------------------------------------\n")
-
-      if(dir.exists(temp_wd)) {
-        if(!file.exists(tcl_f_realpath)) {
-          #message(tcl_f_realpath, " does not exist, creating...")
-          f_con <- file(tcl_f_realpath, open = "w")
-          writeLines(cmd_fn_all, con = f_con)
-          close(f_con)
-          #file.show(tcl_f_realpath)
-
-          # run tcl file
-          setwd(temp_wd)
-          # print the current working directory
-          #print(getwd())
-
-          system2("solar", args = tcl_proc_name)
-          #system2("ls", args = "-l")
-        }
-      }
-
-      setwd(proj_wd)
-      invisible(self)
-    },
-
-    about = function() {
-      invisible(self)
-    },
 
     load = function(obj = NULL, opts = NULL, fpath = NULL, cond = NULL) {
       private$.load <- Load$new(obj, opts, fpath, cond)
@@ -271,25 +47,20 @@ SolarCommand <- R6Class("SolarCommand",
       invisible(self)
     },
 
-    covariate = function(covariate = NULL) {
-      private$.covariate <- Covariate$new(covariate)
+    polygenic = function(opts = NULL) {
+      private$.polygenic <- Polygenic$new(opts)
       invisible(self)
     },
 
-    polygenic = function() {
-      private$.polygenic <- Polygenic$new()
-      private$.do_polygenic <- TRUE
+    covariate = function(args = NULL) {
+      private$.covariate <- Covariate$new(args)
       invisible(self)
     },
 
-    create_evd_data = function(output_fbasename = NULL,
-                               plink_fbasename = NULL,
+    create_evd_data = function(output_fbasename = NULL, plink_fbasename = NULL,
                                use_covs = FALSE) {
-
       private$.create_evd_data <-
         CreateEvdData$new(output_fbasename, plink_fbasename, use_covs)
-
-      private$.do_create_evd_data <- TRUE
       invisible(self)
     },
 
@@ -297,79 +68,32 @@ SolarCommand <- R6Class("SolarCommand",
                     precision = NULL, mask = NULL,
                     evd_data = NULL) {
       private$.fphi <- FPHI$new(opts, opts_fname, precision, mask, evd_data)
-      private$.do_fphi <- TRUE
       invisible(self)
     },
 
-    get_save_output_dir = function() {
-      private$.save_output_dir
+    pedifromsnps = function(input_fbase = NULL, output_fbase = NULL,
+                            freq_fbase = NULL, corr = NULL,
+                            per_chromo = FALSE, king = FALSE,
+                            method_two = FALSE, batch_size = NULL,
+                            id_list = NULL, n_threads = NULL) {
+      private$.pedifromsnps <-
+        PedifromSNPs$new(input_fbase, output_fbase, freq_fbase, corr,
+                         per_chromo, king, method_two, batch_size, id_list,
+                         n_threads)
+      invisible(self)
     },
 
-    get_load = function() {
-      private$.load
-    },
-
-    get_loads = function() {
-      private$.loads
-    },
-
-    get_trait = function() {
-      private$.trait
-    },
-
-    get_covariate = function() {
-      private$.covariate
-    },
-
-    get_polygenic = function() {
-      private$.polygenic
-    },
-
-    get_create_evd_data = function() {
-      private$.create_evd_data
-    },
-
-    get_fphi = function() {
-      private$.fphi
-    },
+    get_load = function() { private$.load },
+    get_loads = function() { private$.loads },
+    get_trait = function() { private$.trait },
+    get_covariate = function() { private$.covariate },
+    get_polygenic = function() { private$.polygenic },
+    get_create_evd_data = function() { private$.create_evd_data },
+    get_fphi = function() { private$.fphi },
+    get_pedifromsnps = function() { private$.pedifromsnps },
 
     print = function() {
       cat(format(self), sep = "\n")
-      invisible(self)
-    },
-
-    print_private = function(field = NULL) {
-      if (is.null(field)) {
-        private$.load$print()
-        private$.trait$print()
-        private$.covariate$print()
-        private$.polygenic$print()
-        private$.create_evd_data$print()
-        private$.fphi$print()
-        invisible(self)
-        return()
-      }
-      if (field == "load") {
-        private$.load$print()
-      }
-      if (field == "loads") {
-        sapply(private$.loads, function(x) x$print())
-      }
-      if (field == "trait") {
-        private$.trait$print()
-      }
-      if (field == "covariate") {
-        private$.covariate$print()
-      }
-      if (field == "polygenic") {
-        private$.polygenic$print()
-      }
-      if (field == "create_evd_data") {
-        private$.create_evd_data$print()
-      }
-      if (field == "fphi") {
-        private$.fphi$print()
-      }
       invisible(self)
     },
 
@@ -387,7 +111,7 @@ SolarCommand <- R6Class("SolarCommand",
 #' @details
 #' From the Solar manual:
 #'
-#'   load <object-type> [<opts>] <args>
+#' USAGE: load <object-type> [<opts>] <args>
 #'
 #' EXAMPLES:
 #'   load pedigree    <filename>
@@ -500,6 +224,7 @@ Trait <- R6Class("Trait",
     # .valid_args = c()
   ),
   public = list(
+    #TODO: trim whitespace at end of args
     initialize = function(args = NULL) {
       if (!is.null(args)) {
         private$.args <- args
@@ -720,24 +445,34 @@ CreateEvdData <- R6Class("CreateEvdData",
 #' TODO: Add description
 #'
 #' @details
-#'   From the Solar manual:
-#'   Purpose: Fast test and heritability approximation
+#' From the Solar manual:
+#'
+#' Purpose: Fast test and heritability approximation
 #'
 #' USAGE:
-#' fphi [optional
-#'      -fast -debug -list <file containing trait names>
-#'      -precision <h2 decimal count>
-#'      -mask <name of nifti template volume>
-#'      -evd_data <base filename of EVD data]
+#'    fphi [options]
 #'
-#'      -fast Performs a quick estimation run
-#'      -debug Displays values at each iteration
-#'      -list performs fast fphi on a list of trait (does not include covariate
+#' OPTIONAL
+#'    -fast -debug -list <file containing trait names>
+#'    -precision <h2 decimal count>
+#'    -mask <name of nifti template volume>
+#'    -evd_data <base filename of EVD data]
+#'
+#' DESCRIPTION
+#'    -fast
+#'        Performs a quick estimation run
+#'    -debug
+#'        Displays values at each iteration
+#'    -list
+#'        performs fast fphi on a list of trait (does not include covariate
 #'        data)
-#'      -precision number of decimals to calculate h2r
-#'      -mask outputs fphi -fast results of the list of voxels from -list option
-#'      -evd_data When using the -list option the EVD data option can be used
-#'        to avoid having to calculate EVD data within the command
+#'    -precision
+#'        number of decimals to calculate h2r
+#'    -mask
+#'        outputs fphi -fast results of the list of voxels from -list option
+#'    -evd_data
+#'        When using the -list option the EVD data option can be used to avoid
+#'        having to calculate EVD data within the command
 #'
 #' Fast permutation and heritability inference (FPHI). FPHI is based on the
 #' eigenvalue decomposition on the kinship matrix and a search through values
@@ -784,6 +519,14 @@ FPHI <- R6Class("FPHI",
       }
     },
     print = function() {
+      cat(".opts = ", private$.opts, "\n")
+      cat(".opts_fname = ", private$.opts_fname, "\n")
+      cat(".precision = ", private$.precision, "\n")
+      cat(".mask = ", private$.mask, "\n")
+      cat(".evd_data = ", private$.evd_data, "\n")
+      invisible(self)
+    },
+    print_self = function() {
       cat(format(self), sep = "\n")
       invisible(self)
     },
@@ -804,6 +547,161 @@ FPHI <- R6Class("FPHI",
     },
     get_evd_data = function() {
       private$.evd_data
+    }
+  )
+)
+
+#' R6 Class Pedifromsnps
+#'
+#' @description
+#' TODO: add description.
+#'
+#' @details
+#' From the Solar manual:
+#'
+#' Purpose: Creates a empirical pedigree matrix from a plink data set
+#'
+#' USAGE:
+#' pedifromsnps -i <input base name of plink data>
+#'              -o <output csv file name>
+#'              --freq <file made with plink_freq>
+#' OPTIONAL:
+#'    -corr <alpha value>
+#'    -per-chromo -king -method_two -normalize
+#'    -batch_size <batch size value>
+#'    -id_list <file w/ subject IDs>
+#'    -n_threads <number of CPU threads>
+#'
+#' DESCPRIPTION:
+#'    -i <file>
+#'        The base file name of the plink .bed, .bim, and .fam files.
+#'    -o <file>
+#'        The base file name for the output.
+#'    -freq <file>
+#'        Name of output file from plink_freq command.
+#'    -n_threads <n>
+#'        Number of CPU threads used for matrix calculation.
+#'        Default: Automatically set based on hardware
+#'    -per-chromo
+#'        Outputs a separate matrix for each chromosome.
+#'        Default: Disabled
+#'    -corr <alpha value>
+#'        Compute method one correlation GRM using this alpha value.
+#'        Default: -1
+#'	  -method_two
+#'        Computes correlation GRM using a second method described below.
+#'        Default: Disabled
+#'    -king
+#'        Computes Robust King GRM instead of using a correlation method.
+#'	      Default: Disabled
+#'    -batch_size <batch size value>
+#'        Number of loci computed at a single time per CPU thread.
+#'        Default: 500
+#'    -id_list <file w/ subject IDs>
+#'        Specified file contains a list of subject IDs separated by spaces.
+#'        The resulting GRM will only use these IDs and excluded all others.
+#'        Default: All IDs are used
+#'    -normalize
+#'        When used during the creation of a correlation GRM the final
+#'        values are normalized using the square roots of the diagonal values.
+#'        The result being that diagonal elements are 1 and off-diagonal
+#'        elements are bounded by 1 and -1.  Z*_i_j = Z_i_j/sqrt(Z_i_i*Z_j_j)
+#'        where Z* is the final value and Z is the unnormalized value, i refers
+#'        to the index of subject i while j refers to the index of subject j.
+#'
+PedifromSNPs <- R6Class("PedifromSNPs",
+  private = list(
+    # Required
+    .input_fbase = NULL,
+    .output_fbase = NULL,
+    .freq_fbase = NULL,
+    # Optional
+    .corr = NULL,
+    .per_chromo = FALSE,
+    .king = FALSE,
+    .method_two = FALSE,
+    .batch_size = NULL,
+    .id_list = NULL,
+    .n_threads = NULL
+  ),
+  public = list(
+    initialize = function(input_fbase = NULL, output_fbase = NULL,
+                          freq_fbase = NULL, corr = NULL, per_chromo = FALSE,
+                          king = FALSE, method_two = FALSE, batch_size = NULL,
+                          id_list = NULL, n_threads = NULL) {
+      if (!is.null(input_fbase)) {
+        private$.input_fbase <- input_fbase
+      } else {
+        stop("Pedifromsnps: input_fbase is required")
+      }
+      if (!is.null(output_fbase)) {
+        private$.output_fbase <- output_fbase
+      } else {
+        stop("Pedifromsnps: output_fbase is required")
+      }
+      if (!is.null(freq_fbase)) {
+        private$.freq_fbase <- freq_fbase
+      } else {
+        stop("Pedifromsnps: freq_fbase is required")
+      }
+      if (!is.null(corr)) {
+        private$.corr <- corr
+      }
+      if (!is.null(per_chromo)) {
+        private$.per_chromo <- per_chromo
+      }
+      if (!is.null(king)) {
+        private$.king <- king
+      }
+      if (!is.null(method_two)) {
+        private$.method_two <- method_two
+      }
+      if (!is.null(batch_size)) {
+        private$.batch_size <- batch_size
+      }
+      if (!is.null(id_list)) {
+        private$.id_list <- id_list
+      }
+      if (!is.null(n_threads)) {
+        private$.n_threads <- n_threads
+      }
+    },
+    print = function() {
+      cat(format(self), sep = "\n")
+      invisible(self)
+    },
+    finalize = function() {
+      #message("finalize(Pedifromsnps)")
+    },
+    get_input_fbase = function() {
+      private$.input_fbase
+    },
+    get_output_fbase = function() {
+      private$.output_fbase
+    },
+    get_freq_fbase = function() {
+      private$.freq_fbase
+    },
+    get_corr = function() {
+      private$.corr
+    },
+    get_per_chromo = function() {
+      private$.per_chromo
+    },
+    get_king = function() {
+      private$.king
+    },
+    get_method_two = function() {
+      private$.method_two
+    },
+    get_batch_size = function() {
+      private$.batch_size
+    },
+    get_id_list = function() {
+      private$.id_list
+    },
+    get_n_threads = function() {
+      private$.n_threads
     }
   )
 )

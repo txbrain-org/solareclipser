@@ -13,8 +13,20 @@ TODO: add list of files created by solar
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-SolarFiles-new}{\code{SolarFiles$new()}}
-\item \href{#method-SolarFiles-get_solar_executable}{\code{SolarFiles$get_solar_executable()}}
 \item \href{#method-SolarFiles-print}{\code{SolarFiles$print()}}
+\item \href{#method-SolarFiles-get_settings}{\code{SolarFiles$get_settings()}}
+\item \href{#method-SolarFiles-get_shared_files}{\code{SolarFiles$get_shared_files()}}
+\item \href{#method-SolarFiles-get_polygenic_files}{\code{SolarFiles$get_polygenic_files()}}
+\item \href{#method-SolarFiles-get_fphi_files}{\code{SolarFiles$get_fphi_files()}}
+\item \href{#method-SolarFiles-set_settings}{\code{SolarFiles$set_settings()}}
+\item \href{#method-SolarFiles-set_polygenic}{\code{SolarFiles$set_polygenic()}}
+\item \href{#method-SolarFiles-set_polygenic_trait_d}{\code{SolarFiles$set_polygenic_trait_d()}}
+\item \href{#method-SolarFiles-set_polygenic_trait_d_files}{\code{SolarFiles$set_polygenic_trait_d_files()}}
+\item \href{#method-SolarFiles-set_fphi_evd_data_bn}{\code{SolarFiles$set_fphi_evd_data_bn()}}
+\item \href{#method-SolarFiles-set_fphi_eigenvalues_f}{\code{SolarFiles$set_fphi_eigenvalues_f()}}
+\item \href{#method-SolarFiles-set_fphi_eigenvectors_f}{\code{SolarFiles$set_fphi_eigenvectors_f()}}
+\item \href{#method-SolarFiles-set_fphi_ids_f}{\code{SolarFiles$set_fphi_ids_f()}}
+\item \href{#method-SolarFiles-set_fphi_notes_f}{\code{SolarFiles$set_fphi_notes_f()}}
 \item \href{#method-SolarFiles-clone}{\code{SolarFiles$clone()}}
 }
 }
@@ -23,16 +35,7 @@ TODO: add list of files created by solar
 \if{latex}{\out{\hypertarget{method-SolarFiles-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$new(solar_executable = NA, solar_output_dir = NA)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarFiles-get_solar_executable"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarFiles-get_solar_executable}{}}}
-\subsection{Method \code{get_solar_executable()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$get_solar_executable()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$new(settings = NULL)}\if{html}{\out{</div>}}
 }
 
 }
@@ -42,6 +45,123 @@ TODO: add list of files created by solar
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SolarFiles$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFiles-get_settings"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFiles-get_settings}{}}}
+\subsection{Method \code{get_settings()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$get_settings()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFiles-get_shared_files"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFiles-get_shared_files}{}}}
+\subsection{Method \code{get_shared_files()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$get_shared_files()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFiles-get_polygenic_files"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFiles-get_polygenic_files}{}}}
+\subsection{Method \code{get_polygenic_files()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$get_polygenic_files()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFiles-get_fphi_files"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFiles-get_fphi_files}{}}}
+\subsection{Method \code{get_fphi_files()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$get_fphi_files()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFiles-set_settings"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFiles-set_settings}{}}}
+\subsection{Method \code{set_settings()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$set_settings(settings)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFiles-set_polygenic"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFiles-set_polygenic}{}}}
+\subsection{Method \code{set_polygenic()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$set_polygenic()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFiles-set_polygenic_trait_d"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFiles-set_polygenic_trait_d}{}}}
+\subsection{Method \code{set_polygenic_trait_d()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$set_polygenic_trait_d(trait_d)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFiles-set_polygenic_trait_d_files"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFiles-set_polygenic_trait_d_files}{}}}
+\subsection{Method \code{set_polygenic_trait_d_files()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$set_polygenic_trait_d_files(trait_d_files)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFiles-set_fphi_evd_data_bn"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFiles-set_fphi_evd_data_bn}{}}}
+\subsection{Method \code{set_fphi_evd_data_bn()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$set_fphi_evd_data_bn(evd_data_bn)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFiles-set_fphi_eigenvalues_f"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFiles-set_fphi_eigenvalues_f}{}}}
+\subsection{Method \code{set_fphi_eigenvalues_f()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$set_fphi_eigenvalues_f(eigenvalues_f)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFiles-set_fphi_eigenvectors_f"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFiles-set_fphi_eigenvectors_f}{}}}
+\subsection{Method \code{set_fphi_eigenvectors_f()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$set_fphi_eigenvectors_f(eigenvectors_f)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFiles-set_fphi_ids_f"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFiles-set_fphi_ids_f}{}}}
+\subsection{Method \code{set_fphi_ids_f()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$set_fphi_ids_f(ids_f)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarFiles-set_fphi_notes_f"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarFiles-set_fphi_notes_f}{}}}
+\subsection{Method \code{set_fphi_notes_f()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarFiles$set_fphi_notes_f(notes_f)}\if{html}{\out{</div>}}
 }
 
 }

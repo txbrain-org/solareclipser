@@ -2,7 +2,7 @@
 % Please edit documentation in R/SolarCommand.R
 \name{SolarCommand}
 \alias{SolarCommand}
-\title{R6 Class Solar}
+\title{R6 Class SolarCommand}
 \description{
 TODO: add description.
 }
@@ -16,15 +16,13 @@ polygen
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-SolarCommand-new}{\code{SolarCommand$new()}}
-\item \href{#method-SolarCommand-run}{\code{SolarCommand$run()}}
-\item \href{#method-SolarCommand-about}{\code{SolarCommand$about()}}
 \item \href{#method-SolarCommand-load}{\code{SolarCommand$load()}}
 \item \href{#method-SolarCommand-trait}{\code{SolarCommand$trait()}}
-\item \href{#method-SolarCommand-covariate}{\code{SolarCommand$covariate()}}
 \item \href{#method-SolarCommand-polygenic}{\code{SolarCommand$polygenic()}}
+\item \href{#method-SolarCommand-covariate}{\code{SolarCommand$covariate()}}
 \item \href{#method-SolarCommand-create_evd_data}{\code{SolarCommand$create_evd_data()}}
 \item \href{#method-SolarCommand-fphi}{\code{SolarCommand$fphi()}}
-\item \href{#method-SolarCommand-get_save_output_dir}{\code{SolarCommand$get_save_output_dir()}}
+\item \href{#method-SolarCommand-pedifromsnps}{\code{SolarCommand$pedifromsnps()}}
 \item \href{#method-SolarCommand-get_load}{\code{SolarCommand$get_load()}}
 \item \href{#method-SolarCommand-get_loads}{\code{SolarCommand$get_loads()}}
 \item \href{#method-SolarCommand-get_trait}{\code{SolarCommand$get_trait()}}
@@ -32,8 +30,8 @@ polygen
 \item \href{#method-SolarCommand-get_polygenic}{\code{SolarCommand$get_polygenic()}}
 \item \href{#method-SolarCommand-get_create_evd_data}{\code{SolarCommand$get_create_evd_data()}}
 \item \href{#method-SolarCommand-get_fphi}{\code{SolarCommand$get_fphi()}}
+\item \href{#method-SolarCommand-get_pedifromsnps}{\code{SolarCommand$get_pedifromsnps()}}
 \item \href{#method-SolarCommand-print}{\code{SolarCommand$print()}}
-\item \href{#method-SolarCommand-print_private}{\code{SolarCommand$print_private()}}
 \item \href{#method-SolarCommand-finalize}{\code{SolarCommand$finalize()}}
 \item \href{#method-SolarCommand-clone}{\code{SolarCommand$clone()}}
 }
@@ -43,25 +41,7 @@ polygen
 \if{latex}{\out{\hypertarget{method-SolarCommand-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$new(save_output_dir = NULL)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-run"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-run}{}}}
-\subsection{Method \code{run()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$run()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-about"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-about}{}}}
-\subsection{Method \code{about()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$about()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$new()}\if{html}{\out{</div>}}
 }
 
 }
@@ -84,20 +64,20 @@ polygen
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-covariate"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-covariate}{}}}
-\subsection{Method \code{covariate()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$covariate(covariate = NULL)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-polygenic"></a>}}
 \if{latex}{\out{\hypertarget{method-SolarCommand-polygenic}{}}}
 \subsection{Method \code{polygenic()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$polygenic()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$polygenic(opts = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarCommand-covariate"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarCommand-covariate}{}}}
+\subsection{Method \code{covariate()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$covariate(args = NULL)}\if{html}{\out{</div>}}
 }
 
 }
@@ -130,11 +110,22 @@ polygen
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-get_save_output_dir"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-get_save_output_dir}{}}}
-\subsection{Method \code{get_save_output_dir()}}{
+\if{html}{\out{<a id="method-SolarCommand-pedifromsnps"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarCommand-pedifromsnps}{}}}
+\subsection{Method \code{pedifromsnps()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$get_save_output_dir()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$pedifromsnps(
+  input_fbase = NULL,
+  output_fbase = NULL,
+  freq_fbase = NULL,
+  corr = NULL,
+  per_chromo = FALSE,
+  king = FALSE,
+  method_two = FALSE,
+  batch_size = NULL,
+  id_list = NULL,
+  n_threads = NULL
+)}\if{html}{\out{</div>}}
 }
 
 }
@@ -202,20 +193,20 @@ polygen
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SolarCommand-get_pedifromsnps"></a>}}
+\if{latex}{\out{\hypertarget{method-SolarCommand-get_pedifromsnps}{}}}
+\subsection{Method \code{get_pedifromsnps()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$get_pedifromsnps()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-print"></a>}}
 \if{latex}{\out{\hypertarget{method-SolarCommand-print}{}}}
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$print()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-print_private"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-print_private}{}}}
-\subsection{Method \code{print_private()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$print_private(field = NULL)}\if{html}{\out{</div>}}
 }
 
 }

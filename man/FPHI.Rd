@@ -8,20 +8,33 @@ TODO: Add description
 }
 \details{
 From the Solar manual:
+
 Purpose: Fast test and heritability approximation
 
 USAGE:
-fphi 
+fphi \link{options}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{ -fast Performs a quick estimation run
- -debug Displays values at each iteration
- -list performs fast fphi on a list of trait (does not include covariate
-   data)
- -precision number of decimals to calculate h2r
- -mask outputs fphi -fast results of the list of voxels from -list option
- -evd_data When using the -list option the EVD data option can be used
-   to avoid having to calculate EVD data within the command
-}\if{html}{\out{</div>}}
+OPTIONAL
+-fast -debug -list \if{html}{\out{<file containing trait names>}}
+-precision \if{html}{\out{<h2 decimal count>}}
+-mask \if{html}{\out{<name of nifti template volume>}}
+-evd_data <base filename of EVD data]
+
+DESCRIPTION
+-fast
+Performs a quick estimation run
+-debug
+Displays values at each iteration
+-list
+performs fast fphi on a list of trait (does not include covariate
+data)
+-precision
+number of decimals to calculate h2r
+-mask
+outputs fphi -fast results of the list of voxels from -list option
+-evd_data
+When using the -list option the EVD data option can be used to avoid
+having to calculate EVD data within the command
 
 Fast permutation and heritability inference (FPHI). FPHI is based on the
 eigenvalue decomposition on the kinship matrix and a search through values
@@ -43,6 +56,7 @@ EXAMPLES:
 \itemize{
 \item \href{#method-FPHI-new}{\code{FPHI$new()}}
 \item \href{#method-FPHI-print}{\code{FPHI$print()}}
+\item \href{#method-FPHI-print_self}{\code{FPHI$print_self()}}
 \item \href{#method-FPHI-finalize}{\code{FPHI$finalize()}}
 \item \href{#method-FPHI-get_opts}{\code{FPHI$get_opts()}}
 \item \href{#method-FPHI-get_opts_fname}{\code{FPHI$get_opts_fname()}}
@@ -73,6 +87,15 @@ EXAMPLES:
 \subsection{Method \code{print()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{FPHI$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-FPHI-print_self"></a>}}
+\if{latex}{\out{\hypertarget{method-FPHI-print_self}{}}}
+\subsection{Method \code{print_self()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FPHI$print_self()}\if{html}{\out{</div>}}
 }
 
 }

@@ -1,5 +1,13 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^Meta$
 ^release$
 ^tests/debug$
 ^tests$
+^doc$
+^dev$
+^justfile$
+^lib$
+^NOTES\.md$
+^TODO\.md$
+.*.txt$

@@ -1,0 +1,20 @@
+ERROR: dependency ‘httr2’ is not available for package ‘gh’
+* removing ‘/home/wb/R/x86_64-redhat-linux-gnu-library/4.4/gh’
+ERROR: dependency ‘xml2’ is not available for package ‘lintr’
+* removing ‘/home/wb/R/x86_64-redhat-linux-gnu-library/4.4/lintr’
+ERROR: dependencies ‘curl’, ‘gert’, ‘gh’ are not available for package ‘usethis’
+* removing ‘/home/wb/R/x86_64-redhat-linux-gnu-library/4.4/usethis’
+ERROR: dependencies ‘curl’, ‘httr2’, ‘rvest’, ‘xml2’ are not available for package ‘foghorn’
+* removing ‘/home/wb/R/x86_64-redhat-linux-gnu-library/4.4/foghorn’
+ERROR: dependencies ‘gargle’, ‘httr’ are not available for package ‘gmailr’
+* removing ‘/home/wb/R/x86_64-redhat-linux-gnu-library/4.4/gmailr’
+ERROR: dependencies ‘curl’, ‘gert’, ‘whoami’ are not available for package ‘rhub’
+* removing ‘/home/wb/R/x86_64-redhat-linux-gnu-library/4.4/rhub’
+ERROR: dependencies ‘usethis’, ‘pkgdown’, ‘rcmdcheck’, ‘roxygen2’, ‘rversions’, ‘urlchecker’ are not available for package ‘devtools’
+* removing ‘/home/wb/R/x86_64-redhat-linux-gnu-library/4.4/devtools’
+
+The downloaded source packages are in
+	‘/tmp/RtmpkPGRr4/downloaded_packages’
+There were 26 warnings (use warnings() to see them)
+Error in library(devtools) : there is no package called ‘devtools’
+Execution halted

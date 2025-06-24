@@ -1,7 +1,7 @@
 Package: solareclipser
 Title: An R Interface to SOLAR
 Type: Package
-Version: 0.3.3
+Version: 1.0.0
 Date: 2024-05-02
 Authors@R: 
     person("William",
@@ -27,9 +27,11 @@ URL: https://github.com/enigma-1590c46634/solareclipser
 LazyData: false
 OS_type: unix
 Imports:
-    stringr
+    R6,
+    stringr,
+    testthat (>= 3.0.0)
 Suggests:
-    testthat (>= 3.0.0),
     knitr,
-    rmarkdown,
+    rmarkdown
 VignetteBuilder: knitr
+Config/testthat/edition: 3

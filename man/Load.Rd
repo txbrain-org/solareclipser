@@ -9,7 +9,7 @@ TODO: add description.
 \details{
 From the Solar manual:
 
-load \if{html}{\out{<object-type>}}  \if{html}{\out{<args>}}
+USAGE: load \if{html}{\out{<object-type>}}  \if{html}{\out{<args>}}
 
 EXAMPLES:
 load pedigree    \if{html}{\out{<filename>}}
