@@ -2,52 +2,39 @@
 % Please edit documentation in R/SolarCommand.R
 \name{Covariate}
 \alias{Covariate}
-\title{R6 Class Covariate}
+\title{R6 Class: Covariate}
 \description{
-TODO: add description.
+Represents the SOLAR \code{covariate} subcommand for modeling fixed effects, interactions, and trait-specific covariates.
 }
 \details{
-From the Solar manual:
+The \code{covariate} command adds covariates to the analysis model in SOLAR. This may include simple variables, polynomial terms,
+interaction terms, and trait-specific covariates. Covariates can be suspended, restored, or removed dynamically.
+\subsection{SOLAR Manual Syntax:}{
 
-USAGE:
-covariate \if{html}{\out{<variable>}}[^n | ^1,2\link{,3...}][\emph{\if{html}{\out{<variable>}} | #\if{html}{\out{<variable>}}
-[(\link{trait})]]}
-Creates a new covariate.  See below for examples.
-;
-covariate                      ; display all covariate info
-covariate delete \if{html}{\out{<string>}}      ; deletes covariate and beta(s)
-covariate delete_all           ; deletes all covariates and beta(s)
-;
-covariate \if{html}{\out{<variable>}}()         ; Null Covariate: require var in
-;   sample without covariation
-;
-; Covariate Suspension (for
-;   temporary hypothesis testing).
-covariate suspend \if{html}{\out{<string>}}     ; temporarily disable covariate
-covariate restore \if{html}{\out{<string>}}     ; re-activate suspended covariate
+\if{html}{\out{<div class="sourceCode">}}\preformatted{covariate <variable>[^n | ^1,2,...]*<interaction or #variable>
+covariate                       ; display current covariates
+covariate delete <name>         ; remove a specific covariate
+covariate delete_all            ; remove all covariates
+covariate suspend <name>        ; temporarily disable covariate
+covariate restore <name>        ; re-enable suspended covariate
+}\if{html}{\out{</div>}}
+}
 
-EXAMPLES:
-covariate age                       ; Simple covariate Age
-covariate age\emph{sex                   ; Age by Sex interaction (only)
-covariate age}diabet\emph{diameds        ; 3-way interaction
-covariate age^2                     ; Age squared as a simple covariate
-covariate age^1,2                   ; Shorthand for: age age^2
-covariate age#diabet                ; Shorthand for the following:
-;   covariate age diabet age}diabet
-covariate age^1,2,3#sex             ; Shorthand for all the following:
-covariate sex age age\emph{sex age^2 age^2}sex age^3 age^3*sex
-
-covariate sex age(q1) age\emph{sex(q3)   ; Trait-specific Covariates:
-;   covariate sex applied to all traits
-;   covariate age applied to trait q1
-;   covariate age}sex applied to q3
+\subsection{Examples:}{
+\itemize{
+\item \verb{covariate age}
+\item \verb{covariate age*sex}
+\item \verb{covariate age^2}
+\item \verb{covariate age^1,2,3#sex}
+\item \verb{covariate sex age(q1) age*sex(q3)}
+}
+}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-Covariate-new}{\code{Covariate$new()}}
 \item \href{#method-Covariate-print}{\code{Covariate$print()}}
-\item \href{#method-Covariate-finalize}{\code{Covariate$finalize()}}
 \item \href{#method-Covariate-get_args}{\code{Covariate$get_args()}}
 \item \href{#method-Covariate-clone}{\code{Covariate$clone()}}
 }
@@ -60,6 +47,16 @@ covariate sex age(q1) age\emph{sex(q3)   ; Trait-specific Covariates:
 \if{html}{\out{<div class="r">}}\preformatted{Covariate$new(args = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{args}}{Character. One or more covariate specifications. Supports expressions, interactions, and trait-specific formats.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new \code{Covariate} object containing the covariate configuration for SOLAR.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Covariate-print"></a>}}
@@ -69,15 +66,9 @@ covariate sex age(q1) age\emph{sex(q3)   ; Trait-specific Covariates:
 \if{html}{\out{<div class="r">}}\preformatted{Covariate$print()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Invisibly returns \code{self}. Outputs the covariate specification to the console.
 }
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Covariate-finalize"></a>}}
-\if{latex}{\out{\hypertarget{method-Covariate-finalize}{}}}
-\subsection{Method \code{finalize()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Covariate$finalize()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Covariate-get_args"></a>}}
@@ -87,6 +78,9 @@ covariate sex age(q1) age\emph{sex(q3)   ; Trait-specific Covariates:
 \if{html}{\out{<div class="r">}}\preformatted{Covariate$get_args()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character string or expression representing the current covariate specification, or \code{NULL} if not defined.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Covariate-clone"></a>}}

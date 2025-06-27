@@ -1,17 +1,39 @@
 library(R6)
 library(stringr)
 
-#' R6 Class SolarCommand
+#' @title R6 Class: SolarCommand
 #'
 #' @description
-#' TODO: add description.
+#' A command builder class for interfacing with SOLAR subcommands.
 #'
 #' @details
-#' Example solar command steps:
-#'   load phen HCP_WM_ave_norm.csv
-#'   trait CC
-#'   polygen
+#' This class orchestrates SOLAR subcommands such as `load`, `trait`, `polygenic`, `fphi`, `pedifromsnps`, etc.
+#' Each call stores command configuration objects for later execution.
 #'
+#' @section Usage Example:
+#' ```r
+#' cmd <- SolarCommand$new()
+#' cmd$load("pedigree", fpath = "ped.csv")
+#' cmd$trait("height")
+#' cmd$polygenic()
+#' ```
+#'
+#' @section Subcommand Builders:
+#' - `load(obj, opts, fpath, cond)`: Register a load command.
+#' - `trait(args)`: Set trait(s).
+#' - `covariate(args)`: Add covariate(s).
+#' - `polygenic(opts)`: Configure polygenic model.
+#' - `create_evd_data(...)`: Register an EVD creation call.
+#' - `fphi(...)`: Configure fphi heritability analysis.
+#' - `pedifromsnps(...)`: Configure SNP-to-pedigree conversion.
+#'
+#' @section Accessors:
+#' - `get_load()`, `get_loads()`, `get_trait()`, `get_covariate()`, `get_polygenic()`
+#' - `get_create_evd_data()`, `get_fphi()`, `get_pedifromsnps()`
+#'
+#' @return An R6 object of class `SolarCommand`
+#' @md
+#' @export
 SolarCommand <- R6Class("SolarCommand",
   private = list(
     .load = NULL,
@@ -25,6 +47,8 @@ SolarCommand <- R6Class("SolarCommand",
   ),
 
   public = list(
+    #' @return A new `SolarCommand` object with initialized subcommand slots (`load`, `trait`, `covariate`, `polygenic`).
+    #' @md
     initialize = function() {
       private$.load <- Load$new()
       private$.trait <- Trait$new()
@@ -35,28 +59,47 @@ SolarCommand <- R6Class("SolarCommand",
       #private$.pedifromsnps <- PedifromSNPs$new()
     },
 
-
+    #' @param obj Character. Object type to load (e.g., `"pedigree"`, `"phenotypes"`).
+    #' @param opts Character. Optional flags (e.g., `-sample`, `-allow`, etc.).
+    #' @param fpath Character. Path to the input file.
+    #' @param cond Character. Additional condition string (e.g., `-t 0`).
+    #' @return An object of class `Load`
+    #' @md
     load = function(obj = NULL, opts = NULL, fpath = NULL, cond = NULL) {
       private$.load <- Load$new(obj, opts, fpath, cond)
       private$.loads <- c(private$.loads, private$.load)
       invisible(self)
     },
 
+    #' @param args Character. Trait name(s) or expressions to analyze.
+    #' @return An object of class `Trait`
+    #' @md
     trait = function(args = NULL) {
       private$.trait <- Trait$new(args)
       invisible(self)
     },
-
+    
+    #' @param opts Character. Optional SOLAR polygenic flags (e.g., `-screen`, `-sporadic`, etc.).
+    #' @return An object of class `Polygenic`
+    #' @md
     polygenic = function(opts = NULL) {
       private$.polygenic <- Polygenic$new(opts)
       invisible(self)
     },
 
+    #' @param args Character. Covariate expression(s), including interactions or trait-specific covariates.
+    #' @return An object of class `Covariate`
+    #' @md
     covariate = function(args = NULL) {
       private$.covariate <- Covariate$new(args)
       invisible(self)
     },
 
+    #' @param output_fbasename Character. Base name for EVD output files (required).
+    #' @param plink_fbasename Character. Base name for PLINK input (optional).
+    #' @param use_covs Logical. Whether to include covariates in the EVD sample.
+    #' @return An object of class `CreateEvdData`
+    #' @md
     create_evd_data = function(output_fbasename = NULL, plink_fbasename = NULL,
                                use_covs = FALSE) {
       private$.create_evd_data <-
@@ -64,6 +107,13 @@ SolarCommand <- R6Class("SolarCommand",
       invisible(self)
     },
 
+    #' @param opts Character. Additional fphi options (`-fast`, `-debug`, etc.).
+    #' @param opts_fname Character. File containing list of traits.
+    #' @param precision Numeric. Decimal precision for `h2` estimates.
+    #' @param mask Character. Path to NIfTI mask file.
+    #' @param evd_data Character. Base filename of EVD data to reuse.
+    #' @return An object of class `FPHI`
+    #' @md
     fphi = function(opts = NULL, opts_fname = NULL,
                     precision = NULL, mask = NULL,
                     evd_data = NULL) {
@@ -71,6 +121,18 @@ SolarCommand <- R6Class("SolarCommand",
       invisible(self)
     },
 
+    #' @param input_fbase Character. Base filename for PLINK input data (required).
+    #' @param output_fbase Character. Output base filename (required).
+    #' @param freq_fbase Character. Frequency file from PLINK (required).
+    #' @param corr Numeric. Alpha for correlation matrix computation (optional).
+    #' @param per_chromo Logical. Output per chromosome (optional).
+    #' @param king Logical. Use KING method (optional).
+    #' @param method_two Logical. Use method 2 for GRM (optional).
+    #' @param batch_size Integer. Loci per thread per batch (optional).
+    #' @param id_list Character. Path to file listing subject IDs (optional).
+    #' @param n_threads Integer. Number of threads to use (optional).
+    #' @return An object of class `PedifromSNPs`
+    #' @md
     pedifromsnps = function(input_fbase = NULL, output_fbase = NULL,
                             freq_fbase = NULL, corr = NULL,
                             per_chromo = FALSE, king = FALSE,
@@ -83,46 +145,81 @@ SolarCommand <- R6Class("SolarCommand",
       invisible(self)
     },
 
+    #' @return The last `Load` object configured via `$load()`.
+    #' @md
     get_load = function() { private$.load },
+
+    #' @return A list of all `Load` objects configured via `$load()`.
+    #' @md
     get_loads = function() { private$.loads },
+
+    #' @return The current `Trait` object.
+    #' @md
     get_trait = function() { private$.trait },
+
+    #' @return The current `Covariate` object.
+    #' @md
     get_covariate = function() { private$.covariate },
+
+    #' @return The current `Polygenic` object.
+    #' @md
     get_polygenic = function() { private$.polygenic },
+
+    #' @return The current `CreateEvdData` object.
+    #' @md
     get_create_evd_data = function() { private$.create_evd_data },
+
+    #' @return The current `FPHI` object.
+    #' @md
     get_fphi = function() { private$.fphi },
+
+    #' @return The current `PedifromSNPs` object.
+    #' @md
     get_pedifromsnps = function() { private$.pedifromsnps },
 
+    #' @return Invisibly returns self.
+    #' @md
     print = function() {
       cat(format(self), sep = "\n")
       invisible(self)
-    },
-
-    finalize = function() {
-      #message("finalize(SolarCommand)")
     }
   )
 )
 
-#' R6 Class Load
+
+#' @title R6 Class: Load
 #'
 #' @description
-#' TODO: add description.
+#' Represents the SOLAR `load` subcommand for importing various data objects into the analysis environment.
 #'
 #' @details
-#' From the Solar manual:
+#' This class is responsible for validating and storing configuration related to SOLAR's `load` command. The `load` command is used
+#' to import data such as pedigrees, phenotypes, matrices, and other inputs required by SOLAR for genetic analysis.
+#' Currently, only the `"pedigree"` and `"phenotypes"` object types are supported.
 #'
-#' USAGE: load <object-type> [<opts>] <args>
+#' ## SOLAR Manual Syntax:
+#' ```
+#' load <object-type> [<opts>] <args>
+#' ```
 #'
-#' EXAMPLES:
-#'   load pedigree    <filename>
-#'   load phenotypes  <filename>
-#'   load matrix      [-sample | -allow] <filename> <name1> [<name2>]
-#'   load matrix      [-cols <tcl-list>] <filename> ;# MathMatrix
-#'   load model       <filename>
-#'   load freq        [-nosave] <filename>
-#'   load marker      [-xlinked] <filename>
-#'   load map         [-haldane | -kosambi] <filename>
+#' ## Examples:
+#' - `load pedigree ped.csv`
+#' - `load phenotypes phen.csv`
+#' - `load matrix -sample matrix.dat A B`
+#' - `load freq -nosave allele_freq.txt`
+#' - `load marker -xlinked marker.dat`
 #'
+#' Unsupported object types will throw an error unless added to `.current_supported_objs`.
+#'
+#' @param obj Character. Required. Type of object to load. Must be one of: `"pedigree"`, `"phenotypes"`, `"matrix"`, `"model"`, `"freq"`, `"marker"`, `"map"`.
+#' @param opts Character. Optional. Valid flags or modifiers, e.g., `-sample`, `-allow`, `-cols`, `-nosave`, etc.
+#' @param fpath Character. Required if `obj` is specified. File path for the object to be loaded.
+#' @param cond Character. Optional. Additional trailing command content (e.g., secondary arguments or conditions).
+#'
+#' @return An R6 object of class `Load`, storing configuration for one `load` subcommand.
+#' @md
+#'
+#' @seealso [SolarCommand] for orchestrating multiple SOLAR subcommands.
 Load <- R6Class("Load",
   private = list(
     .obj = c(),
@@ -140,6 +237,13 @@ Load <- R6Class("Load",
   ),
 
   public = list(
+    #' @param obj Character. Optional. Type of object to load (e.g., `"pedigree"`, `"phenotypes"`). Must be one of the valid SOLAR object types.
+    #' @param opts Character. Optional. Additional SOLAR `load` command options (e.g., `"-sample"`, `"-allow"`). Must begin with `-` and be valid.
+    #' @param fpath Character. Optional. Path to the file associated with the load command. Must exist if provided.
+    #' @param cond Character. Optional. Any additional trailing arguments for the command (e.g., `"name1"`, `"name2"`).
+    #'
+    #' @return A new `Load` object containing validated parameters for a SOLAR `load` command.
+    #' @md
     initialize = function(obj = NULL, opts = NULL, fpath = NULL, cond = NULL) {
       if (!is.null(obj)) {
         if (!obj %in% private$.valid_objs) {
@@ -171,52 +275,65 @@ Load <- R6Class("Load",
       }
     },
 
+    #' @return A character string representing the type of object to load (e.g., `"pedigree"` or `"phenotypes"`).
+    #' @md
     get_obj = function() {
       private$.obj
     },
+
+    #' @return A character string representing any optional SOLAR load flags (e.g., `"-sample"`, `"-allow"`).
+    #' @md
     get_opts = function() {
       private$.opts
     },
+
+    #' @return A character string containing the path to the file being loaded.
+    #' @md
     get_fpath = function() {
       private$.fpath
     },
+
+    #' @return A character string representing any additional condition or trailing argument specified with the `load` command.
+    #' @md
     get_cond = function() {
       private$.cond
     },
 
+    #' @return Invisibly returns `self`. Outputs a human-readable string representation of the `Load` object.
+    #' @md
     print = function() {
       cat(format(self), sep = "\n")
       invisible(self)
-    },
-
-    finalize = function() {
-      #message("finalize(Load)")
     }
   )
 )
 
-#' R6 Class Trait
+
+#' @title R6 Class: Trait
 #'
 #' @description
-#' TODO: add description.
+#' Represents the SOLAR `trait` subcommand for specifying one or more traits for analysis.
 #'
 #' @details
-#' From the Solar manual:
+#' The `trait` command defines the dependent variable(s) for analysis in SOLAR. It supports univariate or multivariate traits,
+#' and can reference phenotype names or user-defined expressions (using `define`). The user must set this before running most SOLAR analyses.
 #'
-#' USAGE:
-#'   trait                               ; show current trait info
-#'   trait <trait1>                      ; selects one trait
-#'   trait [<traiti> ]+                  ; multivariate (up to 20)
-#'   trait -noparm [<traiti> ]+          ; don't touch parameters at all
-#'   [define <defname> = <expression>]+  ; Define any expressions as
-#'   trait [<phenotype>|<defname> ]+     ; traits...see "help define"
+#' ## SOLAR Manual Syntax:
+#' ```
+#' trait                            ; show current trait info
+#' trait <trait1>                   ; single trait
+#' trait <trait1> <trait2> ...      ; multivariate (up to 20)
+#' trait -noparm <trait1> ...      ; preserve prior parameters
+#' define <name> = <expression>    ; define derived traits
+#' trait <phenotype|defname>       ; select raw or defined traits
+#' ```
 #'
-#' EXAMPLES:
-#'   trait bmi
-#'   trait q1 q2
-#'   define a = 10 * log(q4)
-#'   trait a q3
+#' ## Examples:
+#' - `trait bmi`
+#' - `trait q1 q2`
+#' - `define a = 10 * log(q4)` then `trait a q3`
 #'
+#' @md
 Trait <- R6Class("Trait",
   private = list(
     .args = NULL
@@ -225,67 +342,59 @@ Trait <- R6Class("Trait",
   ),
   public = list(
     #TODO: trim whitespace at end of args
+    #' @param args Character. Optional. One or more trait names or expressions. Can include user-defined variables via `define`.
+    #'
+    #' @return A new `Trait` object containing the specified trait configuration.
+    #' @md
     initialize = function(args = NULL) {
       if (!is.null(args)) {
         private$.args <- args
       }
     },
+    #' @return Invisibly returns `self`. Prints the trait configuration to the console if defined.
+    #' @md
     print = function() {
       if (!is.null(private$.args)) {
         cat(format(self), sep = "\n")
         invisible(self)
       }
     },
-    finalize = function() {
-      #message("finalize(Trait)")
-    },
+    #' @return A character string representing the specified trait(s), or `NULL` if not set.
+    #' @md
     get_args = function() {
       private$.args
     }
   )
 )
 
-#' R6 Class Covariate
+
+#' @title R6 Class: Covariate
 #'
 #' @description
-#' TODO: add description.
+#' Represents the SOLAR `covariate` subcommand for modeling fixed effects, interactions, and trait-specific covariates.
 #'
 #' @details
-#' From the Solar manual:
+#' The `covariate` command adds covariates to the analysis model in SOLAR. This may include simple variables, polynomial terms,
+#' interaction terms, and trait-specific covariates. Covariates can be suspended, restored, or removed dynamically.
 #'
-#' USAGE:
-#'   covariate <variable>[^n | ^1,2[,3...]][*<variable> | #<variable>
-#'                                               [([trait])]]*
-#'   Creates a new covariate.  See below for examples.
-#'                                        ;
-#'   covariate                      ; display all covariate info
-#'   covariate delete <string>      ; deletes covariate and beta(s)
-#'   covariate delete_all           ; deletes all covariates and beta(s)
-#'                                  ;
-#'   covariate <variable>()         ; Null Covariate: require var in
-#'                                  ;   sample without covariation
-#'                                  ;
-#'                                  ; Covariate Suspension (for
-#'                                  ;   temporary hypothesis testing).
-#'   covariate suspend <string>     ; temporarily disable covariate
-#'   covariate restore <string>     ; re-activate suspended covariate
+#' ## SOLAR Manual Syntax:
+#' ```
+#' covariate <variable>[^n | ^1,2,...]*<interaction or #variable>
+#' covariate                       ; display current covariates
+#' covariate delete <name>         ; remove a specific covariate
+#' covariate delete_all            ; remove all covariates
+#' covariate suspend <name>        ; temporarily disable covariate
+#' covariate restore <name>        ; re-enable suspended covariate
+#' ```
 #'
-#' EXAMPLES:
-#'   covariate age                       ; Simple covariate Age
-#'   covariate age*sex                   ; Age by Sex interaction (only)
-#'   covariate age*diabet*diameds        ; 3-way interaction
-#'   covariate age^2                     ; Age squared as a simple covariate
-#'   covariate age^1,2                   ; Shorthand for: age age^2
-#'   covariate age#diabet                ; Shorthand for the following:
-#'                                       ;   covariate age diabet age*diabet
-#'   covariate age^1,2,3#sex             ; Shorthand for all the following:
-#'       covariate sex age age*sex age^2 age^2*sex age^3 age^3*sex
+#' ## Examples:
+#' - `covariate age`
+#' - `covariate age*sex`
+#' - `covariate age^2`
+#' - `covariate age^1,2,3#sex`
+#' - `covariate sex age(q1) age*sex(q3)`
 #'
-#'   covariate sex age(q1) age*sex(q3)   ; Trait-specific Covariates:
-#'                                       ;   covariate sex applied to all traits
-#'                                       ;   covariate age applied to trait q1
-#'                                       ;   covariate age*sex applied to q3
-#'
+#' @md
 Covariate <- R6Class("Covariate",
   private = list(
     .args = NULL
@@ -293,51 +402,61 @@ Covariate <- R6Class("Covariate",
     # .valid_covars = c()
   ),
   public = list(
+    #' @param args Character. One or more covariate specifications. Supports expressions, interactions, and trait-specific formats.
+    #'
+    #' @return A new `Covariate` object containing the covariate configuration for SOLAR.
+    #' @md
     initialize = function(args = NULL) {
       if (!is.null(args)) {
         private$.args <- args
       }
     },
+    #' @return Invisibly returns `self`. Outputs the covariate specification to the console.
+    #' @md
     print = function() {
       cat(format(self), sep = "\n")
       invisible(self)
     },
-    finalize = function() {
-      #message("finalize(Covariate)")
-    },
+    #' @return A character string or expression representing the current covariate specification, or `NULL` if not defined.
+    #' @md
     get_args = function() {
       private$.args
     }
   )
 )
 
-#' R6 Class Polygenic
+
+#' @title R6 Class: Polygenic
 #'
 #' @description
-#' TODO: Add description
+#' Represents the SOLAR `polygenic` subcommand, which fits a polygenic model for heritability estimation using the loaded traits and covariates.
 #'
 #' @details
-#' From the Solar manual:
+#' The `polygenic` command performs variance component modeling using pedigree and trait data. It tests for heritability and optionally
+#' includes covariate effects, fixed parameters, and variance component structures. Common options include model screening, sporadic traits,
+#' and residual correlation testing.
 #'
-#' USAGE:
-#'   polygenic [-screen] [-all] [-p | -prob <p>] [-fix <covar>]
-#'             [-testcovar <covar>] [-testrhoe] [-testrhog] [-testrhoc]
-#'             [-sporadic] [-keephouse] [-testrhop] [-rhopse] [-fphi]
+#' ## SOLAR Manual Syntax:
+#' ```
+#' polygenic [-screen] [-all] [-p | -prob p] [-fix covar]
+#'           [-testcovar covar] [-testrhoe] [-testrhog] [-testrhoc]
+#'           [-sporadic] [-keephouse] [-testrhop] [-rhopse] [-fphi]
+#' ```
 #'
-#'   (screencov is an alias for 'polygenic -screen')
-#'   (sporadic is an alias for 'polygenic -sporadic')
+#' ## Notes:
+#' - `screencov` is an alias for `polygenic -screen`
+#' - `sporadic` is an alias for `polygenic -sporadic`
 #'
-#'   Typically before giving this command, you will give trait,
-#'   covariate, and house (if applicable) commands.  You will also load
-#'   pedigree and phenotypes files if they have not already been loaded.
+#' ## Example Workflow:
+#' ```
+#' load pedigree ped
+#' load phenotypes phen
+#' trait hbp
+#' covariate age sex age*sex smoke
+#' polygenic -screen
+#' ```
 #'
-#' EXAMPLES:
-#'   solar> load pedigree ped
-#'   solar> load phenotypes phen
-#'   solar> trait hbp
-#'   solar> covariate age sex age*sex smoke
-#'   solar> polygenic -screen
-#'
+#' @md
 Polygenic <- R6Class("Polygenic",
   private = list(
     .opts = NULL,
@@ -347,6 +466,11 @@ Polygenic <- R6Class("Polygenic",
                     "-fphi")
   ),
   public = list(
+    #' @param opts Character. Optional. One of the valid SOLAR `polygenic` flags, such as `"-screen"`, `"-sporadic"`, `"-testcovar"`, etc.
+    #'             Only a single option is supported at a time in this implementation.
+    #'
+    #' @return A new `Polygenic` object with the specified modeling option.
+    #' @md
     initialize = function(opts = NULL) {
       if (!is.null(NULL) && grepl("-", opts)) {
         if (!opts %in% private$.valid_opts) {
@@ -355,48 +479,47 @@ Polygenic <- R6Class("Polygenic",
         private$.opts <- opts
       }
     },
+    #' @return Invisibly returns `self`. Prints a formatted summary of the polygenic configuration.
+    #' @md
     print = function() {
       cat(format(self), sep = "\n")
       invisible(self)
     },
-    finalize = function() {
-      #message("finalize(Polygenic)")
-    },
+    #' @return Invisibly returns `self`. Prints a formatted summary of the polygenic configuration.
+    #' @md
     get_opts = function() {
       private$.opts
     }
   )
 )
 
-#' R6 Class CreateEvdData
+
+#' @title R6 Class: CreateEvdData
 #'
 #' @description
-#' TODO: Add description
+#' Represents the SOLAR `create_evd_data` subcommand, which performs eigenvalue decomposition (EVD) on the kinship matrix to accelerate genome-wide analyses.
 #'
 #' @details
-#' From the Solar manual:
+#' The `create_evd_data` command is typically used prior to `gwas`, `gpu_gwas`, or `gpu_fphi`. It produces an eigenvalue decomposition
+#' of the kinship matrix for a given set of individuals, which can substantially improve computational efficiency for large sample sizes.
 #'
-#' create_evd_data performs an EVD on the loaded pedigree for gwas or. gpu_gwas
-#' commands. This is useful for a data set with a large number of subjects.
+#' The command uses trait and covariate selection to define the sample set. If `--plink` is provided, the sample is determined using the `.fam` file from PLINK.
+#' If `--use_covs` is set, individuals from covariate specification are included as well.
 #'
-#' USAGE:
+#' ## SOLAR Manual Syntax:
+#' ```
 #' create_evd_data --o <output base filename>
-#'                 --plink <plink set base filename> --use_covs
+#'                 --plink <plink set base filename>
+#'                 --use_covs
+#' ```
 #'
-#' Prior to running the command select the trait that you plan to run gwas,
-#' gpu_gwas, or gpu_fphi with the trait command. The --plink option specifies a
-#' plink data set that will determine which ids will be used in running the
-#' EVD. The --use_covs options will include the ID set of covariates specified
-#' through the covariate command.  This command now allows you to enter two
-#' traits at once in order to get their corresponding ID set.
+#' ## Output Files:
+#' - `<basename>.ids`: List of subject IDs
+#' - `<basename>.eigenvalues`: Eigenvalue vector
+#' - `<basename>.eigenvectors`: Matrix of eigenvectors
+#' - `<basename>.notes`: Notes describing the run
 #'
-#' EXAMPLES:
-#' Output consists of three files labeled:
-#'   <output base filename>.ids --list of subject ids
-#'   <output base filename>.eigenvalues --list of eigenvalues
-#'   <output base filename>.eigenvectors --list of eigenvectors
-#'   <output base filename>.notes --notes on the creation of the EVD data set
-#'
+#' @md
 CreateEvdData <- R6Class("CreateEvdData",
   private = list(
     .output_fbasename = NULL,
@@ -404,9 +527,14 @@ CreateEvdData <- R6Class("CreateEvdData",
     .use_covs = FALSE
   ),
   public = list(
+    #' @param output_fbasename Character. Required. Base name used to generate EVD output files.
+    #' @param plink_fbasename Character. Optional. Base name for input PLINK data set (.bed/.bim/.fam).
+    #' @param use_covs Logical. Optional. If `TRUE`, includes IDs defined by the covariate command in the EVD sample.
+    #'
+    #' @return A new `CreateEvdData` object encapsulating configuration for SOLAR's `create_evd_data` command.
+    #' @md
     initialize = function(output_fbasename = NULL, plink_fbasename = NULL,
                           use_covs = FALSE) {
-
       if (!is.null(output_fbasename)) {
         private$.output_fbasename <- output_fbasename
       } else {
@@ -420,75 +548,63 @@ CreateEvdData <- R6Class("CreateEvdData",
         private$.use_covs <- use_covs
       }
     },
+    #' @return Invisibly returns `self`. Prints a summary of the `CreateEvdData` object configuration.
+    #' @md
     print = function() {
       cat(format(self), sep = "\n")
       invisible(self)
     },
-    finalize = function() {
-      #message("finalize(Trait)")
-    },
+    #' @return A character string containing the base name for EVD output files.
+    #' @md
     get_output_fbasename = function() {
       private$.output_fbasename
     },
+    #' @return A character string representing the base name of the PLINK input set, or `NULL` if not set.
+    #' @md
     get_plink_fbasename = function() {
       private$.plink_fbasename
     },
+    #' @return A logical value indicating whether covariates were included in the EVD sample selection.
+    #' @md
     get_use_covs = function() {
       private$.use_covs
     }
   )
 )
 
-#' R6 Class FPHI
+
+#' @title R6 Class: FPHI
 #'
 #' @description
-#' TODO: Add description
+#' Represents the SOLAR `fphi` subcommand for fast heritability approximation using eigenvalue decomposition of the kinship matrix.
 #'
 #' @details
-#' From the Solar manual:
+#' `fphi` is a performance-optimized method in SOLAR for estimating heritability (`h2`) using analytic or permutation-based inference.
+#' It leverages EVD data to speed up computation. The `-fast` option uses the Wald approximation; the default behavior conducts
+#' a full grid search for maximum-likelihood `h2` values up to 9 decimal places.
 #'
-#' Purpose: Fast test and heritability approximation
+#' Optional inputs include:
+#' - `-list`: Path to a file containing trait names.
+#' - `-mask`: NIfTI template for voxel-based analysis.
+#' - `-precision`: Number of decimals for `h2` inference.
+#' - `-evd_data`: Precomputed EVD base filename to reuse.
 #'
-#' USAGE:
-#'    fphi [options]
+#' This is especially useful for high-dimensional neuroimaging traits and large family-based datasets.
 #'
-#' OPTIONAL
-#'    -fast -debug -list <file containing trait names>
-#'    -precision <h2 decimal count>
-#'    -mask <name of nifti template volume>
-#'    -evd_data <base filename of EVD data]
+#' ## SOLAR Manual Syntax:
+#' ```
+#' fphi [options]
+#' ```
 #'
-#' DESCRIPTION
-#'    -fast
-#'        Performs a quick estimation run
-#'    -debug
-#'        Displays values at each iteration
-#'    -list
-#'        performs fast fphi on a list of trait (does not include covariate
-#'        data)
-#'    -precision
-#'        number of decimals to calculate h2r
-#'    -mask
-#'        outputs fphi -fast results of the list of voxels from -list option
-#'    -evd_data
-#'        When using the -list option the EVD data option can be used to avoid
-#'        having to calculate EVD data within the command
+#' ## Example Options:
+#' - `-fast`
+#' - `-debug`
+#' - `-list traitlist.txt`
+#' - `-precision 4`
+#' - `-mask brain_mask.nii.gz`
+#' - `-evd_data evd/pedigree`
 #'
-#' Fast permutation and heritability inference (FPHI). FPHI is based on the
-#' eigenvalue decomposition on the kinship matrix and a search through values
-#' of h2r for accurate approximation of heritability values and statistical
-#' inference. The default setting is the full search out to 9 decimal places of
-#' h2r. The "-fast" option uses the Wald approximation. Both use log likelyhood
-#' p-value estimation.  The default setting should provide very accurate h2
-#' estimates that are nearly identical to the standard maximum likelihood
-#' inference. The h2 values obtained using Wald approximation are usually
-#' within 3% of the classical MLE values.  The same functionality is available
-#' for GPU computing. Use gpu_fphi for heritability calculations in very large
-#' datasets. For details see Ganjgahi et al., "Fast and powerful heritability
-#' inference for family-based neuroimaging studies”.
-#'
-#' EXAMPLES:
-#'
+#' @md
 FPHI <- R6Class("FPHI",
   private = list(
     .opts = NULL, # -fast -debug -list
@@ -499,6 +615,14 @@ FPHI <- R6Class("FPHI",
     .evd_data = NULL # -evd_data <base filename of EVD data
   ),
   public = list(
+    #' @param opts Character. Optional. SOLAR `fphi` flags such as `"-fast"` or `"-debug"`.
+    #' @param opts_fname Character. Optional. Path to a file listing trait names (used with `-list`).
+    #' @param precision Numeric. Optional. Number of decimal places to estimate `h2` (e.g., `4` for 0.0001).
+    #' @param mask Character. Optional. Path to a NIfTI mask file used to constrain voxel-based analysis.
+    #' @param evd_data Character. Optional. Base filename of EVD data to reuse, avoiding recomputation.
+    #'
+    #' @return A new `FPHI` object containing configuration for a SOLAR `fphi` command.
+    #' @md
     initialize = function(opts = NULL, opts_fname = NULL,
                           precision = NULL, mask = NULL,
                           evd_data = NULL) {
@@ -518,6 +642,8 @@ FPHI <- R6Class("FPHI",
         private$.evd_data <- evd_data
       }
     },
+    #' @return Invisibly returns `self`. Prints all internal FPHI configuration values to the console.
+    #' @md
     print = function() {
       cat(".opts = ", private$.opts, "\n")
       cat(".opts_fname = ", private$.opts_fname, "\n")
@@ -526,89 +652,76 @@ FPHI <- R6Class("FPHI",
       cat(".evd_data = ", private$.evd_data, "\n")
       invisible(self)
     },
+    #' @return Invisibly returns `self`. Alias for `print()`, used for explicit self-inspection.
+    #' @md
     print_self = function() {
       cat(format(self), sep = "\n")
       invisible(self)
     },
-    finalize = function() {
-      #message("finalize(FPHI)")
-    },
+    #' @return A character string of flags passed to the `fphi` command (e.g., `"-fast"`).
+    #' @md
     get_opts = function() {
       private$.opts
     },
+    #' @return A character string representing the filename passed via `-list`, or `NULL` if not used.
+    #' @md
     get_opts_fname = function() {
       private$.opts_fname
     },
+    #' @return A numeric value indicating the decimal precision requested for `h2` estimation.
+    #' @md
     get_precision = function() {
       private$.precision
     },
+    #' @return A character string specifying the path to the NIfTI mask file, or `NULL` if not provided.
+    #' @md
     get_mask = function() {
       private$.mask
     },
+    #' @return A character string representing the base name of EVD data to reuse.
+    #' @md
     get_evd_data = function() {
       private$.evd_data
     }
   )
 )
 
-#' R6 Class Pedifromsnps
+
+#' @title R6 Class: PedifromSNPs
 #'
 #' @description
-#' TODO: add description.
+#' Represents the SOLAR `pedifromsnps` subcommand, which constructs a pedigree relationship matrix from SNP data in PLINK format.
 #'
 #' @details
-#' From the Solar manual:
+#' The `pedifromsnps` command creates an empirical genetic relatedness matrix (GRM) using SNP data provided in PLINK binary format.
+#' It supports multiple computation methods including correlation-based GRMs, KING-robust estimators, and per-chromosome GRMs.
 #'
-#' Purpose: Creates a empirical pedigree matrix from a plink data set
+#' Required inputs include:
+#' - `-i`: PLINK input base filename (without extension)
+#' - `-o`: Output base filename
+#' - `--freq`: Frequency file from PLINK
 #'
-#' USAGE:
-#' pedifromsnps -i <input base name of plink data>
-#'              -o <output csv file name>
-#'              --freq <file made with plink_freq>
-#' OPTIONAL:
-#'    -corr <alpha value>
-#'    -per-chromo -king -method_two -normalize
-#'    -batch_size <batch size value>
-#'    -id_list <file w/ subject IDs>
-#'    -n_threads <number of CPU threads>
+#' Optional settings allow users to control correlation alpha, enable KING or method 2 GRMs, apply subject ID filters, adjust batch size, or multithread the computation.
 #'
-#' DESCPRIPTION:
-#'    -i <file>
-#'        The base file name of the plink .bed, .bim, and .fam files.
-#'    -o <file>
-#'        The base file name for the output.
-#'    -freq <file>
-#'        Name of output file from plink_freq command.
-#'    -n_threads <n>
-#'        Number of CPU threads used for matrix calculation.
-#'        Default: Automatically set based on hardware
-#'    -per-chromo
-#'        Outputs a separate matrix for each chromosome.
-#'        Default: Disabled
-#'    -corr <alpha value>
-#'        Compute method one correlation GRM using this alpha value.
-#'        Default: -1
-#'	  -method_two
-#'        Computes correlation GRM using a second method described below.
-#'        Default: Disabled
-#'    -king
-#'        Computes Robust King GRM instead of using a correlation method.
-#'	      Default: Disabled
-#'    -batch_size <batch size value>
-#'        Number of loci computed at a single time per CPU thread.
-#'        Default: 500
-#'    -id_list <file w/ subject IDs>
-#'        Specified file contains a list of subject IDs separated by spaces.
-#'        The resulting GRM will only use these IDs and excluded all others.
-#'        Default: All IDs are used
-#'    -normalize
-#'        When used during the creation of a correlation GRM the final
-#'        values are normalized using the square roots of the diagonal values.
-#'        The result being that diagonal elements are 1 and off-diagonal
-#'        elements are bounded by 1 and -1.  Z*_i_j = Z_i_j/sqrt(Z_i_i*Z_j_j)
-#'        where Z* is the final value and Z is the unnormalized value, i refers
-#'        to the index of subject i while j refers to the index of subject j.
+#' ## SOLAR Manual Syntax:
+#' ```
+#' pedifromsnps -i <plink input basename>
+#'              -o <output basename>
+#'              --freq <plink frequency file>
+#'              [options]
+#' ```
 #'
+#' ## Optional Flags:
+#' - `-corr <alpha>`: Alpha value for correlation GRM
+#' - `-per-chromo`: Output GRMs per chromosome
+#' - `-king`: Use KING robust relatedness
+#' - `-method_two`: Use second GRM computation method
+#' - `-normalize`: Normalize correlation GRMs
+#' - `-batch_size <n>`: Batch size for multithreaded computation
+#' - `-id_list <file>`: Restrict GRM to listed subject IDs
+#' - `-n_threads <n>`: Number of CPU threads to use
+#'
+#' @md
 PedifromSNPs <- R6Class("PedifromSNPs",
   private = list(
     # Required
@@ -625,6 +738,19 @@ PedifromSNPs <- R6Class("PedifromSNPs",
     .n_threads = NULL
   ),
   public = list(
+    #' @param input_fbase Character. Required. Base filename of the PLINK input set (.bed, .bim, .fam).
+    #' @param output_fbase Character. Required. Base filename for output GRM and metadata files.
+    #' @param freq_fbase Character. Required. Path to frequency file generated by PLINK (e.g., `plink.frq`).
+    #' @param corr Numeric. Optional. Alpha value for correlation-based GRM estimation.
+    #' @param per_chromo Logical. Optional. Whether to compute separate GRMs per chromosome. Default is `FALSE`.
+    #' @param king Logical. Optional. Whether to use the KING robust method for GRM computation. Default is `FALSE`.
+    #' @param method_two Logical. Optional. Use second correlation GRM computation method. Default is `FALSE`.
+    #' @param batch_size Integer. Optional. Number of loci processed per thread per batch. Default is `500`.
+    #' @param id_list Character. Optional. Path to file listing subject IDs to include in GRM.
+    #' @param n_threads Integer. Optional. Number of CPU threads to use. Default is system-determined.
+    #'
+    #' @return A new `PedifromSNPs` object containing configuration for the SOLAR `pedifromsnps` command.
+    #' @md
     initialize = function(input_fbase = NULL, output_fbase = NULL,
                           freq_fbase = NULL, corr = NULL, per_chromo = FALSE,
                           king = FALSE, method_two = FALSE, batch_size = NULL,
@@ -666,46 +792,69 @@ PedifromSNPs <- R6Class("PedifromSNPs",
         private$.n_threads <- n_threads
       }
     },
+    #' @return Invisibly returns `self`. Prints a summary of the GRM configuration.
+    #' @md
     print = function() {
       cat(format(self), sep = "\n")
       invisible(self)
     },
-    finalize = function() {
-      #message("finalize(Pedifromsnps)")
-    },
+    #' @return A character string containing the base filename for PLINK input files.
+    #' @md
     get_input_fbase = function() {
       private$.input_fbase
     },
+    #' @return A character string representing the GRM output base filename.
+    #' @md
     get_output_fbase = function() {
       private$.output_fbase
     },
+    #' @return A character string containing the path to the PLINK frequency file.
+    #' @md
     get_freq_fbase = function() {
       private$.freq_fbase
     },
+    #' @return A numeric value indicating the correlation GRM alpha parameter.
+    #' @md
     get_corr = function() {
       private$.corr
     },
+    #' @return Logical. `TRUE` if per-chromosome GRM output is enabled; otherwise `FALSE`.
+    #' @md
     get_per_chromo = function() {
       private$.per_chromo
     },
+    #' @return Logical. `TRUE` if KING GRM computation is enabled; otherwise `FALSE`.
+    #' @md
     get_king = function() {
       private$.king
     },
+    #' @return Logical. `TRUE` if GRM method two is selected; otherwise `FALSE`.
+    #' @md
     get_method_two = function() {
       private$.method_two
     },
+    #' @return Logical. `TRUE` if GRM method two is selected; otherwise `FALSE`.
+    #' @md
     get_batch_size = function() {
       private$.batch_size
     },
+    #' @return A character string representing the path to a subject ID list file.
+    #' @md
     get_id_list = function() {
       private$.id_list
     },
+    #' @return Integer. The number of threads to use for parallel GRM computation.
+    #' @md
     get_n_threads = function() {
       private$.n_threads
     }
   )
 )
 
+#' @description Print class, length, and structure of a string for debugging.
+#' @param str Character. The string to inspect.
+#' @return NULL (invisible). Prints diagnostics via `message()`.
+#' @md
 print_string_info <- function(str) {
   message()
   message("print_string_info() => {")
@@ -716,4 +865,3 @@ print_string_info <- function(str) {
   message("}")
   message()
 }
-

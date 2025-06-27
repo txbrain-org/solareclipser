@@ -2,16 +2,48 @@
 % Please edit documentation in R/SolarCommand.R
 \name{SolarCommand}
 \alias{SolarCommand}
-\title{R6 Class SolarCommand}
+\title{R6 Class: SolarCommand}
+\value{
+An R6 object of class \code{SolarCommand}
+}
 \description{
-TODO: add description.
+A command builder class for interfacing with SOLAR subcommands.
 }
 \details{
-Example solar command steps:
-load phen HCP_WM_ave_norm.csv
-trait CC
-polygen
+This class orchestrates SOLAR subcommands such as \code{load}, \code{trait}, \code{polygenic}, \code{fphi}, \code{pedifromsnps}, etc.
+Each call stores command configuration objects for later execution.
 }
+\section{Usage Example}{
+
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{cmd <- SolarCommand$new()
+cmd$load("pedigree", fpath = "ped.csv")
+cmd$trait("height")
+cmd$polygenic()
+}\if{html}{\out{</div>}}
+}
+
+\section{Subcommand Builders}{
+
+\itemize{
+\item \code{load(obj, opts, fpath, cond)}: Register a load command.
+\item \code{trait(args)}: Set trait(s).
+\item \code{covariate(args)}: Add covariate(s).
+\item \code{polygenic(opts)}: Configure polygenic model.
+\item \code{create_evd_data(...)}: Register an EVD creation call.
+\item \code{fphi(...)}: Configure fphi heritability analysis.
+\item \code{pedifromsnps(...)}: Configure SNP-to-pedigree conversion.
+}
+}
+
+\section{Accessors}{
+
+\itemize{
+\item \code{get_load()}, \code{get_loads()}, \code{get_trait()}, \code{get_covariate()}, \code{get_polygenic()}
+\item \code{get_create_evd_data()}, \code{get_fphi()}, \code{get_pedifromsnps()}
+}
+}
+
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -32,7 +64,6 @@ polygen
 \item \href{#method-SolarCommand-get_fphi}{\code{SolarCommand$get_fphi()}}
 \item \href{#method-SolarCommand-get_pedifromsnps}{\code{SolarCommand$get_pedifromsnps()}}
 \item \href{#method-SolarCommand-print}{\code{SolarCommand$print()}}
-\item \href{#method-SolarCommand-finalize}{\code{SolarCommand$finalize()}}
 \item \href{#method-SolarCommand-clone}{\code{SolarCommand$clone()}}
 }
 }
@@ -44,6 +75,9 @@ polygen
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$new()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A new \code{SolarCommand} object with initialized subcommand slots (\code{load}, \code{trait}, \code{covariate}, \code{polygenic}).
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-load"></a>}}
@@ -53,6 +87,22 @@ polygen
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$load(obj = NULL, opts = NULL, fpath = NULL, cond = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{obj}}{Character. Object type to load (e.g., \code{"pedigree"}, \code{"phenotypes"}).}
+
+\item{\code{opts}}{Character. Optional flags (e.g., \code{-sample}, \code{-allow}, etc.).}
+
+\item{\code{fpath}}{Character. Path to the input file.}
+
+\item{\code{cond}}{Character. Additional condition string (e.g., \verb{-t 0}).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+An object of class \code{Load}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-trait"></a>}}
@@ -62,6 +112,16 @@ polygen
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$trait(args = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{args}}{Character. Trait name(s) or expressions to analyze.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+An object of class \code{Trait}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-polygenic"></a>}}
@@ -71,6 +131,16 @@ polygen
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$polygenic(opts = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{opts}}{Character. Optional SOLAR polygenic flags (e.g., \code{-screen}, \code{-sporadic}, etc.).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+An object of class \code{Polygenic}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-covariate"></a>}}
@@ -80,6 +150,16 @@ polygen
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$covariate(args = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{args}}{Character. Covariate expression(s), including interactions or trait-specific covariates.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+An object of class \code{Covariate}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-create_evd_data"></a>}}
@@ -93,6 +173,20 @@ polygen
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{output_fbasename}}{Character. Base name for EVD output files (required).}
+
+\item{\code{plink_fbasename}}{Character. Base name for PLINK input (optional).}
+
+\item{\code{use_covs}}{Logical. Whether to include covariates in the EVD sample.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+An object of class \code{CreateEvdData}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-fphi"></a>}}
@@ -108,6 +202,24 @@ polygen
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{opts}}{Character. Additional fphi options (\code{-fast}, \code{-debug}, etc.).}
+
+\item{\code{opts_fname}}{Character. File containing list of traits.}
+
+\item{\code{precision}}{Numeric. Decimal precision for \code{h2} estimates.}
+
+\item{\code{mask}}{Character. Path to NIfTI mask file.}
+
+\item{\code{evd_data}}{Character. Base filename of EVD data to reuse.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+An object of class \code{FPHI}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-pedifromsnps"></a>}}
@@ -128,6 +240,34 @@ polygen
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{input_fbase}}{Character. Base filename for PLINK input data (required).}
+
+\item{\code{output_fbase}}{Character. Output base filename (required).}
+
+\item{\code{freq_fbase}}{Character. Frequency file from PLINK (required).}
+
+\item{\code{corr}}{Numeric. Alpha for correlation matrix computation (optional).}
+
+\item{\code{per_chromo}}{Logical. Output per chromosome (optional).}
+
+\item{\code{king}}{Logical. Use KING method (optional).}
+
+\item{\code{method_two}}{Logical. Use method 2 for GRM (optional).}
+
+\item{\code{batch_size}}{Integer. Loci per thread per batch (optional).}
+
+\item{\code{id_list}}{Character. Path to file listing subject IDs (optional).}
+
+\item{\code{n_threads}}{Integer. Number of threads to use (optional).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+An object of class \code{PedifromSNPs}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-get_load"></a>}}
@@ -137,6 +277,9 @@ polygen
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$get_load()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The last \code{Load} object configured via \verb{$load()}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-get_loads"></a>}}
@@ -146,6 +289,9 @@ polygen
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$get_loads()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A list of all \code{Load} objects configured via \verb{$load()}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-get_trait"></a>}}
@@ -155,6 +301,9 @@ polygen
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$get_trait()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The current \code{Trait} object.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-get_covariate"></a>}}
@@ -164,6 +313,9 @@ polygen
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$get_covariate()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The current \code{Covariate} object.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-get_polygenic"></a>}}
@@ -173,6 +325,9 @@ polygen
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$get_polygenic()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The current \code{Polygenic} object.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-get_create_evd_data"></a>}}
@@ -182,6 +337,9 @@ polygen
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$get_create_evd_data()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The current \code{CreateEvdData} object.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-get_fphi"></a>}}
@@ -191,6 +349,9 @@ polygen
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$get_fphi()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The current \code{FPHI} object.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-get_pedifromsnps"></a>}}
@@ -200,6 +361,9 @@ polygen
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$get_pedifromsnps()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+The current \code{PedifromSNPs} object.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-print"></a>}}
@@ -209,15 +373,9 @@ polygen
 \if{html}{\out{<div class="r">}}\preformatted{SolarCommand$print()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Invisibly returns self.
 }
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SolarCommand-finalize"></a>}}
-\if{latex}{\out{\hypertarget{method-SolarCommand-finalize}{}}}
-\subsection{Method \code{finalize()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SolarCommand$finalize()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarCommand-clone"></a>}}

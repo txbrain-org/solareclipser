@@ -2,12 +2,21 @@
 % Please edit documentation in R/test-utils.R
 \name{testbench_init}
 \alias{testbench_init}
-\title{Set common variables used test_that() tests
-Returns: list(settings, pedigree_fpath, phenotypes_fpath)}
+\title{Initialize common testbench configuration and input file paths}
 \usage{
 testbench_init(tmp = FALSE)
 }
+\arguments{
+\item{tmp}{Logical. If \code{TRUE}, skip populating the settings list (used for temporary file-based tests).}
+}
+\value{
+A named list with elements:
+\itemize{
+\item \code{settings}: a list of testbench settings (or empty if \code{tmp = TRUE})
+\item \code{pedigree_fpath}: file path to the pedigree CSV
+\item \code{phenotypes_fpath}: file path to the phenotype CSV
+}
+}
 \description{
-Set common variables used test_that() tests
-Returns: list(settings, pedigree_fpath, phenotypes_fpath)
+Prepares a list of settings and input file paths for use in \code{test_that()} test cases. Optionally allows skipping settings if \code{tmp = TRUE}.
 }

@@ -2,13 +2,40 @@
 % Please edit documentation in R/SolarFiles.R
 \name{SolarFilesController}
 \alias{SolarFilesController}
-\title{R6 Class SolarFilesController}
+\title{R6 Class: SolarFilesController}
+\value{
+An R6 object of class \code{SolarFilesController}
+}
 \description{
-TODO: add description
+A controller class for managing and accessing trait-specific output files in a \code{SolarFiles} object.
 }
 \details{
-TODO: controller for SolarFiles
+This class wraps around a \code{SolarFiles} instance and provides helper methods to set and retrieve
+polygenic analysis output files (e.g., \code{.mod}, \code{.out}, \code{.stats}) based on current trait names.
+It is particularly useful for post-processing or organizing model outputs after a SOLAR polygenic run.
 }
+\section{Usage Example}{
+
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{files <- SolarFiles$new(settings = list(output = list(dir = "solar_output")))
+files$set_polygenic_trait_d("height")
+ctrl <- SolarFilesController$new(sf = files)
+ctrl$set_polygenic_trait_d_files()
+mod_files <- ctrl$get_mod_files()
+}\if{html}{\out{</div>}}
+}
+
+\section{Methods}{
+
+\itemize{
+\item \code{set_polygenic_trait_d_files()}: Scan directory and assign \code{trait_d_files} in \code{SolarFiles}.
+\item \code{get_polygenic_trait_d_files()}: Return all polygenic output files for current trait.
+\item \code{get_mod_files()}: Return only \code{.mod} model files.
+\item \code{get_out_files()}: Return only \code{.out} output files.
+\item \code{get_stats_files()}: Return only \code{.stats} statistics files.
+}
+}
+
 \section{Super class}{
 \code{\link[solareclipser:SolarFiles]{solareclipser::SolarFiles}} -> \code{SolarFilesController}
 }
@@ -47,64 +74,103 @@ TODO: controller for SolarFiles
 \if{html}{\out{<a id="method-SolarFilesController-new"></a>}}
 \if{latex}{\out{\hypertarget{method-SolarFilesController-new}{}}}
 \subsection{Method \code{new()}}{
+Initialize a new \code{SolarFilesController} object using an existing \code{SolarFiles} instance.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SolarFilesController$new(sf = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{sf}}{An object of class \code{SolarFiles}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Invisibly returns the \code{SolarFilesController} object.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarFilesController-print"></a>}}
 \if{latex}{\out{\hypertarget{method-SolarFilesController-print}{}}}
 \subsection{Method \code{print()}}{
+Print a summary of the object.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SolarFilesController$print()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Invisibly returns the object.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarFilesController-set_polygenic_trait_d_files"></a>}}
 \if{latex}{\out{\hypertarget{method-SolarFilesController-set_polygenic_trait_d_files}{}}}
 \subsection{Method \code{set_polygenic_trait_d_files()}}{
+Populate and set the \code{trait_d_files} field in the linked \code{SolarFiles} object
+based on the trait name and file path structure.
+
+This function builds the trait directory path using the current settings and trait name,
+lists all files under that directory, and assigns them to \code{trait_d_files}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SolarFilesController$set_polygenic_trait_d_files()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Invisibly returns the controller object.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarFilesController-get_polygenic_trait_d_files"></a>}}
 \if{latex}{\out{\hypertarget{method-SolarFilesController-get_polygenic_trait_d_files}{}}}
 \subsection{Method \code{get_polygenic_trait_d_files()}}{
+Retrieve the list of polygenic trait output files from the linked \code{SolarFiles} object.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SolarFilesController$get_polygenic_trait_d_files()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character vector of file paths.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarFilesController-get_mod_files"></a>}}
 \if{latex}{\out{\hypertarget{method-SolarFilesController-get_mod_files}{}}}
 \subsection{Method \code{get_mod_files()}}{
+Extract only the \code{.mod} files from the polygenic trait output directory.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SolarFilesController$get_mod_files()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character vector of \code{.mod} file paths.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarFilesController-get_out_files"></a>}}
 \if{latex}{\out{\hypertarget{method-SolarFilesController-get_out_files}{}}}
 \subsection{Method \code{get_out_files()}}{
+Extract only the \code{.out} files from the polygenic trait output directory.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SolarFilesController$get_out_files()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character vector of \code{.out} file paths.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarFilesController-get_stats_files"></a>}}
 \if{latex}{\out{\hypertarget{method-SolarFilesController-get_stats_files}{}}}
 \subsection{Method \code{get_stats_files()}}{
+Extract only the \code{.stats} files from the polygenic trait output directory.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SolarFilesController$get_stats_files()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character vector of \code{.stats} file paths.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SolarFilesController-clone"></a>}}

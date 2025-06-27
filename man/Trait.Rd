@@ -2,33 +2,37 @@
 % Please edit documentation in R/SolarCommand.R
 \name{Trait}
 \alias{Trait}
-\title{R6 Class Trait}
+\title{R6 Class: Trait}
 \description{
-TODO: add description.
+Represents the SOLAR \code{trait} subcommand for specifying one or more traits for analysis.
 }
 \details{
-From the Solar manual:
+The \code{trait} command defines the dependent variable(s) for analysis in SOLAR. It supports univariate or multivariate traits,
+and can reference phenotype names or user-defined expressions (using \code{define}). The user must set this before running most SOLAR analyses.
+\subsection{SOLAR Manual Syntax:}{
 
-USAGE:
-trait                               ; show current trait info
-trait \if{html}{\out{<trait1>}}                      ; selects one trait
-trait +                  ; multivariate (up to 20)
-trait -noparm +          ; don't touch parameters at all
-+  ; Define any expressions as
-trait +     ; traits...see "help define"
+\if{html}{\out{<div class="sourceCode">}}\preformatted{trait                            ; show current trait info
+trait <trait1>                   ; single trait
+trait <trait1> <trait2> ...      ; multivariate (up to 20)
+trait -noparm <trait1> ...      ; preserve prior parameters
+define <name> = <expression>    ; define derived traits
+trait <phenotype|defname>       ; select raw or defined traits
+}\if{html}{\out{</div>}}
+}
 
-EXAMPLES:
-trait bmi
-trait q1 q2
-define a = 10 * log(q4)
-trait a q3
+\subsection{Examples:}{
+\itemize{
+\item \verb{trait bmi}
+\item \verb{trait q1 q2}
+\item \verb{define a = 10 * log(q4)} then \verb{trait a q3}
+}
+}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-Trait-new}{\code{Trait$new()}}
 \item \href{#method-Trait-print}{\code{Trait$print()}}
-\item \href{#method-Trait-finalize}{\code{Trait$finalize()}}
 \item \href{#method-Trait-get_args}{\code{Trait$get_args()}}
 \item \href{#method-Trait-clone}{\code{Trait$clone()}}
 }
@@ -41,6 +45,16 @@ trait a q3
 \if{html}{\out{<div class="r">}}\preformatted{Trait$new(args = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{args}}{Character. Optional. One or more trait names or expressions. Can include user-defined variables via \code{define}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new \code{Trait} object containing the specified trait configuration.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Trait-print"></a>}}
@@ -50,15 +64,9 @@ trait a q3
 \if{html}{\out{<div class="r">}}\preformatted{Trait$print()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Invisibly returns \code{self}. Prints the trait configuration to the console if defined.
 }
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Trait-finalize"></a>}}
-\if{latex}{\out{\hypertarget{method-Trait-finalize}{}}}
-\subsection{Method \code{finalize()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Trait$finalize()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Trait-get_args"></a>}}
@@ -68,6 +76,9 @@ trait a q3
 \if{html}{\out{<div class="r">}}\preformatted{Trait$get_args()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character string representing the specified trait(s), or \code{NULL} if not set.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Trait-clone"></a>}}

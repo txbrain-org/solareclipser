@@ -499,7 +499,8 @@ pre code {
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>               <span class="dt">fpath =</span> <span class="st">&quot;tests/input/solar/HCP_WM_ave_norm.csv&quot;</span>)</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>solar<span class="op">$</span>cmd<span class="op">$</span><span class="kw">trait</span>(<span class="st">&quot;CC&quot;</span>)<span class="op">$</span><span class="kw">polygenic</span>()</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>solar<span class="op">$</span><span class="kw">run</span>()</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a><span class="co">#&gt; Executing solar command... Done.</span></span></code></pre></div>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a><span class="co">#&gt; Executing solar command...</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a><span class="co">#&gt; Error in system2(&quot;solar&quot;, args = tcl_proc_name, stdout = TRUE, stderr = TRUE): error in running command</span></span></code></pre></div>
 </div>
 <div id="fphi" class="section level4">
 <h4><code>FPHI</code></h4>
@@ -515,7 +516,8 @@ pre code {
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a>solar<span class="op">$</span>cmd<span class="op">$</span><span class="kw">create_evd_data</span>(<span class="dt">output_fbasename =</span> <span class="st">&quot;evd_data&quot;</span>)</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>solar<span class="op">$</span>cmd<span class="op">$</span><span class="kw">fphi</span>(<span class="dt">evd_data =</span> <span class="st">&quot;evd_data&quot;</span>)</span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>solar<span class="op">$</span><span class="kw">run</span>()</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a><span class="co">#&gt; Executing solar command... Done.</span></span></code></pre></div>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a><span class="co">#&gt; Executing solar command...</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a><span class="co">#&gt; Error in system2(&quot;solar&quot;, args = tcl_proc_name, stdout = TRUE, stderr = TRUE): error in running command</span></span></code></pre></div>
 </div>
 </div>
 <div id="solarfiles" class="section level3">
@@ -525,30 +527,20 @@ pre code {
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>sf<span class="op">$</span><span class="kw">set_polygenic_trait_d</span>(<span class="dt">trait_d =</span> <span class="st">&quot;CC&quot;</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>sfc &lt;-<span class="st"> </span>SolarFilesController<span class="op">$</span><span class="kw">new</span>(<span class="dt">sf =</span> sf)</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>sfc<span class="op">$</span><span class="kw">set_polygenic_trait_d_files</span>()</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>trait_d_files &lt;-<span class="st"> </span>sfc<span class="op">$</span><span class="kw">get_polygenic_trait_d_files</span>()</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>mod_files &lt;-<span class="st"> </span>sfc<span class="op">$</span><span class="kw">get_mod_files</span>()</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>out_files &lt;-<span class="st"> </span>sfc<span class="op">$</span><span class="kw">get_out_files</span>()</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a>stat_files &lt;-<span class="st"> </span>sfc<span class="op">$</span><span class="kw">get_stats_files</span>()</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a>summary &lt;-<span class="st"> </span><span class="kw">readLines</span>(out_files[<span class="kw">str_detect</span>(out_files, <span class="st">&quot;polygenic.out&quot;</span>)])</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a><span class="kw">cat</span>(<span class="kw">str_trim</span>(summary), <span class="dt">sep =</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a><span class="co">#&gt; Pedigree:    HCP_imputed_filtered_ped.csv empirical</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true"></a><span class="co">#&gt; Phenotypes:  HCP_WM_ave_norm.csv</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a><span class="co">#&gt; Trait:       CC                    Individuals:  999</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true"></a><span class="co">#&gt; H2r is 0.9344430  p = 8.148806e-70  (Significant)</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true"></a><span class="co">#&gt; H2r Std. Error:  0.0104121</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true"></a><span class="co">#&gt; Warning.  Unexpectedly high heritabilities might result from</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true"></a><span class="co">#&gt; numerical problems, especially if mztwins are present.</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true"></a><span class="co">#&gt; Loglikelihoods and chi&#39;s are in CC/polygenic.logs.out</span></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true"></a><span class="co">#&gt; Best model is named poly and null0</span></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true"></a><span class="co">#&gt; Final models are named poly, spor</span></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true"></a><span class="co">#&gt; Residual Kurtosis is -0.0900, within normal range</span></span></code></pre></div>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="co">#&gt; Error in str_replace_all(polygenic_files$trait_d, &quot; &quot;, &quot;.&quot;): could not find function &quot;str_replace_all&quot;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>trait_d_files &lt;-<span class="st"> </span>sfc<span class="op">$</span><span class="kw">get_polygenic_trait_d_files</span>()</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>mod_files &lt;-<span class="st"> </span>sfc<span class="op">$</span><span class="kw">get_mod_files</span>()</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a><span class="co">#&gt; Error in str_detect(str, &quot;.mod$&quot;): could not find function &quot;str_detect&quot;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a>out_files &lt;-<span class="st"> </span>sfc<span class="op">$</span><span class="kw">get_out_files</span>()</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a><span class="co">#&gt; Error in str_detect(str, &quot;.out$&quot;): could not find function &quot;str_detect&quot;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a>stat_files &lt;-<span class="st"> </span>sfc<span class="op">$</span><span class="kw">get_stats_files</span>()</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a><span class="co">#&gt; Error in str_detect(str, &quot;.stats$&quot;): could not find function &quot;str_detect&quot;</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a>summary &lt;-<span class="st"> </span><span class="kw">readLines</span>(out_files[<span class="kw">str_detect</span>(out_files, <span class="st">&quot;polygenic.out&quot;</span>)])</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true"></a><span class="co">#&gt; Error in readLines(out_files[str_detect(out_files, &quot;polygenic.out&quot;)]): object &#39;out_files&#39; not found</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true"></a><span class="kw">cat</span>(<span class="kw">str_trim</span>(summary), <span class="dt">sep =</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true"></a><span class="co">#&gt; Error in str_trim(summary): could not find function &quot;str_trim&quot;</span></span></code></pre></div>
 </div>
 <div id="additional-examples" class="section level3">
 <h3>Additional Examples</h3>
@@ -573,61 +565,14 @@ pre code {
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true"></a>solar<span class="op">$</span><span class="kw">run</span>()</span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true"></a><span class="co">#&gt; ==============================&gt; tcl &lt;==============================</span></span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true"></a><span class="co">#&gt; proc file7e7049f3c377 {} {</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true"></a><span class="co">#&gt; proc file4a55548eca14 {} {</span></span>
 <span id="cb6-22"><a href="#cb6-22" aria-hidden="true"></a><span class="co">#&gt;   load pedigree HCP_imputed_filtered_ped.csv -t 0</span></span>
 <span id="cb6-23"><a href="#cb6-23" aria-hidden="true"></a><span class="co">#&gt;   load phenotypes HCP_WM_ave_norm.csv</span></span>
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true"></a><span class="co">#&gt;   trait CC</span></span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true"></a><span class="co">#&gt;   polygenic</span></span>
 <span id="cb6-26"><a href="#cb6-26" aria-hidden="true"></a><span class="co">#&gt; }</span></span>
 <span id="cb6-27"><a href="#cb6-27" aria-hidden="true"></a><span class="co">#&gt; ===================================================================</span></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true"></a><span class="co">#&gt; =======================&gt; stdout_and_stderr &lt;=======================</span></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true"></a><span class="co">#&gt; Unloading current pedigree data ...</span></span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true"></a><span class="co">#&gt; Loading Empirical Pedigree...</span></span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true"></a><span class="co">#&gt; There are 2284 people.  If not correct, be sure ID&#39;s are unique.</span></span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true"></a><span class="co">#&gt; Determining families (use -1 option to skip this)</span></span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true"></a><span class="co">#&gt; Warning if number of families is greater than one it may</span></span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true"></a><span class="co">#&gt; cause an issue when loading phi2 matrix.  Use -1 option to</span></span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true"></a><span class="co">#&gt; avoid any potential issues.</span></span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true"></a><span class="co">#&gt; **********************************************************************</span></span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true"></a><span class="co">#&gt; *  Maximize sporadic model                                           *</span></span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true"></a><span class="co">#&gt; **********************************************************************</span></span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true"></a><span class="co">#&gt;     *** Loglikelihood of sporadic model is -487.520945</span></span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true"></a><span class="co">#&gt; **********************************************************************</span></span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true"></a><span class="co">#&gt; *  Maximize polygenic model                                          *</span></span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true"></a><span class="co">#&gt; **********************************************************************</span></span>
-<span id="cb6-45"><a href="#cb6-45" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb6-46"><a href="#cb6-46" aria-hidden="true"></a><span class="co">#&gt;     *** Loglikelihood of polygenic model is -332.229219</span></span>
-<span id="cb6-47"><a href="#cb6-47" aria-hidden="true"></a><span class="co">#&gt;     *** H2r in polygenic model is 0.9344430</span></span>
-<span id="cb6-48"><a href="#cb6-48" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb6-49"><a href="#cb6-49" aria-hidden="true"></a><span class="co">#&gt;     *** Determining significance of H2r</span></span>
-<span id="cb6-50"><a href="#cb6-50" aria-hidden="true"></a><span class="co">#&gt;     *** Comparing polygenic and sporadic models</span></span>
-<span id="cb6-51"><a href="#cb6-51" aria-hidden="true"></a><span class="co">#&gt;     *** chi = 310.5835, deg = 1, p = 8.148806e-70</span></span>
-<span id="cb6-52"><a href="#cb6-52" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb6-53"><a href="#cb6-53" aria-hidden="true"></a><span class="co">#&gt; ******************************************************************************</span></span>
-<span id="cb6-54"><a href="#cb6-54" aria-hidden="true"></a><span class="co">#&gt; *                          Summary of Results                                *</span></span>
-<span id="cb6-55"><a href="#cb6-55" aria-hidden="true"></a><span class="co">#&gt; ******************************************************************************</span></span>
-<span id="cb6-56"><a href="#cb6-56" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb6-57"><a href="#cb6-57" aria-hidden="true"></a><span class="co">#&gt;  Pedigree:    HCP_imputed_filtered_ped.csv empirical</span></span>
-<span id="cb6-58"><a href="#cb6-58" aria-hidden="true"></a><span class="co">#&gt;  Phenotypes:  HCP_WM_ave_norm.csv</span></span>
-<span id="cb6-59"><a href="#cb6-59" aria-hidden="true"></a><span class="co">#&gt;  Trait:       CC                    Individuals:  999</span></span>
-<span id="cb6-60"><a href="#cb6-60" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb6-61"><a href="#cb6-61" aria-hidden="true"></a><span class="co">#&gt;           H2r is 0.9344430  p = 8.148806e-70  (Significant)</span></span>
-<span id="cb6-62"><a href="#cb6-62" aria-hidden="true"></a><span class="co">#&gt;         H2r Std. Error:  0.0104121</span></span>
-<span id="cb6-63"><a href="#cb6-63" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb6-64"><a href="#cb6-64" aria-hidden="true"></a><span class="co">#&gt;  Warning.  Unexpectedly high heritabilities might result from</span></span>
-<span id="cb6-65"><a href="#cb6-65" aria-hidden="true"></a><span class="co">#&gt;  numerical problems, especially if mztwins are present.</span></span>
-<span id="cb6-66"><a href="#cb6-66" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb6-67"><a href="#cb6-67" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb6-68"><a href="#cb6-68" aria-hidden="true"></a><span class="co">#&gt;  Output files and models are in directory CC/</span></span>
-<span id="cb6-69"><a href="#cb6-69" aria-hidden="true"></a><span class="co">#&gt;  Summary results are in CC/polygenic.out</span></span>
-<span id="cb6-70"><a href="#cb6-70" aria-hidden="true"></a><span class="co">#&gt;  Loglikelihoods and chi&#39;s are in CC/polygenic.logs.out</span></span>
-<span id="cb6-71"><a href="#cb6-71" aria-hidden="true"></a><span class="co">#&gt;  Best model is named poly and null0 (currently loaded)</span></span>
-<span id="cb6-72"><a href="#cb6-72" aria-hidden="true"></a><span class="co">#&gt;  Final models are named poly, spor</span></span>
-<span id="cb6-73"><a href="#cb6-73" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb6-74"><a href="#cb6-74" aria-hidden="true"></a><span class="co">#&gt;  Residual Kurtosis is -0.0900, within normal range</span></span>
-<span id="cb6-75"><a href="#cb6-75" aria-hidden="true"></a><span class="co">#&gt; ===================================================================</span></span></code></pre></div>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true"></a><span class="co">#&gt; Error in system2(&quot;solar&quot;, args = tcl_proc_name, stdout = TRUE, stderr = TRUE): error in running command</span></span></code></pre></div>
 </div>
 </div>
 <div id="additional-references" class="section level2">

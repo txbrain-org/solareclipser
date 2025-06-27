@@ -2,54 +2,40 @@
 % Please edit documentation in R/SolarCommand.R
 \name{FPHI}
 \alias{FPHI}
-\title{R6 Class FPHI}
+\title{R6 Class: FPHI}
 \description{
-TODO: Add description
+Represents the SOLAR \code{fphi} subcommand for fast heritability approximation using eigenvalue decomposition of the kinship matrix.
 }
 \details{
-From the Solar manual:
+\code{fphi} is a performance-optimized method in SOLAR for estimating heritability (\code{h2}) using analytic or permutation-based inference.
+It leverages EVD data to speed up computation. The \code{-fast} option uses the Wald approximation; the default behavior conducts
+a full grid search for maximum-likelihood \code{h2} values up to 9 decimal places.
 
-Purpose: Fast test and heritability approximation
+Optional inputs include:
+\itemize{
+\item \code{-list}: Path to a file containing trait names.
+\item \code{-mask}: NIfTI template for voxel-based analysis.
+\item \code{-precision}: Number of decimals for \code{h2} inference.
+\item \code{-evd_data}: Precomputed EVD base filename to reuse.
+}
 
-USAGE:
-fphi \link{options}
+This is especially useful for high-dimensional neuroimaging traits and large family-based datasets.
+\subsection{SOLAR Manual Syntax:}{
 
-OPTIONAL
--fast -debug -list \if{html}{\out{<file containing trait names>}}
--precision \if{html}{\out{<h2 decimal count>}}
--mask \if{html}{\out{<name of nifti template volume>}}
--evd_data <base filename of EVD data]
+\if{html}{\out{<div class="sourceCode">}}\preformatted{fphi [options]
+}\if{html}{\out{</div>}}
+}
 
-DESCRIPTION
--fast
-Performs a quick estimation run
--debug
-Displays values at each iteration
--list
-performs fast fphi on a list of trait (does not include covariate
-data)
--precision
-number of decimals to calculate h2r
--mask
-outputs fphi -fast results of the list of voxels from -list option
--evd_data
-When using the -list option the EVD data option can be used to avoid
-having to calculate EVD data within the command
-
-Fast permutation and heritability inference (FPHI). FPHI is based on the
-eigenvalue decomposition on the kinship matrix and a search through values
-of h2r for accurate approximation of heritability values and statistical
-inference. The default setting is the full search out to 9 decimal places of
-h2r. The "-fast" option uses the Wald approximation. Both use log likelyhood
-p-value estimation.  The default setting should provide very accurate h2
-estimates that are nearly identical to the standard maximum likelihood
-inference. The h2 values obtained using Wald approximation are usually
-within 3\% of the classical MLE values.  The same functionality is available
-for GPU computing. Use gpu_fphi for heritability calculations in very large
-datasets. For details see Ganjgahi et al., "Fast and powerful heritability
-inference for family-based neuroimaging studies”.
-
-EXAMPLES:
+\subsection{Example Options:}{
+\itemize{
+\item \code{-fast}
+\item \code{-debug}
+\item \verb{-list traitlist.txt}
+\item \verb{-precision 4}
+\item \verb{-mask brain_mask.nii.gz}
+\item \verb{-evd_data evd/pedigree}
+}
+}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -57,7 +43,6 @@ EXAMPLES:
 \item \href{#method-FPHI-new}{\code{FPHI$new()}}
 \item \href{#method-FPHI-print}{\code{FPHI$print()}}
 \item \href{#method-FPHI-print_self}{\code{FPHI$print_self()}}
-\item \href{#method-FPHI-finalize}{\code{FPHI$finalize()}}
 \item \href{#method-FPHI-get_opts}{\code{FPHI$get_opts()}}
 \item \href{#method-FPHI-get_opts_fname}{\code{FPHI$get_opts_fname()}}
 \item \href{#method-FPHI-get_precision}{\code{FPHI$get_precision()}}
@@ -80,6 +65,24 @@ EXAMPLES:
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{opts}}{Character. Optional. SOLAR \code{fphi} flags such as \code{"-fast"} or \code{"-debug"}.}
+
+\item{\code{opts_fname}}{Character. Optional. Path to a file listing trait names (used with \code{-list}).}
+
+\item{\code{precision}}{Numeric. Optional. Number of decimal places to estimate \code{h2} (e.g., \code{4} for 0.0001).}
+
+\item{\code{mask}}{Character. Optional. Path to a NIfTI mask file used to constrain voxel-based analysis.}
+
+\item{\code{evd_data}}{Character. Optional. Base filename of EVD data to reuse, avoiding recomputation.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new \code{FPHI} object containing configuration for a SOLAR \code{fphi} command.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FPHI-print"></a>}}
@@ -89,6 +92,9 @@ EXAMPLES:
 \if{html}{\out{<div class="r">}}\preformatted{FPHI$print()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Invisibly returns \code{self}. Prints all internal FPHI configuration values to the console.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FPHI-print_self"></a>}}
@@ -98,15 +104,9 @@ EXAMPLES:
 \if{html}{\out{<div class="r">}}\preformatted{FPHI$print_self()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Invisibly returns \code{self}. Alias for \code{print()}, used for explicit self-inspection.
 }
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-FPHI-finalize"></a>}}
-\if{latex}{\out{\hypertarget{method-FPHI-finalize}{}}}
-\subsection{Method \code{finalize()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FPHI$finalize()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FPHI-get_opts"></a>}}
@@ -116,6 +116,9 @@ EXAMPLES:
 \if{html}{\out{<div class="r">}}\preformatted{FPHI$get_opts()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character string of flags passed to the \code{fphi} command (e.g., \code{"-fast"}).
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FPHI-get_opts_fname"></a>}}
@@ -125,6 +128,9 @@ EXAMPLES:
 \if{html}{\out{<div class="r">}}\preformatted{FPHI$get_opts_fname()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character string representing the filename passed via \code{-list}, or \code{NULL} if not used.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FPHI-get_precision"></a>}}
@@ -134,6 +140,9 @@ EXAMPLES:
 \if{html}{\out{<div class="r">}}\preformatted{FPHI$get_precision()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A numeric value indicating the decimal precision requested for \code{h2} estimation.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FPHI-get_mask"></a>}}
@@ -143,6 +152,9 @@ EXAMPLES:
 \if{html}{\out{<div class="r">}}\preformatted{FPHI$get_mask()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character string specifying the path to the NIfTI mask file, or \code{NULL} if not provided.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FPHI-get_evd_data"></a>}}
@@ -152,6 +164,9 @@ EXAMPLES:
 \if{html}{\out{<div class="r">}}\preformatted{FPHI$get_evd_data()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character string representing the base name of EVD data to reuse.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FPHI-clone"></a>}}

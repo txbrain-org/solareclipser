@@ -2,15 +2,28 @@
 % Please edit documentation in R/Solar.R
 \name{Solar}
 \alias{Solar}
-\title{R6 Class Solar}
+\title{R6 Class: Solar}
+\value{
+An object of class \code{Solar}.
+}
 \description{
 This class is used to interact with \code{solar} and the files that are
 created during analysis. The interface's methods and their arguments mimic
 the \code{solar} CLI and their arguments when appropriate.
 }
-\details{
-TODO: add more details
+\section{Methods}{
+
+\itemize{
+\item \code{initialize(settings = NULL)}: Constructor method. Accepts optional settings for output directory and flags.
+\item \code{print()}: Displays a formatted summary of the Solar object.
+\item \code{finalize()}: Finalizer hook to clean up when the object is garbage-collected.
+\item \code{set_run_rc(run_rc = NULL)}: Store the return code from a run.
+\item \code{get_run_rc()}: Retrieve the return code.
+\item \code{set_settings(settings = NULL)}: Set configuration settings.
+\item \code{run()}: Builds and executes the SOLAR command pipeline.
 }
+}
+
 \examples{
 \dontrun{
 
@@ -37,14 +50,19 @@ solar$trait("CC")$polygenic()
 solar$run()
 
 }
-
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{cmd}}{A named list of command functions including \code{load}, \code{trait}, \code{polygenic}, \code{create_evd_data}, \code{fphi}, and \code{pedifromsnp}, each of which configures and runs a corresponding SOLAR subcommand.}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-Solar-new}{\code{Solar$new()}}
 \item \href{#method-Solar-print}{\code{Solar$print()}}
-\item \href{#method-Solar-finalize}{\code{Solar$finalize()}}
 \item \href{#method-Solar-set_run_rc}{\code{Solar$set_run_rc()}}
 \item \href{#method-Solar-get_run_rc}{\code{Solar$get_run_rc()}}
 \item \href{#method-Solar-set_settings}{\code{Solar$set_settings()}}
@@ -60,6 +78,13 @@ solar$run()
 \if{html}{\out{<div class="r">}}\preformatted{Solar$new(settings = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{settings}}{Named list with configuration like \code{output$dir}, \code{output$tcl}, etc.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Solar-print"></a>}}
@@ -69,15 +94,9 @@ solar$run()
 \if{html}{\out{<div class="r">}}\preformatted{Solar$print()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Invisibly returns the object.
 }
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Solar-finalize"></a>}}
-\if{latex}{\out{\hypertarget{method-Solar-finalize}{}}}
-\subsection{Method \code{finalize()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Solar$finalize()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Solar-set_run_rc"></a>}}
@@ -87,6 +106,13 @@ solar$run()
 \if{html}{\out{<div class="r">}}\preformatted{Solar$set_run_rc(run_rc = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{run_rc}}{Integer or character. Return code from \code{system2()}.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Solar-get_run_rc"></a>}}
@@ -96,6 +122,9 @@ solar$run()
 \if{html}{\out{<div class="r">}}\preformatted{Solar$get_run_rc()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Return code (integer or character).
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Solar-set_settings"></a>}}
@@ -105,6 +134,13 @@ solar$run()
 \if{html}{\out{<div class="r">}}\preformatted{Solar$set_settings(settings = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{settings}}{Named list with \code{output$dir}, \code{tcl}, etc.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Solar-run"></a>}}
@@ -114,6 +150,9 @@ solar$run()
 \if{html}{\out{<div class="r">}}\preformatted{Solar$run()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Invisibly returns the object.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Solar-clone"></a>}}

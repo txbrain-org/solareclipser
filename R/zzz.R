@@ -1,3 +1,3 @@
-.onLoad <- function(libname, pkgname) {
-  library(stringr, quietly = TRUE)
-}
+#.onLoad <- function(libname, pkgname) {
+#  library(stringr, quietly = TRUE)
+#}

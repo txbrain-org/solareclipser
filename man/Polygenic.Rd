@@ -2,38 +2,44 @@
 % Please edit documentation in R/SolarCommand.R
 \name{Polygenic}
 \alias{Polygenic}
-\title{R6 Class Polygenic}
+\title{R6 Class: Polygenic}
 \description{
-TODO: Add description
+Represents the SOLAR \code{polygenic} subcommand, which fits a polygenic model for heritability estimation using the loaded traits and covariates.
 }
 \details{
-From the Solar manual:
+The \code{polygenic} command performs variance component modeling using pedigree and trait data. It tests for heritability and optionally
+includes covariate effects, fixed parameters, and variance component structures. Common options include model screening, sporadic traits,
+and residual correlation testing.
+\subsection{SOLAR Manual Syntax:}{
 
-USAGE:
-polygenic \link{-screen} \link{-all}  
- \link{-testrhoe} \link{-testrhog} \link{-testrhoc}
-\link{-sporadic} \link{-keephouse} \link{-testrhop} \link{-rhopse} \link{-fphi}
+\if{html}{\out{<div class="sourceCode">}}\preformatted{polygenic [-screen] [-all] [-p | -prob p] [-fix covar]
+          [-testcovar covar] [-testrhoe] [-testrhog] [-testrhoc]
+          [-sporadic] [-keephouse] [-testrhop] [-rhopse] [-fphi]
+}\if{html}{\out{</div>}}
+}
 
-(screencov is an alias for 'polygenic -screen')
-(sporadic is an alias for 'polygenic -sporadic')
+\subsection{Notes:}{
+\itemize{
+\item \code{screencov} is an alias for \code{polygenic -screen}
+\item \code{sporadic} is an alias for \code{polygenic -sporadic}
+}
+}
 
-Typically before giving this command, you will give trait,
-covariate, and house (if applicable) commands.  You will also load
-pedigree and phenotypes files if they have not already been loaded.
+\subsection{Example Workflow:}{
 
-EXAMPLES:
-solar> load pedigree ped
-solar> load phenotypes phen
-solar> trait hbp
-solar> covariate age sex age*sex smoke
-solar> polygenic -screen
+\if{html}{\out{<div class="sourceCode">}}\preformatted{load pedigree ped
+load phenotypes phen
+trait hbp
+covariate age sex age*sex smoke
+polygenic -screen
+}\if{html}{\out{</div>}}
+}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-Polygenic-new}{\code{Polygenic$new()}}
 \item \href{#method-Polygenic-print}{\code{Polygenic$print()}}
-\item \href{#method-Polygenic-finalize}{\code{Polygenic$finalize()}}
 \item \href{#method-Polygenic-get_opts}{\code{Polygenic$get_opts()}}
 \item \href{#method-Polygenic-clone}{\code{Polygenic$clone()}}
 }
@@ -46,6 +52,17 @@ solar> polygenic -screen
 \if{html}{\out{<div class="r">}}\preformatted{Polygenic$new(opts = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{opts}}{Character. Optional. One of the valid SOLAR \code{polygenic} flags, such as \code{"-screen"}, \code{"-sporadic"}, \code{"-testcovar"}, etc.
+Only a single option is supported at a time in this implementation.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new \code{Polygenic} object with the specified modeling option.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Polygenic-print"></a>}}
@@ -55,15 +72,9 @@ solar> polygenic -screen
 \if{html}{\out{<div class="r">}}\preformatted{Polygenic$print()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Invisibly returns \code{self}. Prints a formatted summary of the polygenic configuration.
 }
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Polygenic-finalize"></a>}}
-\if{latex}{\out{\hypertarget{method-Polygenic-finalize}{}}}
-\subsection{Method \code{finalize()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Polygenic$finalize()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Polygenic-get_opts"></a>}}
@@ -73,6 +84,9 @@ solar> polygenic -screen
 \if{html}{\out{<div class="r">}}\preformatted{Polygenic$get_opts()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Invisibly returns \code{self}. Prints a formatted summary of the polygenic configuration.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Polygenic-clone"></a>}}

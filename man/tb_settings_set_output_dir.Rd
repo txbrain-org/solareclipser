@@ -7,11 +7,11 @@
 tb_settings_set_output_dir(dir)
 }
 \arguments{
-\item{dir}{The output directory to be used by the returned settings}
+\item{dir}{The output directory to be used in the returned settings list.}
 }
 \value{
-A list of settings
+A named list containing testbench settings with structure \code{list(output = list(dir = ..., ...))}.
 }
 \description{
-Return a list of settings for the testbench
+Constructs a \code{settings} list used for testing, setting the output directory and toggling other options (TCL logging, output redirection).
 }

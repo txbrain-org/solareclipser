@@ -2,24 +2,37 @@
 % Please edit documentation in R/SolarCommand.R
 \name{Load}
 \alias{Load}
-\title{R6 Class Load}
+\title{R6 Class: Load}
+\value{
+An R6 object of class \code{Load}, storing configuration for one \code{load} subcommand.
+}
 \description{
-TODO: add description.
+Represents the SOLAR \code{load} subcommand for importing various data objects into the analysis environment.
 }
 \details{
-From the Solar manual:
+This class is responsible for validating and storing configuration related to SOLAR's \code{load} command. The \code{load} command is used
+to import data such as pedigrees, phenotypes, matrices, and other inputs required by SOLAR for genetic analysis.
+Currently, only the \code{"pedigree"} and \code{"phenotypes"} object types are supported.
+\subsection{SOLAR Manual Syntax:}{
 
-USAGE: load \if{html}{\out{<object-type>}}  \if{html}{\out{<args>}}
+\if{html}{\out{<div class="sourceCode">}}\preformatted{load <object-type> [<opts>] <args>
+}\if{html}{\out{</div>}}
+}
 
-EXAMPLES:
-load pedigree    \if{html}{\out{<filename>}}
-load phenotypes  \if{html}{\out{<filename>}}
-load matrix      \link{-sample | -allow} \if{html}{\out{<filename>}} \if{html}{\out{<name1>}} 
-load matrix       \if{html}{\out{<filename>}} ;# MathMatrix
-load model       \if{html}{\out{<filename>}}
-load freq        \link{-nosave} \if{html}{\out{<filename>}}
-load marker      \link{-xlinked} \if{html}{\out{<filename>}}
-load map         \link{-haldane | -kosambi} \if{html}{\out{<filename>}}
+\subsection{Examples:}{
+\itemize{
+\item \verb{load pedigree ped.csv}
+\item \verb{load phenotypes phen.csv}
+\item \verb{load matrix -sample matrix.dat A B}
+\item \verb{load freq -nosave allele_freq.txt}
+\item \verb{load marker -xlinked marker.dat}
+}
+
+Unsupported object types will throw an error unless added to \code{.current_supported_objs}.
+}
+}
+\seealso{
+\link{SolarCommand} for orchestrating multiple SOLAR subcommands.
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -30,7 +43,6 @@ load map         \link{-haldane | -kosambi} \if{html}{\out{<filename>}}
 \item \href{#method-Load-get_fpath}{\code{Load$get_fpath()}}
 \item \href{#method-Load-get_cond}{\code{Load$get_cond()}}
 \item \href{#method-Load-print}{\code{Load$print()}}
-\item \href{#method-Load-finalize}{\code{Load$finalize()}}
 \item \href{#method-Load-clone}{\code{Load$clone()}}
 }
 }
@@ -42,6 +54,22 @@ load map         \link{-haldane | -kosambi} \if{html}{\out{<filename>}}
 \if{html}{\out{<div class="r">}}\preformatted{Load$new(obj = NULL, opts = NULL, fpath = NULL, cond = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{obj}}{Character. Optional. Type of object to load (e.g., \code{"pedigree"}, \code{"phenotypes"}). Must be one of the valid SOLAR object types.}
+
+\item{\code{opts}}{Character. Optional. Additional SOLAR \code{load} command options (e.g., \code{"-sample"}, \code{"-allow"}). Must begin with \code{-} and be valid.}
+
+\item{\code{fpath}}{Character. Optional. Path to the file associated with the load command. Must exist if provided.}
+
+\item{\code{cond}}{Character. Optional. Any additional trailing arguments for the command (e.g., \code{"name1"}, \code{"name2"}).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new \code{Load} object containing validated parameters for a SOLAR \code{load} command.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Load-get_obj"></a>}}
@@ -51,6 +79,9 @@ load map         \link{-haldane | -kosambi} \if{html}{\out{<filename>}}
 \if{html}{\out{<div class="r">}}\preformatted{Load$get_obj()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character string representing the type of object to load (e.g., \code{"pedigree"} or \code{"phenotypes"}).
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Load-get_opts"></a>}}
@@ -60,6 +91,9 @@ load map         \link{-haldane | -kosambi} \if{html}{\out{<filename>}}
 \if{html}{\out{<div class="r">}}\preformatted{Load$get_opts()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character string representing any optional SOLAR load flags (e.g., \code{"-sample"}, \code{"-allow"}).
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Load-get_fpath"></a>}}
@@ -69,6 +103,9 @@ load map         \link{-haldane | -kosambi} \if{html}{\out{<filename>}}
 \if{html}{\out{<div class="r">}}\preformatted{Load$get_fpath()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character string containing the path to the file being loaded.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Load-get_cond"></a>}}
@@ -78,6 +115,9 @@ load map         \link{-haldane | -kosambi} \if{html}{\out{<filename>}}
 \if{html}{\out{<div class="r">}}\preformatted{Load$get_cond()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character string representing any additional condition or trailing argument specified with the \code{load} command.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Load-print"></a>}}
@@ -87,15 +127,9 @@ load map         \link{-haldane | -kosambi} \if{html}{\out{<filename>}}
 \if{html}{\out{<div class="r">}}\preformatted{Load$print()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Invisibly returns \code{self}. Outputs a human-readable string representation of the \code{Load} object.
 }
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Load-finalize"></a>}}
-\if{latex}{\out{\hypertarget{method-Load-finalize}{}}}
-\subsection{Method \code{finalize()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Load$finalize()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Load-clone"></a>}}

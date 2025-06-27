@@ -17,13 +17,13 @@ Description: SOLAR is the standard software program to perform linkage and
     output and contains summary and plotting functions for exploration of the
     results. In addition, solareclipser enables parallel computing of the linkage and
     association analyses, that makes the calculation of genome-wide scans more
-    efficient. See <https://solar-eclipse-genetics.org//> for more information about
+    efficient. See <https://solar-eclipse-genetics.org> for more information about
     SOLAR.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-URL: https://github.com/enigma-1590c46634/solareclipser
+URL: https://github.com/txbrain-org/solareclipser
 LazyData: false
 OS_type: unix
 Imports:

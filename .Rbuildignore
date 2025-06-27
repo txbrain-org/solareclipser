@@ -11,3 +11,6 @@
 ^NOTES\.md$
 ^TODO\.md$
 .*.txt$
+
+^README\.Rmd$
+^LICENSE\.md$

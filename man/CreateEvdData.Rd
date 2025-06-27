@@ -2,40 +2,38 @@
 % Please edit documentation in R/SolarCommand.R
 \name{CreateEvdData}
 \alias{CreateEvdData}
-\title{R6 Class CreateEvdData}
+\title{R6 Class: CreateEvdData}
 \description{
-TODO: Add description
+Represents the SOLAR \code{create_evd_data} subcommand, which performs eigenvalue decomposition (EVD) on the kinship matrix to accelerate genome-wide analyses.
 }
 \details{
-From the Solar manual:
+The \code{create_evd_data} command is typically used prior to \code{gwas}, \code{gpu_gwas}, or \code{gpu_fphi}. It produces an eigenvalue decomposition
+of the kinship matrix for a given set of individuals, which can substantially improve computational efficiency for large sample sizes.
 
-create_evd_data performs an EVD on the loaded pedigree for gwas or. gpu_gwas
-commands. This is useful for a data set with a large number of subjects.
+The command uses trait and covariate selection to define the sample set. If \code{--plink} is provided, the sample is determined using the \code{.fam} file from PLINK.
+If \code{--use_covs} is set, individuals from covariate specification are included as well.
+\subsection{SOLAR Manual Syntax:}{
 
-USAGE:
-create_evd_data --o \if{html}{\out{<output base filename>}}
---plink \if{html}{\out{<plink set base filename>}} --use_covs
+\if{html}{\out{<div class="sourceCode">}}\preformatted{create_evd_data --o <output base filename>
+                --plink <plink set base filename>
+                --use_covs
+}\if{html}{\out{</div>}}
+}
 
-Prior to running the command select the trait that you plan to run gwas,
-gpu_gwas, or gpu_fphi with the trait command. The --plink option specifies a
-plink data set that will determine which ids will be used in running the
-EVD. The --use_covs options will include the ID set of covariates specified
-through the covariate command.  This command now allows you to enter two
-traits at once in order to get their corresponding ID set.
-
-EXAMPLES:
-Output consists of three files labeled:
-\if{html}{\out{<output base filename>}}.ids --list of subject ids
-\if{html}{\out{<output base filename>}}.eigenvalues --list of eigenvalues
-\if{html}{\out{<output base filename>}}.eigenvectors --list of eigenvectors
-\if{html}{\out{<output base filename>}}.notes --notes on the creation of the EVD data set
+\subsection{Output Files:}{
+\itemize{
+\item \verb{<basename>.ids}: List of subject IDs
+\item \verb{<basename>.eigenvalues}: Eigenvalue vector
+\item \verb{<basename>.eigenvectors}: Matrix of eigenvectors
+\item \verb{<basename>.notes}: Notes describing the run
+}
+}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-CreateEvdData-new}{\code{CreateEvdData$new()}}
 \item \href{#method-CreateEvdData-print}{\code{CreateEvdData$print()}}
-\item \href{#method-CreateEvdData-finalize}{\code{CreateEvdData$finalize()}}
 \item \href{#method-CreateEvdData-get_output_fbasename}{\code{CreateEvdData$get_output_fbasename()}}
 \item \href{#method-CreateEvdData-get_plink_fbasename}{\code{CreateEvdData$get_plink_fbasename()}}
 \item \href{#method-CreateEvdData-get_use_covs}{\code{CreateEvdData$get_use_covs()}}
@@ -54,6 +52,20 @@ Output consists of three files labeled:
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{output_fbasename}}{Character. Required. Base name used to generate EVD output files.}
+
+\item{\code{plink_fbasename}}{Character. Optional. Base name for input PLINK data set (.bed/.bim/.fam).}
+
+\item{\code{use_covs}}{Logical. Optional. If \code{TRUE}, includes IDs defined by the covariate command in the EVD sample.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new \code{CreateEvdData} object encapsulating configuration for SOLAR's \code{create_evd_data} command.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CreateEvdData-print"></a>}}
@@ -63,15 +75,9 @@ Output consists of three files labeled:
 \if{html}{\out{<div class="r">}}\preformatted{CreateEvdData$print()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+Invisibly returns \code{self}. Prints a summary of the \code{CreateEvdData} object configuration.
 }
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CreateEvdData-finalize"></a>}}
-\if{latex}{\out{\hypertarget{method-CreateEvdData-finalize}{}}}
-\subsection{Method \code{finalize()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CreateEvdData$finalize()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CreateEvdData-get_output_fbasename"></a>}}
@@ -81,6 +87,9 @@ Output consists of three files labeled:
 \if{html}{\out{<div class="r">}}\preformatted{CreateEvdData$get_output_fbasename()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character string containing the base name for EVD output files.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CreateEvdData-get_plink_fbasename"></a>}}
@@ -90,6 +99,9 @@ Output consists of three files labeled:
 \if{html}{\out{<div class="r">}}\preformatted{CreateEvdData$get_plink_fbasename()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A character string representing the base name of the PLINK input set, or \code{NULL} if not set.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CreateEvdData-get_use_covs"></a>}}
@@ -99,6 +111,9 @@ Output consists of three files labeled:
 \if{html}{\out{<div class="r">}}\preformatted{CreateEvdData$get_use_covs()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+A logical value indicating whether covariates were included in the EVD sample selection.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CreateEvdData-clone"></a>}}
