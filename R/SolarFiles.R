@@ -285,8 +285,8 @@ SolarFilesController <- R6Class("SolarFilesController",
       polygenic_files <- private$.sf$get_polygenic_files()
       ## if trait_d is "T1 T2 T3 ..." replace " " with "."
       polygenic_files$trait_d <-
-        str_replace_all(polygenic_files$trait_d, " ", ".")
-      trait_d_files <- str_c(path_to_files, "/", polygenic_files$trait_d)
+        stringr::str_replace_all(polygenic_files$trait_d, " ", ".")
+      trait_d_files <- stringr::str_c(path_to_files, "/", polygenic_files$trait_d)
       trait_d_files <- list.files(trait_d_files, full.names = TRUE)
       private$.sf$set_polygenic_trait_d_files(trait_d_files)
       invisible(self)
@@ -305,7 +305,7 @@ SolarFilesController <- R6Class("SolarFilesController",
     #' @return A character vector of `.mod` file paths.
     get_mod_files = function() {
       str <- private$.sf$get_polygenic_files()$trait_d_files
-      mod_files <- str[str_detect(str, ".mod$")]
+      mod_files <- str[stringr::str_detect(str, ".mod$")]
       mod_files
     },
     #' @description
@@ -314,7 +314,7 @@ SolarFilesController <- R6Class("SolarFilesController",
     #' @return A character vector of `.out` file paths.
     get_out_files = function() {
       str <- private$.sf$get_polygenic_files()$trait_d_files
-      out_files <- str[str_detect(str, ".out$")]
+      out_files <- str[stringr::str_detect(str, ".out$")]
       out_files
     },
     #' @description
@@ -323,7 +323,7 @@ SolarFilesController <- R6Class("SolarFilesController",
     #' @return A character vector of `.stats` file paths.
     get_stats_files = function() {
       str <- private$.sf$get_polygenic_files()$trait_d_files
-      stats_files <- str[str_detect(str, ".stats$")]
+      stats_files <- str[stringr::str_detect(str, ".stats$")]
       stats_files
     }
 

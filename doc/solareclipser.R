@@ -62,8 +62,8 @@ mod_files <- sfc$get_mod_files()
 out_files <- sfc$get_out_files()
 stat_files <- sfc$get_stats_files()
 
-summary <- readLines(out_files[str_detect(out_files, "polygenic.out")])
-cat(str_trim(summary), sep = "\n")
+summary <- readLines(out_files[stringr::str_detect(out_files, "polygenic.out")])
+cat(stringr::str_trim(summary), sep = "\n")
 })
 
 ## ----settings_tcl_true_stdout_and_stderr_true, error=TRUE---------------------
