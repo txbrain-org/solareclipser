@@ -25,8 +25,8 @@ rm -r "$vig" || exit 1
 # update the Date field in DESCRIPTION
 sed -i "s/^Date: .*/Date: $(date +'%Y-%m-%d')/" "$desc" || exit 1
 # remove lines with knitr, rmarkdown, VignetteBuilder from the DESCRIPTION file
-sed -i '/^Suggests:.*knitr/d' "$desc" || exit 1
-sed -i '/^Suggests:.*rmarkdown/d' "$desc" || exit 1
+sed -i '/^.*knitr,.*/d' "$desc" || exit 1
+sed -i '/^.*rmarkdown.*/d' "$desc" || exit 1
 sed -i '/^VignetteBuilder: /d' "$desc" || exit 1
 
 #git_curr_head_hash=$(git rev-parse HEAD)

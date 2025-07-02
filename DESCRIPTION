@@ -31,8 +31,4 @@ Imports:
     stringr,
     testthat (>= 3.0.0)
 Suggests:
-    knitr,
-    rmarkdown
 Config/testthat/edition: 3
-VignetteBuilder: knitr
-BuildVignettes: false
