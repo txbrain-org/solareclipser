@@ -1,5 +1,7 @@
 # TODO
 
+## dev
+
 - feat:
     - Pedifromsnp
         - [ ] complete options, need files for testing.
@@ -24,3 +26,17 @@
         - [ ] usage
             - [ ] `Solar$run()`
             - [ ] `SolarFiles()`
+
+## chore
+
+### CRAN
+
+- [x] Possibly misspelled words in DESCRIPTION:
+    solareclipser (18:27)
+    Please single quote all  software names such as 'SOLAR' in both Title and Description fields of the DESCRIPTION file.
+- [ ] FOSS licence with BuildVignettes: false
+- [ ] Package has a VignetteBuilder field but no prebuilt vignette index.
+- [x] Found the following (possibly) invalid file URI:
+    URI: doc/solareclipser.pdf
+      From: README.md
+- [x] The Date field is over a month old.

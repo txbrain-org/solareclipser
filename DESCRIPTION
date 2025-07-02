@@ -1,24 +1,24 @@
 Package: solareclipser
-Title: An R Interface to SOLAR
+Title: An R Interface to 'SOLAR'
 Type: Package
 Version: 1.0.0
-Date: 2024-05-02
+Date: 2025-07-02
 Authors@R: 
     person("William",
            "Burroughs",
            email = "wilbura009@gmail.com",
            role = c("aut", "cre"))
 Maintainer: William Burroughs <wilbura009@gmail.com>
-Description: SOLAR is the standard software program to perform linkage and
+Description: 'SOLAR' is the standard software program to perform linkage and
     association mappings of the quantitative trait loci (QTLs) in pedigrees of
     arbitrary size and complexity. This package allows the user to exploit the
-    variance component methods implemented in SOLAR. It automates such routine
+    variance component methods implemented in 'SOLAR'. It automates such routine
     operations as formatting pedigree and phenotype data. It also parses the model
     output and contains summary and plotting functions for exploration of the
-    results. In addition, solareclipser enables parallel computing of the linkage and
+    results. In addition, 'solareclipser' enables parallel computing of the linkage and
     association analyses, that makes the calculation of genome-wide scans more
     efficient. See <https://solar-eclipse-genetics.org> for more information about
-    SOLAR.
+    'SOLAR'.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
