@@ -1,10 +1,2 @@
-dat/
 *.html
-*.pdf
-*_cache/
-*_files/
-cache/
-figure/
-figures-*/
-*.md
 *.R

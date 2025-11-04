@@ -3,131 +3,79 @@
 ## {{re}} 'rmarkdown::render("doc/solareclipser.Rmd", output_format = "all")'; \
 
 set shell := ["bash", "-cu"]
+project := 'solareclipser'
 
-proj := 'solareclipser'
-version := `grep -r Version DESCRIPTION | awk '{print $2}'`
-pkg := proj + '_' + version + '.tar.gz'
+user := ''
+vmip := ''
 
-release := 'release'
-#tests_release := 'tests/release'
+re := 'R -e'
+builddir := 'release'
 
-release_pkg := release + '/' + pkg
-#tests_release_pkg := tests_release + '/' + pkg
+# compile and load into memory (current R session only - temp state)
+load:
+  {{re}} 'devtools::load_all()'
 
-user_libs := `find ~/Work/nGit/R -type d -iname "r_libs_user_linux"`
+# updates generated docs in man/ from roxygen comments in R/
+document:
+  {{re}} 'devtools::document()'
 
-solar_output_dir := 'tests/output/solar'
+# updates the documentation, then builds and checks the package locally.
+check:
+  {{re}} 'devtools::check(error_on = "error")'
 
-re := 'Rscript -e'
-tests_d := 'tests/input'
-tests_r := `find tests/input -type f -iname "*.R" -exec basename {} \;`
-inspect_r := "\"source('tests/input/inspect.R')\""
+# updates the documentation, then builds and checks the package as CRAN would.
+check_cran:
+  {{re}} 'devtools::check(error_on = "error", cran = TRUE)'
 
-pd_defaults_yml := "\
----
-# General
-# Reader
-# General Writer
-variables:
-  margin-left: .5in
-  margin-right: .5in
-  margin-top: .5in
-  margin-bottom: .5in
-  maxwidth: inherit
-  fontsize: 12pt
-  mainfont: Lato
-  monofont: FiraCode Nerd Font
-  linkcolor: blue
-  pagestyle: empty
-highlight-style: tango
-# Options affecting specific writers
-pdf-engine: wkhtmltopdf
-# ascii: true
-...
-"
+# installs the package locally
+install:
+  {{re}} 'devtools::install("release/")'
 
-tmpyml := proj + ".yml"
-tmpmd := proj + ".md"
-tmppdf := proj + ".pdf"
+# builds a package file from package sources
+build:
+  {{re}} 'devtools::build(path = "{{builddir}}/")'
 
-debug:
-  @echo -n "{{pd_defaults_yml}}"
-  @echo "tmpyml = {{tmpyml}}"
-  @echo "tmpmd  = {{tmpmd}}"
-  @echo "tmppdf = {{tmppdf}}"
+# locates your README.Rmd and builds it into a README.md
+build_readme:
+  {{re}} 'devtools::build_readme()'
 
-# lists tests in {{tests_d}}
-_tests-show:
-  @find {{tests_d}} -type f -iname "*.R" -exec basename {} \;
+# https://devtools.r-lib.org/reference/build_vignettes.html?q=build_vignettes#null
+build_vignettes:
+  {{re}} 'devtools::build_vignettes()'
 
-# tests [show | {{t}}]
-tests param:
-  if [[ {{param}} == "show" ]]; then \
-    just _tests-show; \
-  else \
-    {{re}} "source('tests/input/{{param}}')"; \
-  fi
+#release: document build_readme build_vignettes check_release build install
 
-# https://rstudio.github.io/cheatsheets/html/package-development.html
-# devtools [load_all | test | check | document | build | readme | install]
-devtools param:
-  @if [[ {{param}} == "load_all" ]]; then {{re}} 'devtools::load_all()'; fi
-  @if [[ {{param}} == "test" ]]; then {{re}} 'devtools::test()'; fi
-  @if [[ {{param}} == "check" ]]; then {{re}} 'devtools::check()'; fi # -> pre commit
-  @if [[ {{param}} == "document" ]]; then {{re}} 'devtools::document()'; fi # -> ?fun
-  @if [[ {{param}} == "build" ]]; then {{re}} 'devtools::build(path = "release/")'; fi
-  @if [[ {{param}} == "readme" ]]; then {{re}} 'devtools::build_readme()'; fi
-  @if [[ {{param}} == "install" ]]; then {{re}} 'devtools::install("release/")'; fi
-  @if [[ {{param}} == "vignettes" ]]; then \
-    {{re}} 'devtools::build_vignettes()' && \
-    tmpdir=$(mktemp -d /tmp/solareclipser.pandoc.XXXXXXXX) && \
-    touch $tmpdir/{{tmpyml}} && \
-    echo "{{pd_defaults_yml}}" > $tmpdir/{{tmpyml}} ;\
-    echo "touch $tmpdir/{{tmpmd}} &&"; \
-    touch $tmpdir/{{tmpmd}} && \
-    pandoc doc/solareclipser.html -t markdown -o $tmpdir/{{tmpmd}} ;\
-    touch $tmpdir/{{tmppdf}} && \
-    pandoc -d $tmpdir/{{tmpyml}} $tmpdir/{{tmpmd}} -t html -o $tmpdir/{{tmppdf}} && \
-    cp $tmpdir/{{tmppdf}} doc/ ;\
-  fi
+test:
+  {{re}} 'devtools::test()'
 
-_vignettes: (clean "install") (devtools "build") (devtools "install") (devtools "vignettes")
+clean:
+  rm src/*.o src/*.so || true
 
-# _build && devtools readme
-_build-all: _vignettes (devtools "readme")
+# print dev flow
+help-dev:
+  cat dev/doc/flow.md
 
-# build [all | readme | vignettes]
-build param:
-  @if [[ {{param}} == "all" ]]; then just _build-all; fi
-  @if [[ {{param}} == "vignettes" ]]; then just _vignettes; fi
-  @if [[ {{param}} == "readme" ]]; then just devtools readme; fi
+bear:
+  bear -- R CMD INSTALL . --preclean
+  just load
 
-# rm {{user_libs}}/{{pkg}}
-_clean-install:
-  @if [[ ! -z {{user_libs}} && -d {{user_libs}}/{{proj}} ]]; then rm -rfv {{user_libs}}/{{proj}} 2> /dev/null; fi
+cpp_src_target := 'solareclipser'
+pheno := 'CC'
 
-# rm {{solar_output_dir}}
-_clean-solar-output:
-  @if [[ ! -z {{solar_output_dir}} && -d {{solar_output_dir}} ]]; then rm -rfv {{solar_output_dir}}/* 2> /dev/null; fi
+_test-cpp-setup:
+  make clean && make && make install
+  mkdir -p tests/testsrc && cp -a inst/bin/solareclipser tests/testsrc
 
-# rm release/{{pkg}} && tests/release/{{pkg}}
-_clean-release:
-  @if [[ ! -z {{release_pkg}} && -f {{release_pkg}} ]]; then rm -rfv {{release_pkg}}; fi
+test-cpp: _test-cpp-setup
+  make && \
+  cd tests/testsrc && \
+    ./{{cpp_src_target}} fphi --pedigree ../testdata/HCP_imputed_filtered_ped.csv -t 0 \
+                      --phenotypes ../testdata/HCP_WM_ave_norm.csv \
+                      --trait {{pheno}} \
+                      --out {{pheno}}_evd
 
-# _clean [clean install | solar-output | release]
-_clean param:
-  @if [[ {{param}} == "install" ]]; then just _clean-install; fi
-  @if [[ {{param}} == "solar-output" ]]; then just _clean-solar-output; fi
-  @if [[ {{param}} == "release" ]]; then just _clean-release; fi
+push-vm:
+  rsync -avz --delete ../{{project}}/ {{user}}@{{vmip}}:~/{{project}}/
 
-_clean-all: (_clean "install") (_clean "solar-output") (_clean "release")
-
-# clean [all | install | solar-output | release]
-clean param:
-  @if [[ {{param}} == "all" ]]; then just _clean-all; fi
-  @if [[ {{param}} == "install" ]]; then just _clean-install; fi
-  @if [[ {{param}} == "solar-output" ]]; then just _clean-solar-output; fi
-  @if [[ {{param}} == "release" ]]; then just _clean-release; fi
-  
-# install : build all
-install: (build "all")
+pull-vm:
+  rsync -avz --delete {{user}}@{{vmip}}:~/{{project}}/ ../{{project}}/

@@ -1,8 +1,6 @@
 Package: solareclipser
-Title: An R Interface to 'SOLAR'
-Type: Package
+Title: solareclipser is an R package version of solareclipse
 Version: 1.0.0
-Date: 2025-07-02
 Authors@R: 
     person("William",
            "Burroughs",
@@ -22,17 +20,18 @@ Description: 'SOLAR' is the standard software program to perform linkage and
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
 URL: https://github.com/txbrain-org/solareclipser
-LazyData: false
-OS_type: unix
+RoxygenNote: 7.3.3
 Imports:
-    R6,
-    stringr,
-    testthat (>= 3.0.0)
+    Rcpp
+LinkingTo: Rcpp
 Suggests:
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Depends: 
+    R (>= 3.5)
+LazyData: true
+LazyDataCompression: xz
 VignetteBuilder: knitr
-BuildVignettes: false

@@ -1,0 +1,21 @@
+# Makevars for solareclipser R package
+# Based on the project Makefile settings
+
+# Compiler flags (matching Makefile exactly)
+# Note: Explicit optimization flags like -O2 are considered non-portable by R CMD check
+# R will use appropriate optimization flags by default
+
+# Libraries (need gfortran library for Fortran code)
+#PKG_LIBS = -lz -lm -lgfortran
+
+# Source files to compile
+SOURCES = RcppExports.cpp rcpp_interface.cpp \
+          pedigree.cc pedigree_loader.cc csv_reader.cc phenotypes.cc \
+          solar_session.cc create_evd.cc fphi.cc \
+          symeig.f cdfchi.f ipmpar.f spmpar.f
+
+# Object files (automatically derived from SOURCES)
+OBJECTS = RcppExports.o rcpp_interface.o \
+          pedigree.o pedigree_loader.o csv_reader.o phenotypes.o \
+          solar_session.o create_evd.o fphi.o \
+          symeig.o cdfchi.o ipmpar.o spmpar.o
