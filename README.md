@@ -12,11 +12,16 @@
 
 ## Installation
 
-### solareclipser
+base R installation:
 
-``` r
-install.packages("devtools")
-devtools::install_github("txbrain-org/solareclipser")
-```
+1.  Download the tarball from the [releases
+    page](https://github.com/txbrain-org/solareclipser/tree/main/release)
+
+2.  Install the package with the following command (replace the path
+    with the actual path to the downloaded file):
+    
+    ``` r
+    install.packages("path/to/package.tar.gz", repos = NULL, type = "source")
+    ```
 
 ## Example

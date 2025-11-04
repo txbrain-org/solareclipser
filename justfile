@@ -43,8 +43,6 @@ build_readme:
 build_vignettes:
   {{re}} 'devtools::build_vignettes()'
 
-#release: document build_readme build_vignettes check_release build install
-
 test:
   {{re}} 'devtools::test()'
 
