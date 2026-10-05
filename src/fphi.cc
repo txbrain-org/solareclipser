@@ -496,7 +496,8 @@ int Fphi::run_fphi(
     Pedigree* pedigree,
     Phenotypes* phenotypes,
     const std::string& trait_name,
-    const char* evd_data_basename
+    const char* evd_data_basename,
+    FphiResult& result
 ) {
     if (!evd_data_basename) {
         CERR << "Error: No EVD data filename specified" << std::endl;
@@ -708,37 +709,21 @@ int Fphi::run_fphi(
         pvalue = 0.5;  // Non-significant result
     }
     
-    // Create output file
-    std::string output_file = std::string(evd_data_basename) + "_fphi_results.out";
-    std::ofstream results_stream(output_file);
-    if (results_stream) {
-        results_stream.precision(11);  // decimal places for file output
-        results_stream << std::fixed;  // Force fixed-point notation
-        results_stream << "Trait,h2r,SE,loglik,sporadic_loglik,p_value,n_subjects" << std::endl;
-        results_stream << trait_name << "," << h2r << "," << result_se << "," 
-                      << loglik << "," << sporadic_loglik << ",";
-        if (pvalue < 1e-6) {
-            results_stream << std::scientific << std::setprecision(11) << pvalue;
-        } else {
-            results_stream << std::fixed << std::setprecision(6) << pvalue;
-        }
-        results_stream << "," << n_subjects << std::endl;
-        results_stream.close();
-    }
-
-    // Create detailed parameters CSV file
-    std::string params_file = std::string(evd_data_basename) + "_parameters.out";
-    std::ofstream params_stream(params_file);
-    if (params_stream) {
-        params_stream.precision(11);
-        params_stream << std::fixed;
-        params_stream << "Parameter,Value,SE" << std::endl;
-        params_stream << "mean," << result_mean << "," << result_mean_se << std::endl;
-        params_stream << "e2," << result_e2 << "," << result_e2_se << std::endl;
-        params_stream << "h2r," << h2r << "," << result_se << std::endl;
-        params_stream << "sd," << result_sd << "," << result_sd_se << std::endl;
-        params_stream.close();
-    }
+    result.trait = trait_name;
+    result.pedigree_file = pedigree->filename();
+    result.phenotype_file = phenotypes->get_filename();
+    result.n_subjects = n_subjects;
+    result.h2r = h2r;
+    result.h2r_se = result_se;
+    result.loglik = loglik;
+    result.sporadic_loglik = sporadic_loglik;
+    result.p_value = pvalue;
+    result.mean = result_mean;
+    result.mean_se = result_mean_se;
+    result.e2 = result_e2;
+    result.e2_se = result_e2_se;
+    result.sd = result_sd;
+    result.sd_se = result_sd_se;
 
     return 0;
 }

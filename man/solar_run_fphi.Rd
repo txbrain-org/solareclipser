@@ -4,10 +4,19 @@
 \alias{solar_run_fphi}
 \title{Run FPHI analysis}
 \usage{
-solar_run_fphi(output_basename = "fphi_output")
+solar_run_fphi(
+  output_basename = "fphi_output",
+  format = as.character(c("csv")),
+  write_files = TRUE
+)
 }
 \arguments{
 \item{output_basename}{Base name for output files (default: "fphi_output")}
+
+\item{format}{Character vector of output formats: any of "csv", "tsv",
+"json", "yaml", "solar" (default: "csv")}
+
+\item{write_files}{Write the result files to disk (default: TRUE)}
 }
 \value{
 Returns 0 on success, 1 on failure
@@ -17,13 +26,27 @@ Run FPHI heritability analysis for the selected trait.
 Pedigree, phenotypes, and trait must all be loaded/selected first.
 }
 \details{
-Creates output files:
+The results are printed to standard output in each requested format, in
+the order given. Progress messages go to standard error, so standard
+output can be redirected straight to a parsable (or diffable) file.
+
+Formats:
 \itemize{
-\item <output_basename>.ids
-\item <output_basename>.eigenvalues
-\item <output_basename>.eigenvectors
-\item <output_basename>.notes
-\item <output_basename>_fphi_results.out
-\item <output_basename>_parameters.out
+\item \code{"csv"}, \code{"tsv"}: a results table and a parameters table
+(read with \code{\link[utils:read.csv]{utils::read.csv()}} / \code{\link[utils:read.delim]{utils::read.delim()}})
+\item \code{"json"}, \code{"yaml"}: one document holding results and parameters
+\item \code{"solar"}: the summary block printed by the original SOLAR-Eclipse
+\code{fphi} command, for diffing against its output
+}
+
+Always creates the EVD working files \verb{<output_basename>.ids},
+\code{.eigenvalues}, \code{.eigenvectors} and \code{.notes}. When \code{write_files} is
+\code{TRUE}, each format also writes its result file(s):
+\itemize{
+\item csv: \verb{<output_basename>_fphi_results.out}, \verb{<output_basename>_parameters.out}
+\item tsv: \verb{<output_basename>_fphi_results.tsv}, \verb{<output_basename>_parameters.tsv}
+\item json: \verb{<output_basename>_fphi.json}
+\item yaml: \verb{<output_basename>_fphi.yaml}
+\item solar: \verb{<output_basename>_fphi.solar.out}
 }
 }

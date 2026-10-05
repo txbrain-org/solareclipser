@@ -31,7 +31,11 @@ if (rc != 0) {
   stop("Failed to select trait")
 }
 
-rc <- solar_run_fphi(output_basename)
+## Results are printed to stdout in each format and written to
+## <output_basename>_fphi_results.out / _parameters.out (csv) and
+## <output_basename>_fphi.json. Other formats: "tsv", "yaml", and "solar"
+## (the original SOLAR-Eclipse summary block, for diffing against its output).
+rc <- solar_run_fphi(output_basename, format = c("csv", "json"))
 if (rc != 0) {
   stop("FPHI analysis failed")
 }

@@ -41,19 +41,34 @@ solar_select_trait <- function(trait_name) {
 #' Run FPHI heritability analysis for the selected trait.
 #' Pedigree, phenotypes, and trait must all be loaded/selected first.
 #'
-#' Creates output files:
-#'   - <output_basename>.ids
-#'   - <output_basename>.eigenvalues
-#'   - <output_basename>.eigenvectors
-#'   - <output_basename>.notes
-#'   - <output_basename>_fphi_results.out
-#'   - <output_basename>_parameters.out
+#' The results are printed to standard output in each requested format, in
+#' the order given. Progress messages go to standard error, so standard
+#' output can be redirected straight to a parsable (or diffable) file.
+#'
+#' Formats:
+#'   - `"csv"`, `"tsv"`: a results table and a parameters table
+#'     (read with [utils::read.csv()] / [utils::read.delim()])
+#'   - `"json"`, `"yaml"`: one document holding results and parameters
+#'   - `"solar"`: the summary block printed by the original SOLAR-Eclipse
+#'     `fphi` command, for diffing against its output
+#'
+#' Always creates the EVD working files `<output_basename>.ids`,
+#' `.eigenvalues`, `.eigenvectors` and `.notes`. When `write_files` is
+#' `TRUE`, each format also writes its result file(s):
+#'   - csv: `<output_basename>_fphi_results.out`, `<output_basename>_parameters.out`
+#'   - tsv: `<output_basename>_fphi_results.tsv`, `<output_basename>_parameters.tsv`
+#'   - json: `<output_basename>_fphi.json`
+#'   - yaml: `<output_basename>_fphi.yaml`
+#'   - solar: `<output_basename>_fphi.solar.out`
 #'
 #' @param output_basename Base name for output files (default: "fphi_output")
+#' @param format Character vector of output formats: any of "csv", "tsv",
+#'   "json", "yaml", "solar" (default: "csv")
+#' @param write_files Write the result files to disk (default: TRUE)
 #' @return Returns 0 on success, 1 on failure
 #' @export
-solar_run_fphi <- function(output_basename = "fphi_output") {
-    .Call(`_solareclipser_solar_run_fphi`, output_basename)
+solar_run_fphi <- function(output_basename = "fphi_output", format = as.character( c("csv")), write_files = TRUE) {
+    .Call(`_solareclipser_solar_run_fphi`, output_basename, format, write_files)
 }
 
 #' Reset session state

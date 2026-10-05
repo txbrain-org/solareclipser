@@ -46,13 +46,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // solar_run_fphi
-int solar_run_fphi(std::string output_basename);
-RcppExport SEXP _solareclipser_solar_run_fphi(SEXP output_basenameSEXP) {
+int solar_run_fphi(std::string output_basename, CharacterVector format, bool write_files);
+RcppExport SEXP _solareclipser_solar_run_fphi(SEXP output_basenameSEXP, SEXP formatSEXP, SEXP write_filesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::string >::type output_basename(output_basenameSEXP);
-    rcpp_result_gen = Rcpp::wrap(solar_run_fphi(output_basename));
+    Rcpp::traits::input_parameter< CharacterVector >::type format(formatSEXP);
+    Rcpp::traits::input_parameter< bool >::type write_files(write_filesSEXP);
+    rcpp_result_gen = Rcpp::wrap(solar_run_fphi(output_basename, format, write_files));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -70,7 +72,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_solareclipser_solar_load_pedigree", (DL_FUNC) &_solareclipser_solar_load_pedigree, 3},
     {"_solareclipser_solar_load_phenotype", (DL_FUNC) &_solareclipser_solar_load_phenotype, 1},
     {"_solareclipser_solar_select_trait", (DL_FUNC) &_solareclipser_solar_select_trait, 1},
-    {"_solareclipser_solar_run_fphi", (DL_FUNC) &_solareclipser_solar_run_fphi, 1},
+    {"_solareclipser_solar_run_fphi", (DL_FUNC) &_solareclipser_solar_run_fphi, 3},
     {"_solareclipser_solar_reset", (DL_FUNC) &_solareclipser_solar_reset, 0},
     {NULL, NULL, 0}
 };

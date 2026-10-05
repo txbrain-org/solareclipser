@@ -3,6 +3,8 @@
 
 #include <memory>
 #include <string>
+#include <vector>
+#include "fphi_output.h"
 #include "pedigree.h"
 #include "phenotypes.h"
 
@@ -57,18 +59,21 @@ public:
     /**
      * Run FPHI analysis
      * @param output_basename Base name for output files
+     * @param formats Formats to print the results in (and write, see below)
+     * @param write_files Also write the results to the files of each format
      * @return 0 on success, 1 on failure
      * @requires select_trait() must be called first
      *
-     * Creates output files:
+     * Always creates the EVD working files:
      *   - <output_basename>.ids
      *   - <output_basename>.eigenvalues
      *   - <output_basename>.eigenvectors
      *   - <output_basename>.notes
-     *   - <output_basename>_fphi_results.out
-     *   - <output_basename>_parameters.out
+     * Result files per format are listed by fphi_result_files().
      */
-    int run_fphi(const std::string& output_basename);
+    int run_fphi(const std::string& output_basename,
+                 const std::vector<OutputFormat>& formats,
+                 bool write_files);
 
     // === Query Methods ===
 
