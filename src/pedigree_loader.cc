@@ -7,8 +7,12 @@
 #include <cstring>
 #include <cctype>
 #include <algorithm>
-#include <queue>
 #include <iomanip>
+#include <numeric>
+#include <cstdio>
+#include <string_view>
+#include <unordered_map>
+#include <zlib.h>
 
 #include <Rcpp.h>
 #define COUT Rcpp::Rcout
@@ -30,6 +34,65 @@ static std::string make_output_path(const std::string& filename, const std::stri
         dir += '/';
     }
     return dir + filename;
+}
+
+// Strip " \n\r\t" from both ends, as CSVReader does
+static std::string_view trim_field(const char* begin, const char* end) {
+    auto is_space = [](char c) { return c == ' ' || c == '\n' || c == '\r' || c == '\t'; };
+    while (begin < end && is_space(*begin)) begin++;
+    while (end > begin && is_space(end[-1])) end--;
+    return std::string_view(begin, end - begin);
+}
+
+// Split one line on ',' with the same field semantics as CSVReader::get_record
+// (std::getline on ','): an empty line has no fields, and a trailing ',' does
+// not produce a trailing empty field.
+static void split_fields(const char* begin, const char* end, std::vector<std::string_view>& fields) {
+    fields.clear();
+    const char* p = begin;
+    while (p < end) {
+        const char* comma = static_cast<const char*>(std::memchr(p, ',', end - p));
+        const char* field_end = comma ? comma : end;
+        fields.push_back(trim_field(p, field_end));
+        if (!comma) break;
+        p = comma + 1;
+    }
+}
+
+// Read the file after its header line in blocks, calling on_line(begin, end)
+// for each line (without the '\n'). Lines are split like std::getline.
+template <typename F>
+static bool for_each_data_line(const std::string& filename, F on_line) {
+    std::ifstream in(filename, std::ios::binary);
+    if (!in) return false;
+
+    const size_t block_size = 1 << 24;
+    std::vector<char> buf;
+    size_t carry = 0;          // bytes of an incomplete line kept from the last block
+    bool header_skipped = false;
+    for (;;) {
+        buf.resize(carry + block_size);
+        in.read(buf.data() + carry, block_size);
+        size_t got = static_cast<size_t>(in.gcount());
+        size_t len = carry + got;
+        bool eof = (got == 0);
+
+        const char* p = buf.data();
+        const char* end = buf.data() + len;
+        for (;;) {
+            const char* nl = static_cast<const char*>(std::memchr(p, '\n', end - p));
+            if (!nl) break;
+            if (header_skipped) on_line(p, nl);
+            header_skipped = true;
+            p = nl + 1;
+        }
+        if (eof) {
+            if (p < end && header_skipped) on_line(p, end);  // last line without '\n'
+            return true;
+        }
+        carry = end - p;
+        std::memmove(buf.data(), p, carry);
+    }
 }
 
 // === Builder Implementation ===
@@ -177,52 +240,52 @@ std::unique_ptr<Pedigree> PedigreeLoader::load_empirical_pedigree() {
     std::vector<EmpiricalPerson> people;
     std::vector<KinshipEntry> kinships;
 
+    // ID -> index into people. Sequential IDs are assigned in order of first
+    // appearance (IDA before IDB), as SOLAR's epedigree does.
+    std::unordered_map<std::string, int> id_index;
+    auto find_or_add = [&](std::string_view id) {
+        std::string key(id);
+        auto it = id_index.find(key);
+        if (it != id_index.end()) return it->second;
+        int index = static_cast<int>(people.size());
+        EmpiricalPerson person;
+        person.original_id = key;
+        person.sequential_id = index + 1;
+        person.family_id = 0; // Will be set later
+        people.push_back(person);
+        id_index.emplace(std::move(key), index);
+        return index;
+    };
+
+    const size_t min_fields = static_cast<size_t>(std::max({ida_col, idb_col, kin_col})) + 1;
     int line_num = 1;
-    std::vector<std::string> fields;
-    while (reader.get_record(fields)) {
+    std::vector<std::string_view> fields;
+    std::string last_ida;      // rows are usually grouped by IDA, so cache its index
+    int last_ida_index = -1;
+    std::string kin_str;
+    bool read_ok = for_each_data_line(filename_, [&](const char* begin, const char* end) {
         line_num++;
+        split_fields(begin, end, fields);
 
-        if (fields.size() <= static_cast<size_t>(std::max({ida_col, idb_col, kin_col}))) {
+        if (fields.size() < min_fields) {
             CERR << "Warning: Invalid line " << line_num << ": insufficient fields" << std::endl;
-            continue;
+            return;
         }
 
-        std::string ida = fields[ida_col];
-        std::string idb = fields[idb_col];
-        double kinship = std::stod(fields[kin_col]);
+        std::string_view ida = fields[ida_col];
+        std::string_view idb = fields[idb_col];
+        kin_str.assign(fields[kin_col]);
+        double kinship = std::stod(kin_str);
 
-        // Find or add IDA
-        int ida_index = -1, idb_index = -1;
-        for (size_t i = 0; i < people.size(); i++) {
-            if (people[i].original_id == ida) {
-                ida_index = i;
-                break;
-            }
+        int ida_index;
+        if (last_ida_index >= 0 && ida == last_ida) {
+            ida_index = last_ida_index;
+        } else {
+            ida_index = find_or_add(ida);
+            last_ida.assign(ida);
+            last_ida_index = ida_index;
         }
-        if (ida_index == -1) {
-            EmpiricalPerson person;
-            person.original_id = ida;
-            person.sequential_id = people.size() + 1;
-            person.family_id = 0; // Will be set later
-            ida_index = people.size();
-            people.push_back(person);
-        }
-
-        // Find or add IDB
-        for (size_t i = 0; i < people.size(); i++) {
-            if (people[i].original_id == idb) {
-                idb_index = i;
-                break;
-            }
-        }
-        if (idb_index == -1) {
-            EmpiricalPerson person;
-            person.original_id = idb;
-            person.sequential_id = people.size() + 1;
-            person.family_id = 0; // Will be set later
-            idb_index = people.size();
-            people.push_back(person);
-        }
+        int idb_index = find_or_add(idb);
 
         // Check if kinship meets threshold and store
         bool passes_threshold = false;
@@ -239,48 +302,36 @@ std::unique_ptr<Pedigree> PedigreeLoader::load_empirical_pedigree() {
             entry.kinship = kinship;
             kinships.push_back(entry);
         }
+    });
+    if (!read_ok) {
+        CERR << "Error: Cannot read " << filename_ << std::endl;
+        return nullptr;
     }
 
-    // Assign families using BFS (connected components)
-    std::vector<bool> visited(people.size(), false);
-    int nfamilies = 0;
-
-    for (size_t i = 0; i < people.size(); i++) {
-        if (!visited[i]) {
-            nfamilies++;
-
-            // BFS to find all connected people
-            std::queue<int> q;
-            q.push(i);
-            visited[i] = true;
-            people[i].family_id = nfamilies;
-
-            while (!q.empty()) {
-                int current = q.front();
-                q.pop();
-
-                // Find all kinship entries involving this person
-                for (const auto& k : kinships) {
-                    int other = -1;
-                    if (k.id1 == people[current].sequential_id) {
-                        other = k.id2;
-                    } else if (k.id2 == people[current].sequential_id) {
-                        other = k.id1;
-                    }
-
-                    if (other != -1) {
-                        // Find the person with this sequential_id
-                        for (size_t p = 0; p < people.size(); p++) {
-                            if (people[p].sequential_id == other && !visited[p]) {
-                                visited[p] = true;
-                                people[p].family_id = nfamilies;
-                                q.push(p);
-                            }
-                        }
-                    }
-                }
-            }
+    // Assign families: connected components of the kept kinship pairs,
+    // found with union-find (sequential_id == index + 1)
+    std::vector<int> parent(people.size());
+    std::iota(parent.begin(), parent.end(), 0);
+    auto find_root = [&](int x) {
+        while (parent[x] != x) {
+            parent[x] = parent[parent[x]];  // path halving
+            x = parent[x];
         }
+        return x;
+    };
+    for (const auto& k : kinships) {
+        int a = find_root(k.id1 - 1);
+        int b = find_root(k.id2 - 1);
+        if (a != b) parent[std::max(a, b)] = std::min(a, b);
+    }
+
+    // Number families in order of their lowest-index member, as SOLAR does
+    std::vector<int> family_of_root(people.size(), 0);
+    int nfamilies = 0;
+    for (size_t i = 0; i < people.size(); i++) {
+        int root = find_root(i);
+        if (family_of_root[root] == 0) family_of_root[root] = ++nfamilies;
+        people[i].family_id = family_of_root[root];
     }
 
     // Create output files
@@ -336,22 +387,31 @@ void PedigreeLoader::create_output_files(const std::vector<EmpiricalPerson>& peo
         pedindex_fp.close();
     }
 
-    // Create phi2 (kinship matrix)
-    std::string phi2_path = make_output_path("phi2", output_dir_);
-    std::ofstream phi2_fp(phi2_path);
-    if (phi2_fp.is_open()) {
-        int matrix_digits = 7;
-
+    // Create phi2.gz (kinship matrix), written directly through zlib.
+    // Level 1 trades a slightly larger file for much faster compression.
+    std::string phi2_path = make_output_path("phi2.gz", output_dir_);
+    gzFile phi2_fp = gzopen(phi2_path.c_str(), "wb1");
+    if (phi2_fp) {
+        std::vector<char> out(1 << 20);
+        size_t used = 0;
+        bool ok = true;
+        char line[512];  // "%.7f" of the largest double is ~320 chars
         for (const auto& k : kinships) {
-            phi2_fp << std::setw(matrix_digits) << k.id1 << " "
-                   << std::setw(matrix_digits) << k.id2 << " "
-                   << std::fixed << std::setprecision(7) << k.kinship << "\n";
+            int n = std::snprintf(line, sizeof(line), "%7d %7d %.7f\n", k.id1, k.id2, k.kinship);
+            if (out.size() - used < static_cast<size_t>(n)) {
+                ok = ok && gzwrite(phi2_fp, out.data(), used) == static_cast<int>(used);
+                used = 0;
+            }
+            std::memcpy(out.data() + used, line, n);
+            used += n;
         }
-        phi2_fp.close();
-
-        // Create phi2.gz using system gzip
-        std::string gzip_cmd = "gzip -f " + phi2_path;
-        system(gzip_cmd.c_str());
+        ok = ok && gzwrite(phi2_fp, out.data(), used) == static_cast<int>(used);
+        ok = (gzclose(phi2_fp) == Z_OK) && ok;
+        if (!ok) {
+            CERR << "Error: Failed writing " << phi2_path << std::endl;
+        }
+    } else {
+        CERR << "Error: Cannot create " << phi2_path << std::endl;
     }
 
     // Create pedindex.cde file

@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cstring>
 #include <zlib.h>
-#include <map>
+#include <unordered_map>
 
 #include <Rcpp.h>
 #define COUT Rcpp::Rcout
@@ -239,56 +239,65 @@ int CreateEVD::compute_eigen_decomposition(const std::vector<std::string>& valid
     pedindex_file.close();
     
     // Create mapping from valid_ids to indices in the full phi2 matrix
+    // (first occurrence wins, as with a linear search)
+    std::unordered_map<std::string, int> pedigree_index;
+    for (size_t i = 0; i < all_pedigree_ids.size(); i++) {
+        pedigree_index.emplace(all_pedigree_ids[i], static_cast<int>(i) + 1);  // 1-based indexing for phi2
+    }
     std::vector<int> phi2_indices;
     for (const auto& valid_id : valid_ids) {
-        auto it = std::find(all_pedigree_ids.begin(), all_pedigree_ids.end(), valid_id);
-        if (it != all_pedigree_ids.end()) {
-            phi2_indices.push_back(std::distance(all_pedigree_ids.begin(), it) + 1);  // 1-based indexing for phi2
+        auto it = pedigree_index.find(valid_id);
+        if (it != pedigree_index.end()) {
+            phi2_indices.push_back(it->second);
         } else {
             CERR << "Error: ID " << valid_id << " not found in pedigree index" << std::endl;
             return 1;
         }
     }
-    
-    // Create phi2 matrix exactly like the original SOLAR implementation
-    double* phi2_array = new double[n * n];
 
-    // Read phi2 data into a map for easier access, matching original SOLAR approach
-    std::map<std::pair<int,int>, double> phi2_data;
+    // Kinship among the selected IBDIDs only, as a dense symmetric matrix.
+    // local[ibdid] is the IBDID's row in `selected`, or -1 if not selected.
+    // Entries absent from phi2.gz are 0; later lines overwrite earlier ones.
+    int max_ibdid = static_cast<int>(all_pedigree_ids.size());
+    std::vector<int> local(max_ibdid + 1, -1);
+    size_t m = 0;
+    for (int ibdid : phi2_indices) {
+        if (local[ibdid] < 0) local[ibdid] = static_cast<int>(m++);
+    }
+    std::vector<double> selected(m * m, 0.0);
+
     std::string phi2_path = output_dir.empty() ? "phi2.gz" : output_dir + "/phi2.gz";
-    gzFile phi2_file = gzopen(phi2_path.c_str(), "rt");
+    gzFile phi2_file = gzopen(phi2_path.c_str(), "rb");
     if (!phi2_file) {
         CERR << "Error: Cannot open " << phi2_path << " file" << std::endl;
         return 1;
     }
-    
+    gzbuffer(phi2_file, 1 << 20);
+
     char buffer[1024];
     while (gzgets(phi2_file, buffer, sizeof(buffer))) {
         int row, col;
         double value;
         if (sscanf(buffer, "%d %d %lf", &row, &col, &value) == 3) {
-            phi2_data[std::make_pair(row, col)] = value;
-            if (row != col) {
-                phi2_data[std::make_pair(col, row)] = value;  // Ensure symmetry
-            }
+            if (row < 1 || col < 1 || row > max_ibdid || col > max_ibdid) continue;
+            int r = local[row];
+            int c = local[col];
+            if (r < 0 || c < 0) continue;
+            selected[r * m + c] = value;
+            selected[c * m + r] = value;  // Ensure symmetry
         }
     }
     gzclose(phi2_file);
-    
+
     // Build phi2 matrix exactly like original SOLAR (lines 205-210)
     // Original: phi2[col*ids.size() + col] = solar_phi2->get(ibdids[col], ibdids[col]);
     // Original: phi2[col*ids.size() + row] = phi2[row*ids.size() + col] = solar_phi2->get(ibdids[row], ibdids[col]);
-    for(int col = 0; col < n; col++){
-        // Diagonal element
-        int ibdid_col = phi2_indices[col];
-        auto it = phi2_data.find(std::make_pair(ibdid_col, ibdid_col));
-        phi2_array[col * n + col] = (it != phi2_data.end()) ? it->second : 0.0;
-        
-        // Off-diagonal elements (matching original loop structure)
-        for(int row = col + 1; row < n; row++){
-            int ibdid_row = phi2_indices[row];
-            auto it = phi2_data.find(std::make_pair(ibdid_row, ibdid_col));
-            double value = (it != phi2_data.end()) ? it->second : 0.0;
+    double* phi2_array = new double[n * n];
+    for (size_t col = 0; col < n; col++) {
+        size_t c = local[phi2_indices[col]];
+        phi2_array[col * n + col] = selected[c * m + c];
+        for (size_t row = col + 1; row < n; row++) {
+            double value = selected[local[phi2_indices[row]] * m + c];
             phi2_array[col * n + row] = value;
             phi2_array[row * n + col] = value;
         }
