@@ -9,14 +9,6 @@
 #include "fphi_output.h"
 
 int SolarSession::load_pedigree(const std::string& file, double threshold, const std::string& output_dir) {
-    CERR << "Loading pedigree: " << file << std::endl;
-
-    if (threshold > 0.0) {
-        CERR << "  Using kinship threshold: " << threshold << std::endl;
-    }
-
-    CERR << "  Output directory: " << output_dir << std::endl;
-
     // Use PedigreeLoader Builder pattern with provided output directory
     auto loader = PedigreeLoader::Builder()
         .from_file(file)
@@ -42,8 +34,6 @@ int SolarSession::load_pedigree(const std::string& file, double threshold, const
 
     // Set sex variable
     Pedigree::SexVar(pedigree_->sex_len() > 0 ? 1 : 0);
-
-    CERR << "Pedigree loaded successfully" << std::endl;
     return 0;
 }
 
@@ -54,8 +44,6 @@ int SolarSession::load_phenotypes(const std::string& file) {
         return 1;
     }
 
-    CERR << "Loading phenotypes: " << file << std::endl;
-
     phenotypes_ = std::make_unique<Phenotypes>();
     if (!phenotypes_->load(file)) {
         CERR << "Error: Failed to load phenotypes" << std::endl;
@@ -64,8 +52,6 @@ int SolarSession::load_phenotypes(const std::string& file) {
     }
 
     phenotypes_->describe();
-
-    CERR << "Phenotypes loaded successfully" << std::endl;
     return 0;
 }
 
@@ -90,7 +76,6 @@ int SolarSession::select_trait(const std::string& trait) {
     }
 
     trait_ = trait;
-    CERR << "Selected trait: " << trait_ << std::endl;
     return 0;
 }
 
@@ -116,17 +101,7 @@ int SolarSession::run_fphi(const std::string& output_basename,
         return 1;
     }
 
-    CERR << std::endl;
-    CERR << "======================================" << std::endl;
-    CERR << "FPHI Analysis" << std::endl;
-    CERR << "======================================" << std::endl;
-    CERR << "Trait: " << trait_ << std::endl;
-    CERR << "Output Basename: " << output_basename << std::endl;
-    CERR << "======================================" << std::endl;
-    CERR << std::endl;
-
     // Step 1: Create EVD data
-    CERR << "Creating EVD data..." << std::endl;
     int evd_result = CreateEVD::create_evd_data(
         pedigree_.get(),
         phenotypes_.get(),
@@ -140,7 +115,6 @@ int SolarSession::run_fphi(const std::string& output_basename,
     }
 
     // Step 2: Run FPHI analysis
-    CERR << "Running FPHI analysis..." << std::endl;
     FphiResult result;
     int fphi_result = Fphi::run_fphi(
         pedigree_.get(),
@@ -162,18 +136,10 @@ int SolarSession::run_fphi(const std::string& output_basename,
     }
     COUT.flush();
 
-    CERR << std::endl;
-    CERR << "======================================" << std::endl;
-    CERR << "Analysis Complete" << std::endl;
-    CERR << "======================================" << std::endl;
-
     if (write_files) {
         for (OutputFormat format : formats) {
             if (!write_fphi_result_files(output_basename, result, format)) {
                 return 1;
-            }
-            for (const auto& file : fphi_result_files(output_basename, format)) {
-                CERR << "Output: " << file << std::endl;
             }
         }
     }
