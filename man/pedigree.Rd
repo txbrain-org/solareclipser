@@ -5,14 +5,16 @@
 \alias{pedigree}
 \title{Kinship Matrix from Human Connectome Project}
 \format{
-A data frame with 5,216,656 rows and 3 variables:
+A data frame with 5,216,656 rows (2,284 x 2,284 pairs) and 3
+variables:
 \describe{
-\item{IDA}{Character. Identifier for the first individual in the pair}
-\item{IDB}{Character. Identifier for the second individual in the pair}
-\item{KIN}{Numeric. Kinship coefficient between IDA and IDB, ranging from
-0 (unrelated) to 1 (identical/self). A value of 0.5 indicates
-parent-offspring or full siblings, 0.25 indicates half-siblings
-or grandparent-grandchild, etc.}
+\item{IDA}{Character. Identifier of the first individual in the pair}
+\item{IDB}{Character. Identifier of the second individual in the pair}
+\item{KIN}{Numeric. Twice the kinship coefficient between IDA and IDB:
+1 for an individual with itself (and about 1 for monozygotic
+twins), about 0.5 for first-degree relatives, about 0.25 for
+second-degree relatives, and near 0 (from -0.07) for
+unrelated pairs}
 }
 }
 \source{
@@ -22,16 +24,15 @@ Human Connectome Project
 pedigree
 }
 \description{
-IMPORTANT: The following description is AI generated and needs review.
+An empirical kinship matrix for 2,284 Human Connectome Project
+participants, as one row per ordered pair of individuals: the format
+\code{\link[=solar_load_pedigree]{solar_load_pedigree()}} reads. It is estimated from genetic data rather
+than a recorded pedigree, so it includes small negative values.
 }
 \details{
-A kinship matrix containing pairwise kinship coefficients between individuals
-from the Human Connectome Project. The kinship coefficients quantify the
-genetic relatedness between pairs of individuals.
-
-This dataset contains kinship coefficients calculated from pedigree
-information. The diagonal elements (IDA == IDB) have kinship = 1.0.
-The matrix is symmetric, so kinship(IDA, IDB) == kinship(IDB, IDA).
+The matrix is complete and symmetric: every pair appears in both orders
+with the same value, and every individual has a self-pair with \code{KIN = 1}.
+999 of the individuals in \link{phenotypes} are in it.
 }
 \examples{
 \dontrun{

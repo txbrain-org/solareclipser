@@ -1,25 +1,26 @@
 #' Kinship Matrix from Human Connectome Project
 #'
-#' IMPORTANT: The following description is AI generated and needs review.
+#' An empirical kinship matrix for 2,284 Human Connectome Project
+#' participants, as one row per ordered pair of individuals: the format
+#' [solar_load_pedigree()] reads. It is estimated from genetic data rather
+#' than a recorded pedigree, so it includes small negative values.
 #'
-#' A kinship matrix containing pairwise kinship coefficients between individuals
-#' from the Human Connectome Project. The kinship coefficients quantify the
-#' genetic relatedness between pairs of individuals.
-#'
-#' @format A data frame with 5,216,656 rows and 3 variables:
+#' @format A data frame with 5,216,656 rows (2,284 x 2,284 pairs) and 3
+#'   variables:
 #' \describe{
-#'   \item{IDA}{Character. Identifier for the first individual in the pair}
-#'   \item{IDB}{Character. Identifier for the second individual in the pair}
-#'   \item{KIN}{Numeric. Kinship coefficient between IDA and IDB, ranging from
-#'              0 (unrelated) to 1 (identical/self). A value of 0.5 indicates
-#'              parent-offspring or full siblings, 0.25 indicates half-siblings
-#'              or grandparent-grandchild, etc.}
+#'   \item{IDA}{Character. Identifier of the first individual in the pair}
+#'   \item{IDB}{Character. Identifier of the second individual in the pair}
+#'   \item{KIN}{Numeric. Twice the kinship coefficient between IDA and IDB:
+#'              1 for an individual with itself (and about 1 for monozygotic
+#'              twins), about 0.5 for first-degree relatives, about 0.25 for
+#'              second-degree relatives, and near 0 (from -0.07) for
+#'              unrelated pairs}
 #' }
 #'
 #' @details
-#' This dataset contains kinship coefficients calculated from pedigree
-#' information. The diagonal elements (IDA == IDB) have kinship = 1.0.
-#' The matrix is symmetric, so kinship(IDA, IDB) == kinship(IDB, IDA).
+#' The matrix is complete and symmetric: every pair appears in both orders
+#' with the same value, and every individual has a self-pair with `KIN = 1`.
+#' 999 of the individuals in [phenotypes] are in it.
 #'
 #' @source Human Connectome Project
 #' @examples
@@ -38,12 +39,8 @@
 
 #' Brain Imaging Phenotypes from Human Connectome Project
 #'
-#' IMPORTANT: The following description is AI generated and needs review.
-#'
-#' White matter tract phenotypes derived from diffusion tensor imaging (DTI)
-#' for 1,052 individuals from the Human Connectome Project. The phenotypes
-#' represent standardized measures of white matter microstructure across
-#' major fiber tracts.
+#' White matter phenotypes for 1,052 Human Connectome Project participants,
+#' one per tract region, derived from diffusion tensor imaging (DTI).
 #'
 #' @format A data frame with 1,052 rows and 25 variables:
 #' \describe{
@@ -75,9 +72,10 @@
 #' }
 #'
 #' @details
-#' All phenotype values are standardized (z-scored) measures of white matter
-#' microstructure. These phenotypes can be used with the pedigree data for
-#' heritability analysis using the FPHI method.
+#' Every trait has mean 0 and the same standard deviation (0.995), with no
+#' missing values, consistent with a rank-based inverse-normal
+#' transformation. 999 of the individuals are in [pedigree]; FPHI analyses
+#' only those. There are no covariate columns.
 #'
 #' @source Human Connectome Project
 #' @examples

@@ -39,11 +39,26 @@ namespace {
 
 //' Load pedigree file
 //'
-//' Load a pedigree file for analysis. This must be called before loading phenotypes.
+//' Load an empirical pedigree for analysis, as SOLAR's
+//' `load pedigree <file> -t <threshold>` does. This must be called before
+//' loading phenotypes.
+//'
+//' The file is a CSV with columns `IDA`, `IDB` and `KIN`, one row per pair
+//' of individuals, where `KIN` is twice the kinship coefficient (1 for an
+//' individual with itself, 0.5 for first-degree relatives). Pairs below the
+//' threshold count as unrelated (kinship 0), and families are the groups
+//' still connected after that. Pedigrees with father/mother columns are not
+//' supported yet.
+//'
+//' Writes the SOLAR pedigree files `pedigree.info`, `pedindex.cde`,
+//' `pedindex.out` and `phi2.gz` into `output_dir`.
 //'
 //' @param pedigree_filename Path to the pedigree CSV file
-//' @param threshold Kinship threshold (0.0 for theoretical pedigrees, >0 for empirical)
-//' @param output_dir Directory where pedigree output files will be created
+//' @param threshold Kinship threshold: at 0 (the default) pairs with `KIN`
+//'   above 0 are kept; otherwise pairs with `KIN` at or above `threshold`
+//' @param output_dir Directory for the pedigree files (default: the current
+//'   directory). [solar_run_fphi()] reads them from the directory of its
+//'   `output_basename`, so put that in this directory too.
 //' @return `TRUE`, invisibly. Signals an error on failure.
 //' @export
 // [[Rcpp::export(invisible = true)]]
@@ -145,7 +160,9 @@ CharacterVector solar_select_covariates(CharacterVector covariates = CharacterVe
 //'     `fphi` command, for diffing against its output;
 //'     `<output_basename>_fphi.solar.out`
 //'
-//' @param output_basename Base name for output files (default: "fphi_output")
+//' @param output_basename Base name for output files (default: "fphi_output").
+//'   Its directory must be the `output_dir` given to [solar_load_pedigree()],
+//'   e.g. `file.path(output_dir, trait)`.
 //' @param format Character vector of text formats to print: any of "csv",
 //'   "tsv", "json", "yaml", "solar" (default: none)
 //' @param write_files Write the result files of the formats in `format`

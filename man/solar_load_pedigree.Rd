@@ -9,13 +9,29 @@ solar_load_pedigree(pedigree_filename, threshold = 0, output_dir = "")
 \arguments{
 \item{pedigree_filename}{Path to the pedigree CSV file}
 
-\item{threshold}{Kinship threshold (0.0 for theoretical pedigrees, >0 for empirical)}
+\item{threshold}{Kinship threshold: at 0 (the default) pairs with \code{KIN}
+above 0 are kept; otherwise pairs with \code{KIN} at or above \code{threshold}}
 
-\item{output_dir}{Directory where pedigree output files will be created}
+\item{output_dir}{Directory for the pedigree files (default: the current
+directory). \code{\link[=solar_run_fphi]{solar_run_fphi()}} reads them from the directory of its
+\code{output_basename}, so put that in this directory too.}
 }
 \value{
 \code{TRUE}, invisibly. Signals an error on failure.
 }
 \description{
-Load a pedigree file for analysis. This must be called before loading phenotypes.
+Load an empirical pedigree for analysis, as SOLAR's
+\verb{load pedigree <file> -t <threshold>} does. This must be called before
+loading phenotypes.
+}
+\details{
+The file is a CSV with columns \code{IDA}, \code{IDB} and \code{KIN}, one row per pair
+of individuals, where \code{KIN} is twice the kinship coefficient (1 for an
+individual with itself, 0.5 for first-degree relatives). Pairs below the
+threshold count as unrelated (kinship 0), and families are the groups
+still connected after that. Pedigrees with father/mother columns are not
+supported yet.
+
+Writes the SOLAR pedigree files \code{pedigree.info}, \code{pedindex.cde},
+\code{pedindex.out} and \code{phi2.gz} into \code{output_dir}.
 }

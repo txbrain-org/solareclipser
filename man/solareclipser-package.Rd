@@ -4,9 +4,9 @@
 \name{solareclipser-package}
 \alias{solareclipser}
 \alias{solareclipser-package}
-\title{solareclipser: solareclipser is an R package version of solareclipse}
+\title{solareclipser: R Interface to 'SOLAR-Eclipse' Heritability Analysis}
 \description{
-'SOLAR' is the standard software program to perform linkage and association mappings of the quantitative trait loci (QTLs) in pedigrees of arbitrary size and complexity. This package allows the user to exploit the variance component methods implemented in 'SOLAR'. It automates such routine operations as formatting pedigree and phenotype data. It also parses the model output and contains summary and plotting functions for exploration of the results. In addition, 'solareclipser' enables parallel computing of the linkage and association analyses, that makes the calculation of genome-wide scans more efficient. See \url{https://solar-eclipse-genetics.org} for more information about 'SOLAR'.
+An R interface to the Fast Permutation Heritability Inference (FPHI) analysis of 'SOLAR-Eclipse', ported from its C++ and Fortran source. Loads an empirical kinship pedigree and a phenotype file, adjusts a trait for covariates, and estimates its heritability (h2r) with standard errors and a likelihood ratio test, returning the results as data frames. Results can also be written in the format of the original 'SOLAR' fphi command. See \url{https://solar-eclipse-genetics.org} for more information about 'SOLAR'.
 }
 \seealso{
 Useful links:

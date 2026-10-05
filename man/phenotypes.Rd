@@ -41,17 +41,14 @@ Human Connectome Project
 phenotypes
 }
 \description{
-IMPORTANT: The following description is AI generated and needs review.
+White matter phenotypes for 1,052 Human Connectome Project participants,
+one per tract region, derived from diffusion tensor imaging (DTI).
 }
 \details{
-White matter tract phenotypes derived from diffusion tensor imaging (DTI)
-for 1,052 individuals from the Human Connectome Project. The phenotypes
-represent standardized measures of white matter microstructure across
-major fiber tracts.
-
-All phenotype values are standardized (z-scored) measures of white matter
-microstructure. These phenotypes can be used with the pedigree data for
-heritability analysis using the FPHI method.
+Every trait has mean 0 and the same standard deviation (0.995), with no
+missing values, consistent with a rank-based inverse-normal
+transformation. 999 of the individuals are in \link{pedigree}; FPHI analyses
+only those. There are no covariate columns.
 }
 \examples{
 \dontrun{

@@ -11,7 +11,9 @@ solar_run_fphi(
 )
 }
 \arguments{
-\item{output_basename}{Base name for output files (default: "fphi_output")}
+\item{output_basename}{Base name for output files (default: "fphi_output").
+Its directory must be the \code{output_dir} given to \code{\link[=solar_load_pedigree]{solar_load_pedigree()}},
+e.g. \code{file.path(output_dir, trait)}.}
 
 \item{format}{Character vector of text formats to print: any of "csv",
 "tsv", "json", "yaml", "solar" (default: none)}

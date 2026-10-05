@@ -8,7 +8,19 @@
 <!-- badges: end -->
 
 `solareclipser` is an R package for
-[SOLAR-Eclipse](https://www.nitrc.org/projects/se_linux/).
+[SOLAR-Eclipse](https://www.nitrc.org/projects/se_linux/). It ports
+SOLAR’s Fast Permutation Heritability Inference (FPHI) to R:
+
+- load an empirical kinship pedigree (`IDA`, `IDB`, `KIN`) and a
+  phenotype file
+- adjust a trait for covariates, in SOLAR’s `covariate` syntax
+  (`age^1,2#sex`)
+- estimate its heritability (h2r) with standard errors and a likelihood
+  ratio test, returned as data frames
+- optionally write the results as csv, tsv, json, yaml, or the summary
+  block of the original SOLAR `fphi` command
+
+Results are checked against SOLAR 9.0.1 in the package tests.
 
 ## Installation
 
@@ -19,9 +31,43 @@ base R installation:
 
 2.  Install the package with the following command (replace the path
     with the actual path to the downloaded file):
-    
+
     ``` r
     install.packages("path/to/package.tar.gz", repos = NULL, type = "source")
     ```
 
 ## Example
+
+The package bundles a Human Connectome Project kinship pedigree and
+white matter phenotypes. The functions take file names, as SOLAR does,
+so write them to CSV first:
+
+``` r
+library(solareclipser)
+
+dir <- tempfile("fphi_")
+dir.create(dir)
+write.csv(pedigree, file.path(dir, "ped.csv"), row.names = FALSE, quote = FALSE)
+write.csv(phenotypes, file.path(dir, "phen.csv"), row.names = FALSE, quote = FALSE)
+
+solar_load_pedigree(file.path(dir, "ped.csv"), threshold = 0, output_dir = dir)
+solar_load_phenotype(file.path(dir, "phen.csv"))
+solar_select_trait("CC")
+res <- solar_run_fphi(file.path(dir, "CC"))
+res$results
+#>   trait      h2r         se    loglik sporadic_loglik      p_value n_subjects
+#> 1    CC 0.934443 0.01040862 -332.2292       -487.5209 8.148458e-70        999
+res$parameters
+#>   parameter      value         se
+#> 1      mean 0.00404806 0.11845822
+#> 2        e2 0.06555697 0.01040862
+#> 3       h2r 0.93444303 0.01040862
+#> 4        sd 1.04560387 0.02609633
+```
+
+To adjust for covariates, select them before running FPHI, e.g.
+`solar_select_covariates("age^1,2#sex")` for age, age^2, sex and their
+interactions (the bundled phenotypes have no covariate columns). To also
+get the results as text, pass `format`,
+e.g. `solar_run_fphi(base, format = "solar")` for output that can be
+compared with the original SOLAR.
