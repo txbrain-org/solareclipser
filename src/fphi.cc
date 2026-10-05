@@ -5,6 +5,8 @@
 #include <iomanip>
 #include <cmath>
 #include <algorithm>
+#include <cerrno>
+#include <cstdlib>
 
 #include <Rcpp.h>
 #define COUT Rcpp::Rcout
@@ -16,6 +18,19 @@
 
 // FORTRAN cdfchi routine (exact match to original SOLAR)
 extern "C" void cdfchi_(int* which, double* p, double* q, double* chi, double* df, int* status, double* bound);
+
+// Parse a number written by create_evd. Like std::stod, but a value that
+// underflows (e.g. a subnormal like -6.0276e-322) is accepted as parsed
+// instead of throwing out_of_range. Overflow and non-numbers still fail.
+static bool parse_evd_value(const std::string& s, double& value) {
+    const char* begin = s.c_str();
+    char* end = nullptr;
+    errno = 0;
+    value = std::strtod(begin, &end);
+    if (end == begin) return false;
+    if (errno == ERANGE && std::fabs(value) > 1.0) return false;
+    return true;
+}
 
 // Helper function to extract directory from a path
 static std::string extract_directory(const char* path) {
@@ -550,13 +565,12 @@ int Fphi::run_fphi(
         std::stringstream ss(line);
         std::string val_str;
         while (ss >> val_str) {
-            try {
-                double val = std::stod(val_str);
-                eigenvalues.push_back(val);
-            } catch (const std::exception&) {
+            double val;
+            if (!parse_evd_value(val_str, val)) {
                 CERR << "Error: Invalid eigenvalue: " << val_str << std::endl;
                 return 1;
             }
+            eigenvalues.push_back(val);
         }
     }
     eigenvals_stream.close();
@@ -583,9 +597,7 @@ int Fphi::run_fphi(
         // Read eigenvectors in column-major order (as written by create_evd)
         for (size_t col = 0; col < n_subjects && idx < n_subjects * n_subjects; col++) {
             for (size_t row = 0; row < n_subjects && ss >> val_str; row++, idx++) {
-                try {
-                    eigenvectors[row][col] = std::stod(val_str);
-                } catch (const std::exception&) {
+                if (!parse_evd_value(val_str, eigenvectors[row][col])) {
                     CERR << "Error: Invalid eigenvector value: " << val_str << std::endl;
                     return 1;
                 }
