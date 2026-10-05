@@ -108,6 +108,8 @@ test_that("run_fphi writes every output format with the same values", {
                read.csv(paste0(base, "_parameters.out")))
   h2r <- csv$h2r
   expect_gt(h2r, 0.9)
+  # Null model is trait minus its mean, as in SOLAR (dev/doc/solar-threshold-0.out)
+  expect_equal(csv$sporadic_loglik, -487.520945344, tolerance = 1e-11)
 
   skip_if_not_installed("jsonlite")
   json <- jsonlite::fromJSON(paste0(base, "_fphi.json"))

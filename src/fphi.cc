@@ -691,22 +691,31 @@ int Fphi::run_fphi(
                                   result_sd, result_sd_se);
     double loglik = result_loglik;
     
-    // Calculate null model for p-value (lines 1104-1107)
-    double residual_sum_sq = 0.0;
-    for (double y : Y) {
-        residual_sum_sq += y * y;
-    }
-    double null_variance = residual_sum_sq / n_subjects;
-    std::vector<double> ones(n_subjects, 1.0);
-    double sporadic_loglik = calculate_fphi_loglik(null_variance, ones, n_subjects);
-    
-    // Calculate p-value using likelihood ratio test
-    double pvalue;
-    if (sporadic_loglik < loglik) {
-        double chi_stat = 2.0 * (loglik - sporadic_loglik);
+    // Null (sporadic) model and likelihood ratio test (SOLAR lines 1102-1108
+    // and calculate_pvalue). SOLAR only tests when h2r != 0; otherwise the
+    // sporadic loglik is the polygenic one and p = 0.5.
+    double pvalue = 0.5;
+    double sporadic_loglik = loglik;
+    if (h2r != 0.0) {
+        // residual = trait_v - cov_matrix * OLS(cov_matrix, trait_v); the
+        // covariate matrix is the intercept only, so that is trait - mean
+        double trait_mean = 0.0;
+        for (double v : raw_phenotype_values) {
+            trait_mean += v;
+        }
+        trait_mean /= n_subjects;
+        double residual_sum_sq = 0.0;
+        for (double v : raw_phenotype_values) {
+            residual_sum_sq += (v - trait_mean) * (v - trait_mean);
+        }
+        double null_variance = residual_sum_sq / n_subjects;
+        std::vector<double> ones(n_subjects, 1.0);
+        sporadic_loglik = calculate_fphi_loglik(null_variance, ones, n_subjects);
+
+        // SOLAR passes the statistic to cdfchi unchecked; a negative one
+        // (sporadic fits better) is outside cdfchi's domain, so treat it as 0
+        double chi_stat = std::max(0.0, 2.0 * (loglik - sporadic_loglik));
         pvalue = chicdf(chi_stat, 1.0);
-    } else {
-        pvalue = 0.5;  // Non-significant result
     }
     
     result.trait = trait_name;
