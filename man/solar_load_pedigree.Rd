@@ -14,7 +14,7 @@ solar_load_pedigree(pedigree_filename, threshold = 0, output_dir = "")
 \item{output_dir}{Directory where pedigree output files will be created}
 }
 \value{
-Returns 0 on success, 1 on failure
+\code{TRUE}, invisibly. Signals an error on failure.
 }
 \description{
 Load a pedigree file for analysis. This must be called before loading phenotypes.

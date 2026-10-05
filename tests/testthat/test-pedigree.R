@@ -12,8 +12,7 @@ test_that("load_pedigree writes one pedigree.info line per family", {
   output_dir <- tempfile("ped_")
   dir.create(output_dir)
 
-  rc <- solar_load_pedigree(pedigree_tmp_csv, threshold = 0.05, output_dir = output_dir)
-  expect_equal(rc, 0)
+  expect_true(solar_load_pedigree(pedigree_tmp_csv, threshold = 0.05, output_dir = output_dir))
 
   info <- readLines(file.path(output_dir, "pedigree.info"))
   expect_equal(info[3], "3 3 5 3")  # nped nfam nind nfou

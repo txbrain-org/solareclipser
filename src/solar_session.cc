@@ -1,6 +1,6 @@
 #include <Rcpp.h>
 #define COUT Rcpp::Rcout
-#define CERR Rcpp::Rcerr
+#include "solar_log.h"
 
 #include "solar_session.h"
 #include "pedigree_loader.h"
@@ -81,7 +81,8 @@ int SolarSession::select_trait(const std::string& trait) {
 
 int SolarSession::run_fphi(const std::string& output_basename,
                            const std::vector<OutputFormat>& formats,
-                           bool write_files) {
+                           bool write_files,
+                           FphiResult& result) {
     // Validate all prerequisites
     if (!pedigree_) {
         CERR << "Error: Cannot run FPHI - pedigree not loaded" << std::endl;
@@ -115,7 +116,6 @@ int SolarSession::run_fphi(const std::string& output_basename,
     }
 
     // Step 2: Run FPHI analysis
-    FphiResult result;
     int fphi_result = Fphi::run_fphi(
         pedigree_.get(),
         phenotypes_.get(),

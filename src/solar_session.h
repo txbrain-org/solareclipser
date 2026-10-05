@@ -59,8 +59,10 @@ public:
     /**
      * Run FPHI analysis
      * @param output_basename Base name for output files
-     * @param formats Formats to print the results in (and write, see below)
+     * @param formats Formats to print the results in (and write, see below);
+     *        may be empty
      * @param write_files Also write the results to the files of each format
+     * @param result Filled with the results
      * @return 0 on success, 1 on failure
      * @requires select_trait() must be called first
      *
@@ -73,7 +75,8 @@ public:
      */
     int run_fphi(const std::string& output_basename,
                  const std::vector<OutputFormat>& formats,
-                 bool write_files);
+                 bool write_files,
+                 FphiResult& result);
 
     // === Query Methods ===
 

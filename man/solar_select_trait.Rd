@@ -10,7 +10,7 @@ solar_select_trait(trait_name)
 \item{trait_name}{Name of the trait column in the phenotype file}
 }
 \value{
-Returns 0 on success, 1 on failure
+\code{TRUE}, invisibly. Signals an error on failure.
 }
 \description{
 Select a trait from the loaded phenotype file. Phenotypes must be loaded first.

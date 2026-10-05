@@ -16,29 +16,18 @@ dir.create(output_dir)
 trait <- "CC"
 output_basename <- file.path(output_dir, trait)
 
-rc <- solar_load_pedigree(pedigree_tmp_csv, threshold = 0.0, output_dir = output_dir)
-if (rc != 0) {
-  stop("Failed to load pedigree")
-}
+## Each step signals an R error if it fails
+solar_load_pedigree(pedigree_tmp_csv, threshold = 0.0, output_dir = output_dir)
+solar_load_phenotype(phenotypes_tmp_csv)
+solar_select_trait(trait)
 
-rc <- solar_load_phenotype(phenotypes_tmp_csv)
-if (rc != 0) {
-  stop("Failed to load phenotypes")
-}
+## The results come back as a list of two data frames
+res <- solar_run_fphi(output_basename)
+res$results
+res$parameters
 
-rc <- solar_select_trait(trait)
-if (rc != 0) {
-  stop("Failed to select trait")
-}
-
-## Results are printed to stdout in each format and written to
-## <output_basename>_fphi_results.out / _parameters.out (csv) and
-## <output_basename>_fphi.json. Other formats: "tsv", "yaml", and "solar"
-## (the original SOLAR-Eclipse summary block, for diffing against its output).
-rc <- solar_run_fphi(output_basename, format = c("csv", "json"))
-if (rc != 0) {
-  stop("FPHI analysis failed")
-}
-
-## Read and display FPHI results
-fphi_results <- read.csv(paste0(output_basename, "_fphi_results.out"))
+## To also print the results as text and write them to files, list formats:
+## "csv", "tsv", "json", "yaml", or "solar" (the original SOLAR-Eclipse
+## summary block, for diffing against its output). For example
+## solar_run_fphi(output_basename, format = "csv") also writes
+## <output_basename>_fphi_results.out and _parameters.out.

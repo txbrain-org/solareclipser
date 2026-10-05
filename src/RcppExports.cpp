@@ -11,7 +11,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // solar_load_pedigree
-int solar_load_pedigree(std::string pedigree_filename, double threshold, std::string output_dir);
+bool solar_load_pedigree(std::string pedigree_filename, double threshold, std::string output_dir);
 RcppExport SEXP _solareclipser_solar_load_pedigree(SEXP pedigree_filenameSEXP, SEXP thresholdSEXP, SEXP output_dirSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -24,7 +24,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // solar_load_phenotype
-int solar_load_phenotype(std::string phenotype_filename);
+bool solar_load_phenotype(std::string phenotype_filename);
 RcppExport SEXP _solareclipser_solar_load_phenotype(SEXP phenotype_filenameSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -35,7 +35,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // solar_select_trait
-int solar_select_trait(std::string trait_name);
+bool solar_select_trait(std::string trait_name);
 RcppExport SEXP _solareclipser_solar_select_trait(SEXP trait_nameSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -46,7 +46,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // solar_run_fphi
-int solar_run_fphi(std::string output_basename, CharacterVector format, bool write_files);
+List solar_run_fphi(std::string output_basename, CharacterVector format, bool write_files);
 RcppExport SEXP _solareclipser_solar_run_fphi(SEXP output_basenameSEXP, SEXP formatSEXP, SEXP write_filesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

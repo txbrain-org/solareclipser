@@ -10,7 +10,7 @@
 
 #include <Rcpp.h>
 #define COUT Rcpp::Rcout
-#define CERR Rcpp::Rcerr
+#include "solar_log.h"
 
 #include "pedigree.h"
 

@@ -17,11 +17,10 @@ run_solar_format <- function(threshold) {
 
   solar_reset()
   on.exit(solar_reset(), add = TRUE)
-  stopifnot(solar_load_pedigree(ped_csv, threshold = threshold, output_dir = dir) == 0,
-            solar_load_phenotype(phen_csv) == 0,
-            solar_select_trait("CC") == 0)
-  capture.output(rc <- solar_run_fphi(file.path(dir, "CC"), format = "solar"))
-  stopifnot(rc == 0)
+  solar_load_pedigree(ped_csv, threshold = threshold, output_dir = dir)
+  solar_load_phenotype(phen_csv)
+  solar_select_trait("CC")
+  capture.output(solar_run_fphi(file.path(dir, "CC"), format = "solar"))
   readLines(file.path(dir, "CC_fphi.solar.out"))
 }
 

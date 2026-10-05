@@ -6,47 +6,50 @@
 \usage{
 solar_run_fphi(
   output_basename = "fphi_output",
-  format = as.character(c("csv")),
+  format = as.character(c()),
   write_files = TRUE
 )
 }
 \arguments{
 \item{output_basename}{Base name for output files (default: "fphi_output")}
 
-\item{format}{Character vector of output formats: any of "csv", "tsv",
-"json", "yaml", "solar" (default: "csv")}
+\item{format}{Character vector of text formats to print: any of "csv",
+"tsv", "json", "yaml", "solar" (default: none)}
 
-\item{write_files}{Write the result files to disk (default: TRUE)}
+\item{write_files}{Write the result files of the formats in \code{format}
+(default: TRUE)}
 }
 \value{
-Returns 0 on success, 1 on failure
+A list of two data frames:
+\itemize{
+\item \code{results}: one row with \code{trait}, \code{h2r}, \code{se} (of h2r), \code{loglik},
+\code{sporadic_loglik}, \code{p_value} and \code{n_subjects}
+\item \code{parameters}: one row per fitted parameter (\code{mean}, \code{e2}, \code{h2r},
+\code{sd}) with columns \code{parameter}, \code{value} and \code{se}
+}
+
+The pedigree and phenotype file names are kept in the list's
+\code{pedigree} and \code{phenotypes} attributes. Signals an error on failure.
 }
 \description{
 Run FPHI heritability analysis for the selected trait.
 Pedigree, phenotypes, and trait must all be loaded/selected first.
 }
 \details{
-The results are printed to standard output in each requested format, in
-the order given. Progress messages go to standard error, so standard
-output can be redirected straight to a parsable (or diffable) file.
-
-Formats:
+By default nothing is printed and only the EVD working files
+\verb{<output_basename>.ids}, \code{.eigenvalues}, \code{.eigenvectors} and \code{.notes} are
+created. To also get the results as text, list formats in \code{format}: each
+is printed to standard output, in the order given, and when \code{write_files}
+is \code{TRUE} written to its result file(s):
 \itemize{
 \item \code{"csv"}, \code{"tsv"}: a results table and a parameters table
-(read with \code{\link[utils:read.csv]{utils::read.csv()}} / \code{\link[utils:read.delim]{utils::read.delim()}})
-\item \code{"json"}, \code{"yaml"}: one document holding results and parameters
+(read with \code{\link[utils:read.csv]{utils::read.csv()}} / \code{\link[utils:read.delim]{utils::read.delim()}});
+\verb{<output_basename>_fphi_results.out} and \verb{_parameters.out} (csv),
+\verb{_fphi_results.tsv} and \verb{_parameters.tsv} (tsv)
+\item \code{"json"}, \code{"yaml"}: one document holding results and parameters;
+\verb{<output_basename>_fphi.json}, \verb{_fphi.yaml}
 \item \code{"solar"}: the summary block printed by the original SOLAR-Eclipse
-\code{fphi} command, for diffing against its output
-}
-
-Always creates the EVD working files \verb{<output_basename>.ids},
-\code{.eigenvalues}, \code{.eigenvectors} and \code{.notes}. When \code{write_files} is
-\code{TRUE}, each format also writes its result file(s):
-\itemize{
-\item csv: \verb{<output_basename>_fphi_results.out}, \verb{<output_basename>_parameters.out}
-\item tsv: \verb{<output_basename>_fphi_results.tsv}, \verb{<output_basename>_parameters.tsv}
-\item json: \verb{<output_basename>_fphi.json}
-\item yaml: \verb{<output_basename>_fphi.yaml}
-\item solar: \verb{<output_basename>_fphi.solar.out}
+\code{fphi} command, for diffing against its output;
+\verb{<output_basename>_fphi.solar.out}
 }
 }

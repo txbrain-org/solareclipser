@@ -10,7 +10,7 @@ solar_load_phenotype(phenotype_filename)
 \item{phenotype_filename}{Path to the phenotype CSV file}
 }
 \value{
-Returns 0 on success, 1 on failure
+\code{TRUE}, invisibly. Signals an error on failure.
 }
 \description{
 Load a phenotype file for analysis. Pedigree must be loaded first.

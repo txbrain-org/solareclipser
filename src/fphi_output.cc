@@ -9,7 +9,7 @@
 #include <sstream>
 
 #include <Rcpp.h>
-#define CERR Rcpp::Rcerr
+#include "solar_log.h"
 
 #include "fphi_output.h"
 

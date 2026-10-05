@@ -4,7 +4,7 @@
 
 #include <Rcpp.h>
 #define COUT Rcpp::Rcout
-#define CERR Rcpp::Rcerr
+#include "solar_log.h"
 
 #include "phenotypes.h"
 #include "csv_reader.h"
