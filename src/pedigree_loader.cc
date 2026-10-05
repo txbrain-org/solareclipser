@@ -309,9 +309,11 @@ void PedigreeLoader::create_output_files(const std::vector<EmpiricalPerson>& peo
         info_fp << filename_ << " empirical\n";
         info_fp << max_id_len << " 1 0 0 0\n"; // id_len, sex_len, mztwin_len, hhid_len, famid_len
         info_fp << nfamilies << " " << nfamilies << " " << people.size() << " " << nfamilies << "\n"; // nped, nfam, nind, nfou
-        info_fp << "1 1 1 0 n\n"; // family 1 info
-        if (nfamilies > 1) {
-            info_fp << "1 1 1 0 n\n"; // family 2 info (if exists)
+        // One line per family (nfam nind nfou nlbrk inbred), as SOLAR's epedigree
+        // writes; load_pedigree_info() reads nped of them. SOLAR's famsize is
+        // always 1 for empirical pedigrees, so nind is 1 here too.
+        for (int f = 0; f < nfamilies; f++) {
+            info_fp << "1 1 1 0 n\n";
         }
         info_fp.close();
     }
