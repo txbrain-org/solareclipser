@@ -7,7 +7,6 @@
 ^CLAUDE.md$
 ^Makefile$
 ^NOTES.md$
-^justfile$
 ^.clangd$
 ^.cache$
 ^compile_commands.json$
