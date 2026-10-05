@@ -21,6 +21,10 @@ solar_load_pedigree(pedigree_tmp_csv, threshold = 0.0, output_dir = output_dir)
 solar_load_phenotype(phenotypes_tmp_csv)
 solar_select_trait(trait)
 
+## Optionally adjust for covariates in the phenotype file, in SOLAR's syntax
+## (the example data has none), e.g. age, age^2, sex and their interactions:
+## solar_select_covariates("age^1,2#sex")
+
 ## The results come back as a list of two data frames
 res <- solar_run_fphi(output_basename)
 res$results

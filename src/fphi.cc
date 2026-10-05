@@ -7,11 +7,13 @@
 #include <algorithm>
 #include <cerrno>
 #include <cstdlib>
+#include <unordered_map>
 
 #include <Rcpp.h>
 #define COUT Rcpp::Rcout
 #include "solar_log.h"
 
+#include "Eigen/Dense"
 #include "fphi.h"
 #include "pedigree.h"
 #include "phenotypes.h"
@@ -72,299 +74,150 @@ static inline double calculate_ddconstraint(double x) {
     return -2 * (3 * x * x - 1) / std::pow((x * x + 1), 3);
 }
 
-// Log-likelihood calculation (exact match to original SOLAR)
-static inline double calculate_fphi_loglik(double variance, const std::vector<double>& sigma, size_t n_subjects) {
-    double log_sigma_sum = 0.0;
-    for (double s : sigma) {
-        log_sigma_sum += std::log(std::abs(s));
-    }
-    return -0.5 * (std::log(std::abs(variance)) * n_subjects + log_sigma_sum + n_subjects);
-}
-
-static inline double calculate_dloglik(const std::vector<double>& lambda_minus_one,
-                                     const std::vector<double>& residual_squared,
-                                     const std::vector<double>& sigma_inv_var, double variance) {
-    double part_one = 0.0, part_two = 0.0;
-    for (size_t i = 0; i < lambda_minus_one.size(); i++) {
-        part_one += variance * lambda_minus_one[i] * sigma_inv_var[i];
-        part_two += variance * lambda_minus_one[i] * residual_squared[i] * sigma_inv_var[i] * sigma_inv_var[i];
-    }
-    return -0.5 * (part_one - part_two);
-}
-
-static inline double calculate_ddloglik(const std::vector<double>& lambda_minus_one,
-                                      const std::vector<double>& residual_squared,
-                                      const std::vector<double>& sigma_inv_var, double variance) {
-    double part_one = 0.0, part_two = 0.0;
-    for (size_t i = 0; i < lambda_minus_one.size(); i++) {
-        double lm1_sq = lambda_minus_one[i] * lambda_minus_one[i];
-        double sig_sq = sigma_inv_var[i] * sigma_inv_var[i];
-        part_one += variance * variance * lm1_sq * sig_sq;
-        part_two += 2.0 * variance * variance * lm1_sq * residual_squared[i] * sigma_inv_var[i] * sig_sq;
-    }
-    return -0.5 * (-part_one + part_two);
-}
-
-// Matrix inversion for Hessian computation
-static bool matrix_invert(std::vector<std::vector<double>>& matrix) {
-    size_t n = matrix.size();
-    std::vector<std::vector<double>> identity(n, std::vector<double>(n, 0.0));
-
-    // Create identity matrix
-    for (size_t i = 0; i < n; i++) {
-        identity[i][i] = 1.0;
-    }
-
-    // Gaussian elimination with partial pivoting
-    for (size_t i = 0; i < n; i++) {
-        // Find pivot
-        size_t max_row = i;
-        for (size_t k = i + 1; k < n; k++) {
-            if (std::abs(matrix[k][i]) > std::abs(matrix[max_row][i])) {
-                max_row = k;
-            }
-        }
-
-        // Swap rows
-        if (max_row != i) {
-            std::swap(matrix[i], matrix[max_row]);
-            std::swap(identity[i], identity[max_row]);
-        }
-
-        // Check for singular matrix
-        if (std::abs(matrix[i][i]) < 1e-10) {
-            return false;
-        }
-
-        // Make diagonal element 1
-        double diag = matrix[i][i];
-        for (size_t j = 0; j < n; j++) {
-            matrix[i][j] /= diag;
-            identity[i][j] /= diag;
-        }
-
-        // Eliminate column
-        for (size_t k = 0; k < n; k++) {
-            if (k != i) {
-                double factor = matrix[k][i];
-                for (size_t j = 0; j < n; j++) {
-                    matrix[k][j] -= factor * matrix[i][j];
-                    identity[k][j] -= factor * identity[i][j];
-                }
-            }
-        }
-    }
-
-    // Copy result back
-    matrix = identity;
-    return true;
-}
-
-// Additional helper functions for constraint optimization
-static double reverse_constraint(double x) {
-    return sqrt(x/(1-x));
-}
-
 static inline double calculate_ddloglik_with_constraint(const double t, const double dloglik, const double ddloglik) {
-    return pow(calculate_dconstraint(t), 2)*ddloglik + calculate_ddconstraint(t)*dloglik;
+    return std::pow(calculate_dconstraint(t), 2) * ddloglik + calculate_ddconstraint(t) * dloglik;
 }
 
 static inline double calculate_dloglik_with_constraint(const double t, const double dloglik) {
-    return calculate_dconstraint(t)*dloglik;
+    return calculate_dconstraint(t) * dloglik;
 }
 
-// Exact SOLAR find_max_loglik_2 implementation
-static double find_max_loglik_2(const int precision, const std::vector<double>& Y,
-                               const std::vector<std::vector<double>>& aux,
-                               const std::vector<double>& X,
-                               double& result_loglik, double& result_variance, double& result_se,
-                               double& result_mean, double& result_mean_se,
-                               double& result_e2, double& result_e2_se,
-                               double& result_sd, double& result_sd_se) {
-    size_t n_subjects = Y.size();
-    
-    // Initialize like SOLAR lines 143-147
+// Log-likelihood calculation (exact match to original SOLAR)
+static double calculate_fphi_loglik(double variance, const Eigen::VectorXd& sigma, size_t n_subjects) {
+    return -0.5 * (std::log(std::abs(variance)) * n_subjects + sigma.array().abs().log().sum() + n_subjects);
+}
+
+static double calculate_dloglik(const Eigen::VectorXd& lambda_minus_one,
+                                const Eigen::VectorXd& residual_squared,
+                                const Eigen::VectorXd& sigma, double variance) {
+    double part_one = variance * lambda_minus_one.dot(sigma);
+    double part_two = variance * lambda_minus_one.dot(residual_squared.cwiseProduct(sigma.cwiseAbs2()));
+    return -0.5 * (part_one - part_two);
+}
+
+static double calculate_ddloglik(const Eigen::VectorXd& lambda_minus_one,
+                                 const Eigen::VectorXd& residual_squared,
+                                 const Eigen::VectorXd& sigma, double variance) {
+    Eigen::VectorXd lambda_minus_one_squared = lambda_minus_one.cwiseAbs2();
+    Eigen::VectorXd sigma_squared = sigma.cwiseAbs2();
+    double part_one = variance * variance * lambda_minus_one_squared.dot(sigma_squared);
+    double part_two = 2.0 * variance * variance *
+        lambda_minus_one_squared.dot(residual_squared.cwiseProduct(sigma.cwiseProduct(sigma_squared)));
+    return -0.5 * (-part_one + part_two);
+}
+
+// Observed Hessian of [beta..., e2, SD] (SOLAR compute_observed_Hessian)
+static Eigen::MatrixXd compute_observed_hessian(double SD, const Eigen::VectorXd& residual,
+                                                const Eigen::VectorXd& one_minus_lambda,
+                                                const Eigen::MatrixXd& SX,
+                                                const Eigen::VectorXd& sigma_inverse) {
+    const Eigen::Index p = SX.cols();
+    Eigen::MatrixXd SX_transpose = SX.transpose();
+    Eigen::MatrixXd beta_hessian = SX_transpose * sigma_inverse.asDiagonal() * SX;
+    Eigen::VectorXd one_minus_lambda_squared = one_minus_lambda.cwiseAbs2();
+    Eigen::VectorXd beta_var_comp_hessian = std::pow(SD, 2.0) * SX_transpose *
+        sigma_inverse.cwiseAbs2().cwiseProduct(one_minus_lambda.cwiseProduct(residual));
+    Eigen::VectorXd beta_SD_hessian = 2.0 * SX_transpose * residual.cwiseProduct(sigma_inverse) / SD;
+
+    Eigen::MatrixXd hessian(p + 2, p + 2);
+    hessian.topLeftCorner(p, p) = beta_hessian;
+    hessian.block(0, p, p, 1) = beta_var_comp_hessian;
+    hessian.block(p, 0, 1, p) = beta_var_comp_hessian.transpose();
+    hessian.block(0, p + 1, p, 1) = beta_SD_hessian;
+    hessian.block(p + 1, 0, 1, p) = beta_SD_hessian.transpose();
+
+    Eigen::VectorXd residual_squared = residual.cwiseAbs2();
+    double SD_hessian = -std::pow(SD, -2.0) * (residual.rows() - 3.0 * residual_squared.dot(sigma_inverse));
+    double SD_e2_hessian = SD * one_minus_lambda.dot(residual.cwiseProduct(sigma_inverse).cwiseAbs2());
+    double e2_hessian = -std::pow(SD, 4.0) *
+        (0.5 * one_minus_lambda_squared.dot(sigma_inverse.cwiseAbs2()) -
+         one_minus_lambda_squared.dot(sigma_inverse.cwiseProduct(sigma_inverse.cwiseProduct(residual).cwiseAbs2())));
+    hessian(p, p) = e2_hessian;
+    hessian(p + 1, p) = hessian(p, p + 1) = SD_e2_hessian;
+    hessian(p + 1, p + 1) = SD_hessian;
+    return hessian;
+}
+
+// Result of find_max_loglik_2
+struct FphiFit {
+    double h2r = 0.0, loglik = 0.0, variance = 0.0;
+    Eigen::VectorXd beta, beta_se;  // one per column of X
+    double e2_se = 0.0, sd_se = 0.0;
+};
+
+// SOLAR find_max_loglik_2: Newton search for h2r on the eigen-rotated trait
+// Y and covariates X (one column per covariate, then the mean). Returns false
+// on convergence failure (X^T Omega X singular).
+static bool find_max_loglik_2(const int precision, const Eigen::VectorXd& Y,
+                              const Eigen::MatrixXd& aux, const Eigen::MatrixXd& X, FphiFit& fit) {
+    const size_t n_subjects = Y.rows();
     double parameter_t = 1.0;
     double h2r = 0.5;
-    std::vector<double> theta(2);
-    theta[0] = 0.5;
-    theta[1] = 0.5;
-    
-    // Sigma = aux * theta (lines 148)
-    std::vector<double> Sigma(n_subjects);
-    for (size_t i = 0; i < n_subjects; i++) {
-        Sigma[i] = aux[i][0] * theta[0] + aux[i][1] * theta[1];
-    }
-    
-    // Omega = Sigma^-1 diagonal (line 149)
-    std::vector<double> Omega_diag(n_subjects);
-    for (size_t i = 0; i < n_subjects; i++) {
-        Omega_diag[i] = 1.0 / Sigma[i];
-    }
-    
-    // XTOX = X^T * Omega * X (lines 150-151)
-    double XTOX = 0.0;
-    for (size_t i = 0; i < n_subjects; i++) {
-        XTOX += X[i] * Omega_diag[i] * X[i];
-    }
-    
-    if (XTOX == 0.0) {
-        return 0.0; // Convergence failure
-    }
-    
-    // beta = XTOX^-1 * X^T * Omega * Y (line 156)
-    double XTOmegaY = 0.0;
-    for (size_t i = 0; i < n_subjects; i++) {
-        XTOmegaY += X[i] * Omega_diag[i] * Y[i];
-    }
-    double beta = XTOmegaY / XTOX;
-    
-    // residual = Y - X*beta (line 157)
-    std::vector<double> residual(n_subjects);
-    std::vector<double> residual_squared(n_subjects);
-    for (size_t i = 0; i < n_subjects; i++) {
-        residual[i] = Y[i] - X[i] * beta;
-        residual_squared[i] = residual[i] * residual[i];
-    }
-    
-    // variance = residual^T * Omega * residual / n (line 159)
-    double variance = 0.0;
-    for (size_t i = 0; i < n_subjects; i++) {
-        variance += residual_squared[i] * Omega_diag[i];
-    }
-    variance /= n_subjects;
-    
+    Eigen::VectorXd theta(2);
+    theta << 0.5, 0.5;
+    Eigen::VectorXd Sigma = aux * theta;
+    Eigen::VectorXd sigma_inverse_var = Sigma.cwiseInverse();
+    Eigen::MatrixXd X_transpose = X.transpose();
+    Eigen::MatrixXd XTOX = X_transpose * sigma_inverse_var.asDiagonal() * X;
+    if (XTOX.determinant() == 0) return false;
+
+    Eigen::VectorXd beta = XTOX.inverse() * X_transpose * sigma_inverse_var.asDiagonal() * Y;
+    Eigen::VectorXd residual = Y - X * beta;
+    Eigen::VectorXd residual_squared = residual.cwiseAbs2();
+    double variance = residual_squared.dot(sigma_inverse_var) / n_subjects;
     double loglik = calculate_fphi_loglik(variance, Sigma, n_subjects);
-    
-    // lambda_minus_one = aux.col(1) - 1 (line 161)
-    std::vector<double> lambda_minus_one(n_subjects);
-    for (size_t i = 0; i < n_subjects; i++) {
-        lambda_minus_one[i] = aux[i][1] - 1.0;
-    }
-    
-    // sigma_inverse_var = (Sigma * variance)^-1 (line 162)
-    std::vector<double> sigma_inverse_var(n_subjects);
-    for (size_t i = 0; i < n_subjects; i++) {
-        sigma_inverse_var[i] = 1.0 / (Sigma[i] * variance);
-    }
-    
-    // Calculate derivatives (lines 163-164)
+    Eigen::VectorXd lambda_minus_one = (aux.col(1).array() - 1.0).matrix();
+    sigma_inverse_var = (Sigma * variance).cwiseInverse();
     double dloglik = calculate_dloglik(lambda_minus_one, residual_squared, sigma_inverse_var, variance);
     double ddloglik = calculate_ddloglik(lambda_minus_one, residual_squared, sigma_inverse_var, variance);
     double score = calculate_dloglik_with_constraint(parameter_t, dloglik);
     double hessian = calculate_ddloglik_with_constraint(parameter_t, dloglik, ddloglik);
     double delta = -score / hessian;
     double new_h2r = 0.0;
-    
-    // Update parameter_t and h2r (lines 169-172)
-    if (delta == delta) { // Check for NaN
+    if (delta == delta) {
         parameter_t += delta;
         new_h2r = calculate_constraint(parameter_t);
     }
-    
-    // Main optimization loop (lines 174-206)
+
     const double end = std::pow(10, -precision);
     int iter = 0;
-    while (delta == delta && std::abs(new_h2r - h2r) >= end && ++iter < 100) {
+    while (delta == delta && std::fabs(new_h2r - h2r) >= end && ++iter < 100) {
         h2r = new_h2r;
-        
-        theta[0] = 1.0 - h2r;
-        theta[1] = h2r;
-        
-        // Update Sigma
-        for (size_t i = 0; i < n_subjects; i++) {
-            Sigma[i] = aux[i][0] * theta[0] + aux[i][1] * theta[1];
-            sigma_inverse_var[i] = 1.0 / Sigma[i];
-        }
-        
-        // Update Omega
-        for (size_t i = 0; i < n_subjects; i++) {
-            Omega_diag[i] = sigma_inverse_var[i];
-        }
-        
-        // Recalculate XTOX
-        XTOX = 0.0;
-        for (size_t i = 0; i < n_subjects; i++) {
-            XTOX += X[i] * Omega_diag[i] * X[i];
-        }
-        
-        if (XTOX == 0.0) {
-            return 0.0; // Convergence failure
-        }
-        
-        // Recalculate beta
-        XTOmegaY = 0.0;
-        for (size_t i = 0; i < n_subjects; i++) {
-            XTOmegaY += X[i] * Omega_diag[i] * Y[i];
-        }
-        beta = XTOmegaY / XTOX;
-        
-        // Update residual and variance
-        for (size_t i = 0; i < n_subjects; i++) {
-            residual[i] = Y[i] - X[i] * beta;
-            residual_squared[i] = residual[i] * residual[i];
-        }
-        
-        variance = 0.0;
-        for (size_t i = 0; i < n_subjects; i++) {
-            variance += residual_squared[i] * sigma_inverse_var[i];
-        }
-        variance /= n_subjects;
-        
-        // Update sigma_inverse_var with new variance
-        for (size_t i = 0; i < n_subjects; i++) {
-            sigma_inverse_var[i] /= variance;
-        }
-        
+        theta << 1.0 - h2r, h2r;
+        Sigma = aux * theta;
+        sigma_inverse_var = Sigma.cwiseInverse();
+        XTOX = X_transpose * sigma_inverse_var.asDiagonal() * X;
+        if (XTOX.determinant() == 0) return false;
+        beta = XTOX.inverse() * X_transpose * sigma_inverse_var.asDiagonal() * Y;
+        residual = Y - X * beta;
+        residual_squared = residual.cwiseAbs2();
+        variance = residual_squared.dot(sigma_inverse_var) / n_subjects;
+        sigma_inverse_var /= variance;
         loglik = calculate_fphi_loglik(variance, Sigma, n_subjects);
         dloglik = calculate_dloglik(lambda_minus_one, residual_squared, sigma_inverse_var, variance);
         ddloglik = calculate_ddloglik(lambda_minus_one, residual_squared, sigma_inverse_var, variance);
         score = calculate_dloglik_with_constraint(parameter_t, dloglik);
         hessian = calculate_ddloglik_with_constraint(parameter_t, dloglik, ddloglik);
         delta = -score / hessian;
-        
         if (delta == delta) {
             parameter_t += delta;
             new_h2r = calculate_constraint(parameter_t);
         }
     }
-    
-    // Boundary testing (lines 207-233)
+
+    // Test the boundary (h2r = 0 or 1) when the search ends near it
     if ((h2r >= 0.9 || h2r <= 0.1) && h2r == h2r) {
         double test_h2r = (h2r >= 0.9) ? 1.0 : 0.0;
-        
-        std::vector<double> test_theta(2);
-        test_theta[0] = 1.0 - test_h2r;
-        test_theta[1] = test_h2r;
-        
-        std::vector<double> test_sigma(n_subjects);
-        std::vector<double> test_sigma_inverse(n_subjects);
-        for (size_t i = 0; i < n_subjects; i++) {
-            test_sigma[i] = aux[i][0] * test_theta[0] + aux[i][1] * test_theta[1];
-            test_sigma_inverse[i] = 1.0 / test_sigma[i];
-        }
-        
-        double test_XTOX = 0.0;
-        for (size_t i = 0; i < n_subjects; i++) {
-            test_XTOX += X[i] * test_sigma_inverse[i] * X[i];
-        }
-        
-        if (test_XTOX != 0.0) {
-            double test_XTOmegaY = 0.0;
-            for (size_t i = 0; i < n_subjects; i++) {
-                test_XTOmegaY += X[i] * test_sigma_inverse[i] * Y[i];
-            }
-            double test_beta = test_XTOmegaY / test_XTOX;
-            
-            double test_variance = 0.0;
-            for (size_t i = 0; i < n_subjects; i++) {
-                double test_residual = Y[i] - X[i] * test_beta;
-                test_variance += test_residual * test_residual * test_sigma_inverse[i];
-            }
-            test_variance /= n_subjects;
-            
+        Eigen::VectorXd test_theta(2);
+        test_theta << 1.0 - test_h2r, test_h2r;
+        Eigen::VectorXd test_sigma = aux * test_theta;
+        Eigen::VectorXd test_sigma_inverse = test_sigma.cwiseInverse();
+        Eigen::MatrixXd test_XTOX = X_transpose * test_sigma_inverse.asDiagonal() * X;
+        if (test_XTOX.determinant() != 0) {
+            Eigen::VectorXd test_beta = test_XTOX.inverse() * X_transpose * test_sigma_inverse.asDiagonal() * Y;
+            Eigen::VectorXd test_residual = Y - X * test_beta;
+            double test_variance = test_residual.cwiseAbs2().dot(test_sigma_inverse) / n_subjects;
             double test_loglik = calculate_fphi_loglik(test_variance, test_sigma, n_subjects);
-            
             if (test_loglik > loglik) {
                 beta = test_beta;
                 theta = test_theta;
@@ -374,128 +227,39 @@ static double find_max_loglik_2(const int precision, const std::vector<double>& 
             }
         }
     }
-    
-    // Calculate final parameter estimates and their standard errors
-    std::vector<double> final_sigma(n_subjects);
-    std::vector<double> final_theta(2);
-    final_theta[0] = 1.0 - h2r;
-    final_theta[1] = h2r;
 
-    for (size_t i = 0; i < n_subjects; i++) {
-        final_sigma[i] = variance * (aux[i][0] * final_theta[0] + aux[i][1] * final_theta[1]);
-    }
+    // Standard errors from the observed Hessian
+    residual = Y - X * beta;
+    Sigma = variance * aux * theta;
+    Eigen::VectorXd omega_diagonal = Sigma.cwiseInverse();
+    Eigen::VectorXd one_minus_lambda = (1.0 - aux.col(1).array()).matrix();
+    Eigen::MatrixXd H = compute_observed_hessian(std::sqrt(variance), residual, one_minus_lambda, X, omega_diagonal);
 
-    // Recalculate final beta (mean parameter)
-    std::vector<double> final_omega_inv(n_subjects);
-    for (size_t i = 0; i < n_subjects; i++) {
-        final_omega_inv[i] = 1.0 / final_sigma[i];
-    }
-
-    double final_XTOX = 0.0;
-    double final_XTOmegaY = 0.0;
-    for (size_t i = 0; i < n_subjects; i++) {
-        final_XTOX += X[i] * final_omega_inv[i] * X[i];
-        final_XTOmegaY += X[i] * final_omega_inv[i] * Y[i];
-    }
-    double final_beta = final_XTOmegaY / final_XTOX;
-
-    // Parameter values - match original SOLAR exactly
-    result_mean = final_beta;
-    result_e2 = 1.0 - h2r;  // Store as proportion, not absolute variance
-    result_sd = std::sqrt(variance);
-
-    // Calculate standard errors using exact SOLAR Hessian approach
-    // Recalculate final residuals for Hessian computation
-    std::vector<double> final_residual(n_subjects);
-    for (size_t i = 0; i < n_subjects; i++) {
-        final_residual[i] = Y[i] - X[i] * final_beta;
-    }
-
-    // Convert to match original SOLAR format for Hessian calculation
-    std::vector<double> one_minus_lambda(n_subjects);
-    std::vector<double> final_omega_diagonal(n_subjects);
-    for (size_t i = 0; i < n_subjects; i++) {
-        one_minus_lambda[i] = 1.0 - aux[i][1];  // 1 - eigenvalues
-        final_omega_diagonal[i] = 1.0 / final_sigma[i];
-    }
-
-    // Compute observed Hessian (exact SOLAR implementation)
-    double SD = std::sqrt(variance);
-
-    // Beta-beta block (1x1 since X is all ones)
-    double beta_hessian = 0.0;
-    for (size_t i = 0; i < n_subjects; i++) {
-        beta_hessian += X[i] * final_omega_diagonal[i] * X[i];
-    }
-
-    // Beta-e2 cross terms
-    double beta_var_comp_hessian = 0.0;
-    for (size_t i = 0; i < n_subjects; i++) {
-        beta_var_comp_hessian += SD * SD * X[i] * final_omega_diagonal[i] * final_omega_diagonal[i] * one_minus_lambda[i] * final_residual[i];
-    }
-
-    // Beta-SD cross terms
-    double beta_SD_hessian = 0.0;
-    for (size_t i = 0; i < n_subjects; i++) {
-        beta_SD_hessian += 2.0 * X[i] * final_residual[i] * final_omega_diagonal[i] / SD;
-    }
-
-    // e2-e2 block
-    double one_minus_lambda_squared_sum = 0.0;
-    double residual_term_sum = 0.0;
-    for (size_t i = 0; i < n_subjects; i++) {
-        double oml_sq = one_minus_lambda[i] * one_minus_lambda[i];
-        double omega_sq = final_omega_diagonal[i] * final_omega_diagonal[i];
-        one_minus_lambda_squared_sum += oml_sq * omega_sq;
-        residual_term_sum += oml_sq * final_omega_diagonal[i] * omega_sq * final_residual[i] * final_residual[i];
-    }
-    double e2_hessian = -std::pow(SD, 4.0) * (0.5 * one_minus_lambda_squared_sum - residual_term_sum);
-
-    // SD-e2 cross terms
-    double SD_e2_hessian = 0.0;
-    for (size_t i = 0; i < n_subjects; i++) {
-        SD_e2_hessian += SD * one_minus_lambda[i] * std::pow(final_residual[i] * final_omega_diagonal[i], 2);
-    }
-
-    // SD-SD block
-    double residual_squared_omega_sum = 0.0;
-    for (size_t i = 0; i < n_subjects; i++) {
-        residual_squared_omega_sum += final_residual[i] * final_residual[i] * final_omega_diagonal[i];
-    }
-    double SD_hessian = -std::pow(SD, -2.0) * (n_subjects - 3.0 * residual_squared_omega_sum);
-
-    // Build 3x3 Hessian matrix: [beta, e2, SD]
-    std::vector<std::vector<double>> hessian_matrix(3, std::vector<double>(3, 0.0));
-    hessian_matrix[0][0] = beta_hessian;
-    hessian_matrix[0][1] = hessian_matrix[1][0] = beta_var_comp_hessian;
-    hessian_matrix[0][2] = hessian_matrix[2][0] = beta_SD_hessian;
-    hessian_matrix[1][1] = e2_hessian;
-    hessian_matrix[1][2] = hessian_matrix[2][1] = SD_e2_hessian;
-    hessian_matrix[2][2] = SD_hessian;
-
-    // Invert Hessian to get covariance matrix
-    if (matrix_invert(hessian_matrix)) {
-        // Standard errors are square roots of diagonal elements
-        result_mean_se = std::sqrt(std::abs(hessian_matrix[0][0]));
-        result_e2_se = std::sqrt(std::abs(hessian_matrix[1][1]));  // Same as h2r SE in original
-        result_se = result_e2_se;  // h2r and e2 have same SE in original SOLAR
-        result_sd_se = std::sqrt(std::abs(hessian_matrix[2][2]));
+    const Eigen::Index p = X.cols();
+    fit.h2r = h2r;
+    fit.loglik = loglik;
+    fit.variance = variance;
+    fit.beta = beta;
+    if (H.determinant() != 0) {
+        // abs(): a negative variance gives an SE rather than SOLAR's nan
+        Eigen::VectorXd errors = H.inverse().diagonal().cwiseAbs().cwiseSqrt();
+        fit.beta_se = errors.head(p);
+        fit.e2_se = errors(p);
+        fit.sd_se = errors(p + 1);
     } else {
-        result_se = 0.0;
-        result_mean_se = 0.0;
-        result_e2_se = 0.0;
-        result_sd_se = 0.0;
+        // SOLAR reports nan; the port reports 0
+        fit.beta_se = Eigen::VectorXd::Zero(p);
+        fit.e2_se = 0.0;
+        fit.sd_se = 0.0;
     }
-
-    result_loglik = loglik;
-    result_variance = variance;
-    return h2r;
+    return true;
 }
 
 int Fphi::run_fphi(
     Pedigree* pedigree,
     Phenotypes* phenotypes,
     const std::string& trait_name,
+    const std::vector<Covariate>& covariates,
     const char* evd_data_basename,
     FphiResult& result
 ) {
@@ -589,7 +353,7 @@ int Fphi::run_fphi(
         return 1;
     }
     
-    std::vector<std::vector<double>> eigenvectors(n_subjects, std::vector<double>(n_subjects));
+    Eigen::MatrixXd eigenvectors(n_subjects, n_subjects);
     if (std::getline(eigenvecs_stream, line)) {
         std::stringstream ss(line);
         std::string val_str;
@@ -598,7 +362,7 @@ int Fphi::run_fphi(
         // Read eigenvectors in column-major order (as written by create_evd)
         for (size_t col = 0; col < n_subjects && idx < n_subjects * n_subjects; col++) {
             for (size_t row = 0; row < n_subjects && ss >> val_str; row++, idx++) {
-                if (!parse_evd_value(val_str, eigenvectors[row][col])) {
+                if (!parse_evd_value(val_str, eigenvectors(row, col))) {
                     CERR << "Error: Invalid eigenvector value: " << val_str << std::endl;
                     return 1;
                 }
@@ -607,132 +371,97 @@ int Fphi::run_fphi(
     }
     eigenvecs_stream.close();
 
-    // Get phenotype data for the current trait
-    const auto& data = phenotypes->get_data();
-    const auto& headers = phenotypes->get_headers();
-
-    // Find trait column
-    int trait_col = -1;
-    int id_col = -1;
-
-    for (size_t i = 0; i < headers.size(); i++) {
-        if (headers[i] == "id" || headers[i] == "ID") {
-            id_col = i;
-        }
-        if (headers[i] == trait_name) {
-            trait_col = i;
-        }
-    }
-
+    // Trait and covariate variable values for the EVD individuals, in order
+    int id_col = phenotypes->find_column("id");
+    int trait_col = phenotypes->has_trait(trait_name) ? phenotypes->find_column(trait_name) : -1;
     if (id_col == -1 || trait_col == -1) {
         CERR << "Error: Cannot find required columns in phenotype data" << std::endl;
         return 1;
     }
-    
-    // Extract phenotype values matching our IDs in the same order
-    std::vector<double> raw_phenotype_values(n_subjects);
-    bool found_all = true;
-    
-    for (size_t i = 0; i < n_subjects; i++) {
-        bool found = false;
-        for (const auto& row : data) {
-            if (row.size() > std::max(id_col, trait_col) && row[id_col] == ids[i]) {
-                const std::string& trait_val = row[trait_col];
-                if (!trait_val.empty() && trait_val != "NA" && trait_val != ".") {
-                    try {
-                        raw_phenotype_values[i] = std::stod(trait_val);
-                        found = true;
-                        break;
-                    } catch (const std::exception&) {
-                        // Invalid value
-                    }
-                }
-            }
+    std::vector<std::string> variables = covariate_variables(covariates);
+    std::vector<int> var_cols;
+    for (const auto& var : variables) {
+        int col = phenotypes->find_column(var);
+        if (col == -1) {
+            CERR << "Error: Covariate variable '" << var << "' not found in phenotype data" << std::endl;
+            return 1;
         }
-        if (!found) {
-            CERR << "Error: Cannot find phenotype value for ID: " << ids[i] << std::endl;
-            found_all = false;
+        var_cols.push_back(col);
+    }
+
+    std::unordered_map<std::string, const std::vector<std::string>*> rows;
+    for (const auto& row : phenotypes->get_data()) {
+        if (row.size() > static_cast<size_t>(id_col)) rows.emplace(row[id_col], &row);
+    }
+    Eigen::VectorXd trait_v(n_subjects);
+    Eigen::MatrixXd var_values(n_subjects, variables.size());
+    for (size_t i = 0; i < n_subjects; i++) {
+        auto it = rows.find(ids[i]);
+        bool ok = it != rows.end();
+        const std::vector<std::string>* row = ok ? it->second : nullptr;
+        auto value = [&](int col, double& v) {
+            return row->size() > static_cast<size_t>(col) && Phenotypes::parse_value((*row)[col], v);
+        };
+        ok = ok && value(trait_col, trait_v(i));
+        for (size_t j = 0; ok && j < var_cols.size(); j++) ok = value(var_cols[j], var_values(i, j));
+        if (!ok) {
+            CERR << "Error: Cannot find phenotype values for ID: " << ids[i] << std::endl;
+            return 1;
         }
     }
-    
-    if (!found_all) {
+
+    // Rotate into the eigenbasis like SOLAR (lines 1091-1093): the trait is
+    // not mean-centred; the covariate matrix carries the mean as its last column
+    Eigen::MatrixXd cov_matrix = covariate_matrix(covariates, var_values);
+    Eigen::MatrixXd eigenvectors_transpose = eigenvectors.transpose();
+    Eigen::VectorXd Y = eigenvectors_transpose * trait_v;
+    Eigen::MatrixXd X = eigenvectors_transpose * cov_matrix;
+    Eigen::MatrixXd aux = Eigen::MatrixXd::Ones(n_subjects, 2);
+    aux.col(1) = Eigen::Map<const Eigen::VectorXd>(eigenvalues.data(), n_subjects);
+
+    FphiFit fit;
+    if (!find_max_loglik_2(11, Y, aux, X, fit)) {
+        CERR << "Error: Convergence failure (the covariates may be collinear)" << std::endl;
         return 1;
     }
-    
-    // Create matrices exactly like SOLAR (lines 1091-1093)
-    // Y = eigenvectors_transpose * trait_v (NO mean subtraction like SOLAR line 1092)
-    std::vector<double> Y(n_subjects, 0.0);
-    for (size_t i = 0; i < n_subjects; i++) {
-        for (size_t j = 0; j < n_subjects; j++) {
-            Y[i] += eigenvectors[j][i] * raw_phenotype_values[j];  // eigenvectors^T * trait_v
-        }
-    }
-    
-    // X = eigenvectors_transpose * cov_matrix (X is all ones for intercept only)
-    std::vector<double> X(n_subjects, 0.0);
-    for (size_t i = 0; i < n_subjects; i++) {
-        for (size_t j = 0; j < n_subjects; j++) {
-            X[i] += eigenvectors[j][i] * 1.0;  // eigenvectors^T * ones
-        }
-    }
-    
-    // aux matrix: [ones, eigenvalues] (lines 453-454)
-    std::vector<std::vector<double>> aux(n_subjects, std::vector<double>(2));
-    for (size_t i = 0; i < n_subjects; i++) {
-        aux[i][0] = 1.0;
-        aux[i][1] = eigenvalues[i];
-    }
-    
-    // Call find_max_loglik_2 exactly like SOLAR (line 1096)
-    double result_loglik, result_variance, result_se;
-    double result_mean, result_mean_se, result_e2, result_e2_se, result_sd, result_sd_se;
-    double h2r = find_max_loglik_2(11, Y, aux, X, result_loglik, result_variance, result_se,
-                                  result_mean, result_mean_se, result_e2, result_e2_se,
-                                  result_sd, result_sd_se);
-    double loglik = result_loglik;
-    
+
     // Null (sporadic) model and likelihood ratio test (SOLAR lines 1102-1108
     // and calculate_pvalue). SOLAR only tests when h2r != 0; otherwise the
     // sporadic loglik is the polygenic one and p = 0.5.
     double pvalue = 0.5;
-    double sporadic_loglik = loglik;
-    if (h2r != 0.0) {
-        // residual = trait_v - cov_matrix * OLS(cov_matrix, trait_v); the
-        // covariate matrix is the intercept only, so that is trait - mean
-        double trait_mean = 0.0;
-        for (double v : raw_phenotype_values) {
-            trait_mean += v;
-        }
-        trait_mean /= n_subjects;
-        double residual_sum_sq = 0.0;
-        for (double v : raw_phenotype_values) {
-            residual_sum_sq += (v - trait_mean) * (v - trait_mean);
-        }
-        double null_variance = residual_sum_sq / n_subjects;
-        std::vector<double> ones(n_subjects, 1.0);
-        sporadic_loglik = calculate_fphi_loglik(null_variance, ones, n_subjects);
+    double sporadic_loglik = fit.loglik;
+    if (fit.h2r != 0.0) {
+        // OLS residual of the (untransformed) trait on the covariates
+        Eigen::VectorXd residual = trait_v - cov_matrix * cov_matrix.colPivHouseholderQr().solve(trait_v);
+        double null_variance = residual.squaredNorm() / n_subjects;
+        sporadic_loglik = calculate_fphi_loglik(null_variance, Eigen::VectorXd::Ones(n_subjects), n_subjects);
 
         // SOLAR passes the statistic to cdfchi unchecked; a negative one
         // (sporadic fits better) is outside cdfchi's domain, so treat it as 0
-        double chi_stat = std::max(0.0, 2.0 * (loglik - sporadic_loglik));
+        double chi_stat = std::max(0.0, 2.0 * (fit.loglik - sporadic_loglik));
         pvalue = chicdf(chi_stat, 1.0);
     }
-    
+
+    const size_t p = covariates.size();
     result.trait = trait_name;
     result.pedigree_file = pedigree->filename();
     result.phenotype_file = phenotypes->get_filename();
     result.n_subjects = n_subjects;
-    result.h2r = h2r;
-    result.h2r_se = result_se;
-    result.loglik = loglik;
+    result.h2r = fit.h2r;
+    result.h2r_se = fit.e2_se;  // h2r and e2 share an SE in SOLAR
+    result.loglik = fit.loglik;
     result.sporadic_loglik = sporadic_loglik;
     result.p_value = pvalue;
-    result.mean = result_mean;
-    result.mean_se = result_mean_se;
-    result.e2 = result_e2;
-    result.e2_se = result_e2_se;
-    result.sd = result_sd;
-    result.sd_se = result_sd_se;
+    result.covariates.clear();
+    for (size_t i = 0; i < p; i++) {
+        result.covariates.push_back({covariates[i].fullname(), fit.beta(i), fit.beta_se(i)});
+    }
+    result.mean = fit.beta(p);
+    result.mean_se = fit.beta_se(p);
+    result.e2 = 1.0 - fit.h2r;
+    result.e2_se = fit.e2_se;
+    result.sd = std::sqrt(fit.variance);
+    result.sd_se = fit.sd_se;
 
     return 0;
 }

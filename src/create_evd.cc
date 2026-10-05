@@ -23,6 +23,7 @@ int CreateEVD::create_evd_data(
     Pedigree* pedigree,
     Phenotypes* phenotypes,
     const std::string& trait_name,
+    const std::vector<std::string>& covariate_variables,
     const char* output_basename
 ) {
     if (!output_basename) {
@@ -77,24 +78,36 @@ int CreateEVD::create_evd_data(
         return 1;
     }
     
-    // First collect phenotype IDs with valid trait values
+    // The trait and covariate variables an individual needs, as in SOLAR
+    // (solar_mle_setup drops a row if any of its terms is missing)
+    std::vector<int> required_cols{trait_col};
+    for (const auto& var : covariate_variables) {
+        int col = phenotypes->find_column(var);
+        if (col == -1) {
+            CERR << "Error: Covariate variable '" << var << "' not found in phenotype data" << std::endl;
+            return 1;
+        }
+        required_cols.push_back(col);
+    }
+
+    // First collect phenotype IDs with valid trait and covariate values
     std::vector<std::string> phenotype_ids;
     std::vector<double> trait_values;
-    
+
     for (const auto& row : data) {
-        if (row.size() > std::max(id_col, trait_col)) {
-            const std::string& trait_val = row[trait_col];
-            
-            // Check if trait value is not missing (not empty, not "NA", not ".")
-            if (!trait_val.empty() && trait_val != "NA" && trait_val != ".") {
-                try {
-                    double val = std::stod(trait_val);
-                    phenotype_ids.push_back(row[id_col]);
-                    trait_values.push_back(val);
-                } catch (const std::exception&) {
-                    // Skip invalid numeric values
-                }
+        if (row.size() <= static_cast<size_t>(id_col)) continue;
+        bool complete = true;
+        double value, trait_value = 0.0;
+        for (int col : required_cols) {
+            if (row.size() <= static_cast<size_t>(col) || !Phenotypes::parse_value(row[col], value)) {
+                complete = false;
+                break;
             }
+            if (col == trait_col) trait_value = value;
+        }
+        if (complete) {
+            phenotype_ids.push_back(row[id_col]);
+            trait_values.push_back(trait_value);
         }
     }
     
@@ -157,7 +170,7 @@ int CreateEVD::create_evd_data(
     }
     
     if (valid_ids.empty()) {
-        CERR << "Error: No IDs found with both valid pedigree data and trait values" << std::endl;
+        CERR << "Error: No IDs found with pedigree data, a trait value and every covariate" << std::endl;
         CERR << "Make sure the same IDs exist in both pedigree and phenotype files" << std::endl;
         return 1;
     }

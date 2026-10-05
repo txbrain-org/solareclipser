@@ -16,18 +16,20 @@
 namespace {
 
 struct Parameter {
-    const char* name;
+    std::string name;
     double value;
     double se;
 };
 
+// In SOLAR's order: covariate betas, then mean, e2, h2r, sd
 std::vector<Parameter> parameters(const FphiResult& r) {
-    return {
-        {"mean", r.mean, r.mean_se},
-        {"e2", r.e2, r.e2_se},
-        {"h2r", r.h2r, r.h2r_se},
-        {"sd", r.sd, r.sd_se},
-    };
+    std::vector<Parameter> params;
+    for (const auto& b : r.covariates) params.push_back({b.name, b.value, b.se});
+    params.push_back({"mean", r.mean, r.mean_se});
+    params.push_back({"e2", r.e2, r.e2_se});
+    params.push_back({"h2r", r.h2r, r.h2r_se});
+    params.push_back({"sd", r.sd, r.sd_se});
+    return params;
 }
 
 bool significant(const FphiResult& r) { return r.p_value < 0.05; }
@@ -107,7 +109,7 @@ void write_results_table(std::ostream& out, const FphiResult& r, char sep) {
 void write_parameters_table(std::ostream& out, const FphiResult& r, char sep) {
     out << "Parameter" << sep << "Value" << sep << "SE" << "\n";
     for (const auto& p : parameters(r)) {
-        out << p.name << sep << format_r(p.value) << sep << format_r(p.se) << "\n";
+        out << quote_delimited(p.name, sep) << sep << format_r(p.value) << sep << format_r(p.se) << "\n";
     }
 }
 

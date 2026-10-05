@@ -9,6 +9,9 @@
 
 #include <cstddef>
 #include <string>
+#include <vector>
+
+#include "covariates.h"
 
 // Forward declarations
 class Pedigree;
@@ -25,6 +28,12 @@ struct FphiResult {
     double mean = 0.0, mean_se = 0.0;
     double e2 = 0.0, e2_se = 0.0;
     double sd = 0.0, sd_se = 0.0;
+    // Covariate betas, in covariate order; SOLAR lists them before mean
+    struct Beta {
+        std::string name;  // Covariate::fullname()
+        double value = 0.0, se = 0.0;
+    };
+    std::vector<Beta> covariates;
 };
 
 class Fphi {
@@ -36,6 +45,7 @@ public:
         Pedigree* pedigree,
         Phenotypes* phenotypes,
         const std::string& trait_name,
+        const std::vector<Covariate>& covariates,
         const char* evd_data_basename,
         FphiResult& result
     );

@@ -82,9 +82,52 @@ bool solar_select_trait(std::string trait_name) {
     return true;
 }
 
+//' Select covariates
+//'
+//' Set the covariates FPHI adjusts the trait for, replacing any selected
+//' before. Uses the syntax of SOLAR's `covariate` command; each element may
+//' hold several covariates separated by spaces:
+//'   - `"age"`: a phenotype column
+//'   - `"age^2"`: a power
+//'   - `"age*sex"`: an interaction (any number of variables)
+//'   - `"age^1,2"`: shorthand for `"age"`, `"age^2"` (up to `^1,2,3,4`)
+//'   - `"age#sex"`: shorthand for `"age"`, `"sex"`, `"age*sex"`; combined
+//'     with the above, `"age^1,2#sex"` also adds `"age^2"`, `"age^2*sex"`
+//'
+//' As in SOLAR's `fphi`, each variable is centred on its mean over the
+//' individuals analysed, except `sex`, which is recoded so that 2 (or `F`)
+//' is 1 and anything else 0. Individuals missing any covariate variable
+//' are left out of the analysis. Variable names match phenotype columns
+//' ignoring case. Covariates are kept until changed, [solar_reset()], or
+//' a call with no covariates.
+//'
+//' @param covariates Character vector of covariate specs (default: none,
+//'   which clears the covariates)
+//' @return The expanded covariate names, invisibly, in the order their
+//'   betas are reported. Signals an error if a spec is invalid or, when
+//'   phenotypes are loaded, names a column that is not in the file.
+//' @export
+// [[Rcpp::export(invisible = true)]]
+CharacterVector solar_select_covariates(CharacterVector covariates = CharacterVector::create()) {
+    std::vector<std::string> specs;
+    for (R_xlen_t i = 0; i < covariates.size(); i++) {
+        if (CharacterVector::is_na(covariates[i])) stop("Covariates must not be NA");
+        std::istringstream words(as<std::string>(covariates[i]));
+        std::string spec;
+        while (words >> spec) specs.push_back(spec);
+    }
+    solar_log().str("");
+    SolarSession& session = get_default_session();
+    check(session.set_covariates(specs), "Selecting the covariates");
+    CharacterVector names;
+    for (const auto& c : session.get_covariates()) names.push_back(c.fullname());
+    return names;
+}
+
 //' Run FPHI analysis
 //'
-//' Run FPHI heritability analysis for the selected trait.
+//' Run FPHI heritability analysis for the selected trait, adjusted for any
+//' covariates set with [solar_select_covariates()].
 //' Pedigree, phenotypes, and trait must all be loaded/selected first.
 //'
 //' By default nothing is printed and only the EVD working files
@@ -110,8 +153,10 @@ bool solar_select_trait(std::string trait_name) {
 //' @return A list of two data frames:
 //'   - `results`: one row with `trait`, `h2r`, `se` (of h2r), `loglik`,
 //'     `sporadic_loglik`, `p_value` and `n_subjects`
-//'   - `parameters`: one row per fitted parameter (`mean`, `e2`, `h2r`,
-//'     `sd`) with columns `parameter`, `value` and `se`
+//'   - `parameters`: one row per fitted parameter, with columns
+//'     `parameter`, `value` and `se`: the beta of each covariate (named as
+//'     returned by [solar_select_covariates()]), then `mean`, `e2`, `h2r`
+//'     and `sd`
 //'
 //'   The pedigree and phenotype file names are kept in the list's
 //'   `pedigree` and `phenotypes` attributes. Signals an error on failure.
@@ -145,10 +190,20 @@ List solar_run_fphi(std::string output_basename = "fphi_output",
         _["p_value"] = r.p_value,
         _["n_subjects"] = static_cast<int>(r.n_subjects),
         _["stringsAsFactors"] = false);
+    CharacterVector names;
+    NumericVector values, ses;
+    for (const auto& b : r.covariates) {
+        names.push_back(b.name);
+        values.push_back(b.value);
+        ses.push_back(b.se);
+    }
+    for (const char* name : {"mean", "e2", "h2r", "sd"}) names.push_back(name);
+    for (double v : {r.mean, r.e2, r.h2r, r.sd}) values.push_back(v);
+    for (double v : {r.mean_se, r.e2_se, r.h2r_se, r.sd_se}) ses.push_back(v);
     DataFrame parameters = DataFrame::create(
-        _["parameter"] = CharacterVector::create("mean", "e2", "h2r", "sd"),
-        _["value"] = NumericVector::create(r.mean, r.e2, r.h2r, r.sd),
-        _["se"] = NumericVector::create(r.mean_se, r.e2_se, r.h2r_se, r.sd_se),
+        _["parameter"] = names,
+        _["value"] = values,
+        _["se"] = ses,
         _["stringsAsFactors"] = false);
     List out = List::create(_["results"] = results, _["parameters"] = parameters);
     out.attr("pedigree") = r.pedigree_file;
@@ -158,7 +213,7 @@ List solar_run_fphi(std::string output_basename = "fphi_output",
 
 //' Reset session state
 //'
-//' Clear all loaded data (pedigree, phenotypes, selected trait).
+//' Clear all loaded data (pedigree, phenotypes, selected trait, covariates).
 //' Useful for starting a new analysis or freeing memory.
 //'
 //' @export

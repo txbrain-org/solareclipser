@@ -11,11 +11,13 @@ class Phenotypes;
 // Simplified EVD data creation for the standalone implementation
 class CreateEVD {
 public:
-    // Create EVD data files with explicit parameters (no globals)
+    // Create EVD data files with explicit parameters (no globals) for the
+    // individuals in the pedigree with the trait and every covariate variable
     static int create_evd_data(
         Pedigree* pedigree,
         Phenotypes* phenotypes,
         const std::string& trait_name,
+        const std::vector<std::string>& covariate_variables,
         const char* output_basename
     );
 

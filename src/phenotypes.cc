@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <cctype>
 
 #include <Rcpp.h>
 #define COUT Rcpp::Rcout
@@ -35,4 +36,37 @@ void Phenotypes::describe() const {
 
 bool Phenotypes::has_trait(const std::string& trait_name) const {
     return std::find(headers.begin(), headers.end(), trait_name) != headers.end();
+}
+
+int Phenotypes::find_column(const std::string& name) const {
+    auto it = std::find(headers.begin(), headers.end(), name);
+    if (it != headers.end()) return it - headers.begin();
+    for (size_t i = 0; i < headers.size(); i++) {
+        const std::string& h = headers[i];
+        if (h.size() == name.size() &&
+            std::equal(h.begin(), h.end(), name.begin(), [](unsigned char a, unsigned char b) {
+                return std::tolower(a) == std::tolower(b);
+            })) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+bool Phenotypes::parse_value(const std::string& s, double& value) {
+    if (s.empty() || s == "NA" || s == ".") return false;
+    if (s == "F" || s == "f") {
+        value = 1.0;
+        return true;
+    }
+    if (s == "M" || s == "m") {
+        value = 0.0;
+        return true;
+    }
+    try {
+        value = std::stod(s);
+        return true;
+    } catch (const std::exception&) {
+        return false;
+    }
 }

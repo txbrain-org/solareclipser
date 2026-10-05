@@ -7,6 +7,6 @@
 solar_reset()
 }
 \description{
-Clear all loaded data (pedigree, phenotypes, selected trait).
+Clear all loaded data (pedigree, phenotypes, selected trait, covariates).
 Useful for starting a new analysis or freeing memory.
 }

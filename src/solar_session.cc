@@ -79,6 +79,27 @@ int SolarSession::select_trait(const std::string& trait) {
     return 0;
 }
 
+int SolarSession::set_covariates(const std::vector<std::string>& specs) {
+    std::vector<Covariate> covariates;
+    std::string error;
+    for (const auto& spec : specs) {
+        if (!parse_covariate(spec, covariates, error)) {
+            CERR << "Error: " << error << std::endl;
+            return 1;
+        }
+    }
+    if (phenotypes_) {
+        for (const auto& var : covariate_variables(covariates)) {
+            if (phenotypes_->find_column(var) == -1) {
+                CERR << "Error: Covariate variable '" << var << "' not found in phenotype file" << std::endl;
+                return 1;
+            }
+        }
+    }
+    covariates_ = covariates;
+    return 0;
+}
+
 int SolarSession::run_fphi(const std::string& output_basename,
                            const std::vector<OutputFormat>& formats,
                            bool write_files,
@@ -107,6 +128,7 @@ int SolarSession::run_fphi(const std::string& output_basename,
         pedigree_.get(),
         phenotypes_.get(),
         trait_,
+        covariate_variables(covariates_),
         output_basename.c_str()
     );
 
@@ -120,6 +142,7 @@ int SolarSession::run_fphi(const std::string& output_basename,
         pedigree_.get(),
         phenotypes_.get(),
         trait_,
+        covariates_,
         output_basename.c_str(),
         result
     );
@@ -151,6 +174,7 @@ void SolarSession::reset() {
     pedigree_.reset();
     phenotypes_.reset();
     trait_.clear();
+    covariates_.clear();
     threshold_ = 0.0;
     output_dir_.clear();
 }

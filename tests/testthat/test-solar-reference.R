@@ -3,8 +3,10 @@
 # from data-raw/ (which the bundled datasets are built from) by
 # dev/solar-reference.sh.
 
-# Runs the pipeline for trait CC at `threshold`; returns the solar summary lines
-run_solar_format <- function(threshold) {
+# Runs the pipeline for trait CC at `threshold`, with `covariates` (on the
+# phenotypes plus the test covariates of helper-covariates.R) if given;
+# returns the solar summary lines
+run_solar_format <- function(threshold, covariates = NULL) {
   dir <- tempfile("fphi_")
   dir.create(dir)
   on.exit(unlink(dir, recursive = TRUE), add = TRUE)
@@ -13,13 +15,18 @@ run_solar_format <- function(threshold) {
   ped_csv <- file.path(dir, "ped.csv")
   phen_csv <- file.path(dir, "phen.csv")
   write.csv(pedigree, ped_csv, row.names = FALSE, quote = FALSE)
-  write.csv(phenotypes, phen_csv, row.names = FALSE, quote = FALSE)
+  if (is.null(covariates)) {
+    write.csv(phenotypes, phen_csv, row.names = FALSE, quote = FALSE)
+  } else {
+    write_test_covariates(phenotypes, phen_csv)
+  }
 
   solar_reset()
   on.exit(solar_reset(), add = TRUE)
   solar_load_pedigree(ped_csv, threshold = threshold, output_dir = dir)
   solar_load_phenotype(phen_csv)
   solar_select_trait("CC")
+  if (!is.null(covariates)) solar_select_covariates(covariates)
   capture.output(solar_run_fphi(file.path(dir, "CC"), format = "solar"))
   readLines(file.path(dir, "CC_fphi.solar.out"))
 }
@@ -36,8 +43,8 @@ as_number <- function(tok) {
 
 # Line by line: words must match exactly and numbers to a relative tolerance.
 # SOLAR stores kinship as float and the port as double, so numbers agree only
-# to ~1e-7; the p-value and the near-zero mean are more sensitive, so the
-# tokens keyed by `loose` get `loose_tol`. A number's key is the nearest word
+# to ~1e-7; the p-value, the near-zero mean and covariate betas are more
+# sensitive, so the tokens keyed by `loose` get `loose_tol`. A number's key is the nearest word
 # before it on its line (the parameter name, or e.g. "p" in "p = ...").
 expect_solar_equal <- function(out, ref, tol = 1e-6,
                                loose = c("p", "mean"), loose_tol = 1e-4) {
@@ -85,4 +92,14 @@ test_that("solar format matches original SOLAR for CC at threshold 1", {
   # start value 0.5, the Hessian is singular and SOLAR reports every SE as nan
   # (the port as 0)
   expect_solar_equal(run_solar_format(1), readLines(test_path("fixtures", "solar-CC-t1.out")))
+})
+
+test_that("solar format matches original SOLAR for CC with covariates", {
+  # age^1,2#sex expands to age, sex, age*sex, age^2, age^2*sex; the 24
+  # individuals missing age are left out (976 of 999). e2 = 1 - h2r is small
+  # here, so its relative error is larger too.
+  covariates <- c("age", "sex", "age*sex", "age^2", "age^2*sex")
+  expect_solar_equal(run_solar_format(0, "age^1,2#sex"),
+                     readLines(test_path("fixtures", "solar-CC-t0-covar.out")),
+                     loose = c("p", "mean", "e2", covariates))
 })

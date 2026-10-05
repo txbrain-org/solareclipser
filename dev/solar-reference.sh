@@ -5,6 +5,9 @@
 # Runs the local SOLAR 9.0.1 install (tests/solarcli/solar901, not in git) on
 # data-raw/ for trait CC at kinship thresholds 0 and 1, and saves the FPHI
 # summary block of each run to tests/testthat/fixtures/solar-CC-t<t>.out.
+# Also runs CC at threshold 0 with covariates age^1,2#sex, on the phenotypes
+# plus the synthetic age/sex columns of tests/testthat/helper-covariates.R,
+# saved to solar-CC-t0-covar.out.
 #
 # Usage: dev/solar-reference.sh   (from the package root)
 set -eu
@@ -33,14 +36,26 @@ work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 mkdir -p "$fixtures"
 
-for t in 0 1; do
+# run <name> <threshold> <phenotype file> [<covariates>]
+run() {
     # SOLAR writes its workspace into the current directory, so use a fresh one
-    mkdir "$work/t$t"
-    ln -s "$root/data-raw/$ped" "$root/data-raw/$phen" "$work/t$t/"
-    printf 'load pedigree %s -t %s\nload phenotype %s\ntrait CC\nfphi\nexit\n' \
-        "$ped" "$t" "$phen" > "$work/t$t/run.tcl"
-    (cd "$work/t$t" && solarmain -noce < run.tcl > solar.out 2>&1)
+    dir=$work/$1
+    mkdir "$dir"
+    ln -s "$root/data-raw/$ped" "$3" "$dir/"
+    {
+        printf 'load pedigree %s -t %s\nload phenotype %s\ntrait CC\n' "$ped" "$2" "$(basename "$3")"
+        [ -z "${4:-}" ] || printf 'covariate %s\n' "$4"
+        printf 'fphi\nexit\n'
+    } > "$dir/run.tcl"
+    (cd "$dir" && solarmain -noce < run.tcl > solar.out 2>&1)
     # Keep the summary block: from its first row of asterisks to the end
-    sed -n '/^\*\*\*/,$p' "$work/t$t/solar.out" > "$fixtures/solar-CC-t$t.out"
-    echo "Wrote $fixtures/solar-CC-t$t.out"
-done
+    sed -n '/^\*\*\*/,$p' "$dir/solar.out" > "$fixtures/solar-$1.out"
+    echo "Wrote $fixtures/solar-$1.out"
+}
+
+run CC-t0 0 "$root/data-raw/$phen"
+run CC-t1 1 "$root/data-raw/$phen"
+
+Rscript -e 'source("tests/testthat/helper-covariates.R")' \
+    -e "write_test_covariates(read.csv('data-raw/$phen'), '$work/phen_covar.csv')"
+run CC-t0-covar 0 "$work/phen_covar.csv" 'age^1,2#sex'

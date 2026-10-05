@@ -36,9 +36,39 @@ solar_select_trait <- function(trait_name) {
     invisible(.Call(`_solareclipser_solar_select_trait`, trait_name))
 }
 
+#' Select covariates
+#'
+#' Set the covariates FPHI adjusts the trait for, replacing any selected
+#' before. Uses the syntax of SOLAR's `covariate` command; each element may
+#' hold several covariates separated by spaces:
+#'   - `"age"`: a phenotype column
+#'   - `"age^2"`: a power
+#'   - `"age*sex"`: an interaction (any number of variables)
+#'   - `"age^1,2"`: shorthand for `"age"`, `"age^2"` (up to `^1,2,3,4`)
+#'   - `"age#sex"`: shorthand for `"age"`, `"sex"`, `"age*sex"`; combined
+#'     with the above, `"age^1,2#sex"` also adds `"age^2"`, `"age^2*sex"`
+#'
+#' As in SOLAR's `fphi`, each variable is centred on its mean over the
+#' individuals analysed, except `sex`, which is recoded so that 2 (or `F`)
+#' is 1 and anything else 0. Individuals missing any covariate variable
+#' are left out of the analysis. Variable names match phenotype columns
+#' ignoring case. Covariates are kept until changed, [solar_reset()], or
+#' a call with no covariates.
+#'
+#' @param covariates Character vector of covariate specs (default: none,
+#'   which clears the covariates)
+#' @return The expanded covariate names, invisibly, in the order their
+#'   betas are reported. Signals an error if a spec is invalid or, when
+#'   phenotypes are loaded, names a column that is not in the file.
+#' @export
+solar_select_covariates <- function(covariates = as.character( c())) {
+    invisible(.Call(`_solareclipser_solar_select_covariates`, covariates))
+}
+
 #' Run FPHI analysis
 #'
-#' Run FPHI heritability analysis for the selected trait.
+#' Run FPHI heritability analysis for the selected trait, adjusted for any
+#' covariates set with [solar_select_covariates()].
 #' Pedigree, phenotypes, and trait must all be loaded/selected first.
 #'
 #' By default nothing is printed and only the EVD working files
@@ -64,8 +94,10 @@ solar_select_trait <- function(trait_name) {
 #' @return A list of two data frames:
 #'   - `results`: one row with `trait`, `h2r`, `se` (of h2r), `loglik`,
 #'     `sporadic_loglik`, `p_value` and `n_subjects`
-#'   - `parameters`: one row per fitted parameter (`mean`, `e2`, `h2r`,
-#'     `sd`) with columns `parameter`, `value` and `se`
+#'   - `parameters`: one row per fitted parameter, with columns
+#'     `parameter`, `value` and `se`: the beta of each covariate (named as
+#'     returned by [solar_select_covariates()]), then `mean`, `e2`, `h2r`
+#'     and `sd`
 #'
 #'   The pedigree and phenotype file names are kept in the list's
 #'   `pedigree` and `phenotypes` attributes. Signals an error on failure.
@@ -76,7 +108,7 @@ solar_run_fphi <- function(output_basename = "fphi_output", format = as.characte
 
 #' Reset session state
 #'
-#' Clear all loaded data (pedigree, phenotypes, selected trait).
+#' Clear all loaded data (pedigree, phenotypes, selected trait, covariates).
 #' Useful for starting a new analysis or freeing memory.
 #'
 #' @export

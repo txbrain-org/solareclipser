@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "covariates.h"
 #include "fphi_output.h"
 #include "pedigree.h"
 #include "phenotypes.h"
@@ -57,6 +58,17 @@ public:
     int select_trait(const std::string& trait);
 
     /**
+     * Set the covariates, replacing any set before
+     * @param specs Covariate specs in SOLAR syntax ("age", "age^2", "age*sex",
+     *        "age^1,2#sex"); empty clears them
+     * @return 0 on success, 1 on failure (the covariates are then unchanged)
+     *
+     * If phenotypes are loaded, every covariate variable must be one of its
+     * columns. They are checked again when FPHI runs.
+     */
+    int set_covariates(const std::vector<std::string>& specs);
+
+    /**
      * Run FPHI analysis
      * @param output_basename Base name for output files
      * @param formats Formats to print the results in (and write, see below);
@@ -85,6 +97,7 @@ public:
     bool has_trait() const { return !trait_.empty(); }
 
     std::string get_trait_name() const { return trait_; }
+    const std::vector<Covariate>& get_covariates() const { return covariates_; }
     Pedigree* get_pedigree() const { return pedigree_.get(); }
     Phenotypes* get_phenotypes() const { return phenotypes_.get(); }
 
@@ -97,6 +110,7 @@ private:
     std::unique_ptr<Pedigree> pedigree_;
     std::unique_ptr<Phenotypes> phenotypes_;
     std::string trait_;
+    std::vector<Covariate> covariates_;
     double threshold_ = 0.0;
     std::string output_dir_;  // Output directory for all analysis files
 };

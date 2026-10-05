@@ -24,15 +24,18 @@ A list of two data frames:
 \itemize{
 \item \code{results}: one row with \code{trait}, \code{h2r}, \code{se} (of h2r), \code{loglik},
 \code{sporadic_loglik}, \code{p_value} and \code{n_subjects}
-\item \code{parameters}: one row per fitted parameter (\code{mean}, \code{e2}, \code{h2r},
-\code{sd}) with columns \code{parameter}, \code{value} and \code{se}
+\item \code{parameters}: one row per fitted parameter, with columns
+\code{parameter}, \code{value} and \code{se}: the beta of each covariate (named as
+returned by \code{\link[=solar_select_covariates]{solar_select_covariates()}}), then \code{mean}, \code{e2}, \code{h2r}
+and \code{sd}
 }
 
 The pedigree and phenotype file names are kept in the list's
 \code{pedigree} and \code{phenotypes} attributes. Signals an error on failure.
 }
 \description{
-Run FPHI heritability analysis for the selected trait.
+Run FPHI heritability analysis for the selected trait, adjusted for any
+covariates set with \code{\link[=solar_select_covariates]{solar_select_covariates()}}.
 Pedigree, phenotypes, and trait must all be loaded/selected first.
 }
 \details{

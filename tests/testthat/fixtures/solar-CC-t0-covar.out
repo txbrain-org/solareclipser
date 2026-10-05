@@ -1,0 +1,23 @@
+***********************************************************************************
+*        Fast Permutation Heritability Inference (FPHI) Summary of Results        *
+***********************************************************************************
+  Pedigree:    HCP_imputed_filtered_ped.csv
+  Phenotypes:  phen_covar.csv
+  Trait:   CC H2r = 0.941814313986 SE = 0.00957267712964  Individuals:  976
+  polygenic loglik:   -317.359251703  sporadic loglik:   -474.227092717  p = 1.67655173775e-70 (Significant)
+Fully Converged Parameters
+
+      Name               Value           Std Error
+
+
+ Parameter           Fit Value      Standard Error
+       age   -0.00745655272284    0.00652505033893
+       sex     -0.090442302341     0.0613017517077
+   age*sex   -0.00179530875694    0.00906504281684
+     age^2   -0.00344569163289    0.00194644188481
+ age^2*sex    0.00321913257488    0.00254421744488
+      mean      0.088016416988       0.12523150692
+        e2     0.0581856860138    0.00957267712964
+       h2r      0.941814313986    0.00957267712964
+        sd       1.04249202675     0.0262531475813
+

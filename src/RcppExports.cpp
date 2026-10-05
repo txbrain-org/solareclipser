@@ -45,6 +45,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// solar_select_covariates
+CharacterVector solar_select_covariates(CharacterVector covariates);
+RcppExport SEXP _solareclipser_solar_select_covariates(SEXP covariatesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< CharacterVector >::type covariates(covariatesSEXP);
+    rcpp_result_gen = Rcpp::wrap(solar_select_covariates(covariates));
+    return rcpp_result_gen;
+END_RCPP
+}
 // solar_run_fphi
 List solar_run_fphi(std::string output_basename, CharacterVector format, bool write_files);
 RcppExport SEXP _solareclipser_solar_run_fphi(SEXP output_basenameSEXP, SEXP formatSEXP, SEXP write_filesSEXP) {
@@ -72,6 +83,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_solareclipser_solar_load_pedigree", (DL_FUNC) &_solareclipser_solar_load_pedigree, 3},
     {"_solareclipser_solar_load_phenotype", (DL_FUNC) &_solareclipser_solar_load_phenotype, 1},
     {"_solareclipser_solar_select_trait", (DL_FUNC) &_solareclipser_solar_select_trait, 1},
+    {"_solareclipser_solar_select_covariates", (DL_FUNC) &_solareclipser_solar_select_covariates, 1},
     {"_solareclipser_solar_run_fphi", (DL_FUNC) &_solareclipser_solar_run_fphi, 3},
     {"_solareclipser_solar_reset", (DL_FUNC) &_solareclipser_solar_reset, 0},
     {NULL, NULL, 0}
