@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^data-raw$
@@ -14,3 +16,8 @@
 ^Meta$
 ^solareclipser.Rcheck$
 ^tests/solarcli$
+^renv$
+^renv\.lock$
+^\.Rprofile$
+^\.rlib$
+^\.tools$

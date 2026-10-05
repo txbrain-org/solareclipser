@@ -13,3 +13,6 @@ src/*.so
 
 tests/solarcli
 data-raw/*.csv
+
+.rlib/
+.tools/

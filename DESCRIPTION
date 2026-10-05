@@ -21,7 +21,6 @@ License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/txbrain-org/solareclipser
-RoxygenNote: 7.3.3
 Imports:
     Rcpp
 LinkingTo: Rcpp
@@ -37,3 +36,4 @@ Depends:
 LazyData: true
 LazyDataCompression: xz
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.1.0

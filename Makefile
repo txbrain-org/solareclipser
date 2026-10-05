@@ -46,7 +46,7 @@ help:
 
 .PHONY: all bootstrap clean distclean rebuild run test install help \
         document check check-cran build build-readme build-vignettes \
-        flow bear push-vm pull-vm
+        flow bear push-vm pull-vm pandoc
 .DEFAULT_GOAL := help
 
 TGT := solareclipser
@@ -57,6 +57,12 @@ RE := R -e
 BUILDDIR := release
 TARBALL := $(BUILDDIR)/$(TGT)_$(VER).tar.gz
 
+TOOLS := .tools
+PANDOC_VER := 3.12
+PANDOC_SHA256 := 67d7d011fed8c8543306022b985b9b2499ab9b74818df91d8727c7e9ebc5ba06
+PANDOC_TGZ := pandoc-$(PANDOC_VER)-linux-amd64.tar.gz
+PANDOC_BIN := $(TOOLS)/pandoc-$(PANDOC_VER)/bin/pandoc
+
 VM_USER := wb
 #VM_IP := 192.168.4.190
 VM_IP := 10.7.230.208
@@ -64,10 +70,22 @@ VM_IP := 10.7.230.208
 ## Regenerate docs and build the package tarball into release/
 all: document build
 
-## Install R dev dependencies (devtools, Rcpp, testthat, knitr, rmarkdown)
-bootstrap:
+## Restore pinned R dev dependencies (renv.lock) and pandoc into the project
+bootstrap: pandoc
 	@printf "$(info):bootstrap\n"
-	$(RE) 'install.packages(c("devtools", "Rcpp", "testthat", "knitr", "rmarkdown"), repos = "https://cloud.r-project.org")'
+	$(RE) 'renv::restore(prompt = FALSE)'
+
+## Download pinned pandoc into .tools/ (used by .Rprofile via RSTUDIO_PANDOC)
+pandoc: $(PANDOC_BIN)
+
+$(PANDOC_BIN):
+	@printf "$(info):pandoc\n"
+	mkdir -p $(TOOLS)
+	curl -fsSL -o $(TOOLS)/$(PANDOC_TGZ) \
+		https://github.com/jgm/pandoc/releases/download/$(PANDOC_VER)/$(PANDOC_TGZ)
+	echo "$(PANDOC_SHA256)  $(TOOLS)/$(PANDOC_TGZ)" | sha256sum -c -
+	tar -xzf $(TOOLS)/$(PANDOC_TGZ) -C $(TOOLS)
+	rm $(TOOLS)/$(PANDOC_TGZ)
 
 ## Remove compiled objects in src/
 clean:

@@ -18,5 +18,10 @@ Useful links:
 \author{
 \strong{Maintainer}: William Burroughs \email{wilbura009@gmail.com}
 
+Authors:
+\itemize{
+  \item William Burroughs \email{wilbura009@gmail.com}
+}
+
 }
 \keyword{internal}
