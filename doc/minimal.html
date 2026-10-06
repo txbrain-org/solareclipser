@@ -27,46 +27,32 @@ document.addEventListener('DOMContentLoaded', function(e) {
   }
 });
 </script>
-<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
-// v0.0.1
-// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
-
-document.addEventListener('DOMContentLoaded', function() {
-  const codeList = document.getElementsByClassName("sourceCode");
-  for (var i = 0; i < codeList.length; i++) {
-    var linkList = codeList[i].getElementsByTagName('a');
-    for (var j = 0; j < linkList.length; j++) {
-      if (linkList[j].innerHTML === "") {
-        linkList[j].setAttribute('aria-hidden', 'true');
-      }
-    }
-  }
-});
-</script>
 
 <style type="text/css">
-  code{white-space: pre-wrap;}
-  span.smallcaps{font-variant: small-caps;}
-  span.underline{text-decoration: underline;}
-  div.column{display: inline-block; vertical-align: top; width: 50%;}
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-  ul.task-list{list-style: none;}
-    </style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
 
 
 
 <style type="text/css">
-  code {
-    white-space: pre;
-  }
-  .sourceCode {
-    overflow: visible;
-  }
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
@@ -78,55 +64,54 @@ pre > code.sourceCode { white-space: pre-wrap; }
 pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
-  { counter-reset: source-line 0; }
+{ counter-reset: source-line 0; }
 pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
+{ position: relative; left: -4em; counter-increment: source-line; }
 pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
 div.sourceCode
-  {   }
+{ }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
 </style>
 <script>
 // apply pandoc div.sourceCode style to pre.sourceCode instead
@@ -356,67 +341,50 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">library</span>(solareclipser)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="co">## Load the example data</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="kw">data</span>(<span class="st">&quot;pedigree&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;solareclipser&quot;</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a><span class="kw">data</span>(<span class="st">&quot;phenotypes&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;solareclipser&quot;</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a><span class="co">## Write temporary CSV files</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>pedigree_tmp_csv &lt;-<span class="st"> </span><span class="kw">tempfile</span>(<span class="dt">fileext =</span> <span class="st">&quot;.csv&quot;</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a><span class="kw">write.csv</span>(pedigree, pedigree_tmp_csv, <span class="dt">row.names =</span> <span class="ot">FALSE</span>, <span class="dt">quote =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a>phenotypes_tmp_csv &lt;-<span class="st"> </span><span class="kw">tempfile</span>(<span class="dt">fileext =</span> <span class="st">&quot;.csv&quot;</span>)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a><span class="kw">write.csv</span>(phenotypes, phenotypes_tmp_csv, <span class="dt">row.names =</span> <span class="ot">FALSE</span>, <span class="dt">quote =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a><span class="co">## Create temporary output directory</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a>output_dir &lt;-<span class="st"> </span><span class="kw">tempfile</span>(<span class="st">&quot;fphi_&quot;</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a><span class="kw">dir.create</span>(output_dir)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a>trait &lt;-<span class="st"> &quot;CC&quot;</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a>output_basename &lt;-<span class="st"> </span><span class="kw">file.path</span>(output_dir, trait)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true"></a>rc &lt;-<span class="st"> </span><span class="kw">solar_load_pedigree</span>(pedigree_tmp_csv, <span class="dt">threshold =</span> <span class="fl">0.0</span>, <span class="dt">output_dir =</span> output_dir)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true"></a><span class="co">#&gt; Loading pedigree: /tmp/Rtmp3nud5k/file521232f50160.csv</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true"></a><span class="co">#&gt;   Output directory: /tmp/Rtmp3nud5k/fphi_52123c32230b</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true"></a><span class="co">#&gt; Pedigree loaded successfully</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true"></a><span class="cf">if</span> (rc <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) {</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true"></a>  <span class="kw">stop</span>(<span class="st">&quot;Failed to load pedigree&quot;</span>)</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true"></a>}</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true"></a></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true"></a>rc &lt;-<span class="st"> </span><span class="kw">solar_load_phenotype</span>(phenotypes_tmp_csv)</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true"></a><span class="co">#&gt; Loading phenotypes: /tmp/Rtmp3nud5k/file521228aeb105.csv</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true"></a><span class="co">#&gt; Phenotypes loaded successfully</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true"></a><span class="cf">if</span> (rc <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) {</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true"></a>  <span class="kw">stop</span>(<span class="st">&quot;Failed to load phenotypes&quot;</span>)</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true"></a>}</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true"></a></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true"></a>rc &lt;-<span class="st"> </span><span class="kw">solar_select_trait</span>(trait)</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true"></a><span class="co">#&gt; Selected trait: CC</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true"></a><span class="cf">if</span> (rc <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) {</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true"></a>  <span class="kw">stop</span>(<span class="st">&quot;Failed to select trait&quot;</span>)</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true"></a>}</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true"></a></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true"></a>rc &lt;-<span class="st"> </span><span class="kw">solar_run_fphi</span>(output_basename)</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true"></a><span class="co">#&gt; ======================================</span></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true"></a><span class="co">#&gt; FPHI Analysis</span></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true"></a><span class="co">#&gt; ======================================</span></span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true"></a><span class="co">#&gt; Trait: CC</span></span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true"></a><span class="co">#&gt; Output Basename: /tmp/Rtmp3nud5k/fphi_52123c32230b/CC</span></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true"></a><span class="co">#&gt; ======================================</span></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true"></a><span class="co">#&gt; Creating EVD data...</span></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true"></a><span class="co">#&gt; Running FPHI analysis...</span></span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true"></a><span class="co">#&gt; </span></span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true"></a><span class="co">#&gt; ======================================</span></span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true"></a><span class="co">#&gt; Analysis Complete</span></span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true"></a><span class="co">#&gt; ======================================</span></span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true"></a><span class="co">#&gt; Output: /tmp/Rtmp3nud5k/fphi_52123c32230b/CC_fphi_results.out</span></span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true"></a><span class="cf">if</span> (rc <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) {</span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true"></a>  <span class="kw">stop</span>(<span class="st">&quot;FPHI analysis failed&quot;</span>)</span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true"></a>}</span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true"></a></span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true"></a><span class="co">## Read and display FPHI results</span></span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true"></a>fphi_results &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="kw">paste0</span>(output_basename, <span class="st">&quot;_fphi_results.out&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(solareclipser)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## Load the example data</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;pedigree&quot;</span>, <span class="at">package =</span> <span class="st">&quot;solareclipser&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;phenotypes&quot;</span>, <span class="at">package =</span> <span class="st">&quot;solareclipser&quot;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="do">## Write temporary CSV files</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>pedigree_tmp_csv <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.csv&quot;</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="fu">write.csv</span>(pedigree, pedigree_tmp_csv, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">quote =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>phenotypes_tmp_csv <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.csv&quot;</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="fu">write.csv</span>(phenotypes, phenotypes_tmp_csv, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">quote =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="do">## Create temporary output directory</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="st">&quot;fphi_&quot;</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="fu">dir.create</span>(output_dir)</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>trait <span class="ot">&lt;-</span> <span class="st">&quot;CC&quot;</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>output_basename <span class="ot">&lt;-</span> <span class="fu">file.path</span>(output_dir, trait)</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="do">## Each step signals an R error if it fails</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="fu">solar_load_pedigree</span>(pedigree_tmp_csv, <span class="at">threshold =</span> <span class="fl">0.0</span>, <span class="at">output_dir =</span> output_dir)</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="fu">solar_load_phenotype</span>(phenotypes_tmp_csv)</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="fu">solar_select_trait</span>(trait)</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="do">## Optionally adjust for covariates in the phenotype file, in SOLAR&#39;s syntax</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="do">## (the example data has none), e.g. age, age^2, sex and their interactions:</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="do">## solar_select_covariates(&quot;age^1,2#sex&quot;)</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="do">## The results come back as a list of two data frames</span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">solar_run_fphi</span>(output_basename)</span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a>res<span class="sc">$</span>results</span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="co">#&gt;   trait      h2r         se    loglik sporadic_loglik      p_value n_subjects</span></span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="co">#&gt; 1    CC 0.934443 0.01040862 -332.2292       -487.5209 8.148458e-70        999</span></span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a>res<span class="sc">$</span>parameters</span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a><span class="co">#&gt;   parameter      value         se</span></span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a><span class="co">#&gt; 1      mean 0.00404806 0.11845822</span></span>
+<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a><span class="co">#&gt; 2        e2 0.06555697 0.01040862</span></span>
+<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a><span class="co">#&gt; 3       h2r 0.93444303 0.01040862</span></span>
+<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a><span class="co">#&gt; 4        sd 1.04560387 0.02609633</span></span>
+<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" tabindex="-1"></a><span class="do">## To also print the results as text and write them to files, list formats:</span></span>
+<span id="cb1-41"><a href="#cb1-41" tabindex="-1"></a><span class="do">## &quot;csv&quot;, &quot;tsv&quot;, &quot;json&quot;, &quot;yaml&quot;, or &quot;solar&quot; (the original SOLAR-Eclipse</span></span>
+<span id="cb1-42"><a href="#cb1-42" tabindex="-1"></a><span class="do">## summary block, for diffing against its output). For example</span></span>
+<span id="cb1-43"><a href="#cb1-43" tabindex="-1"></a><span class="do">## solar_run_fphi(output_basename, format = &quot;csv&quot;) also writes</span></span>
+<span id="cb1-44"><a href="#cb1-44" tabindex="-1"></a><span class="do">## &lt;output_basename&gt;_fphi_results.out and _parameters.out.</span></span></code></pre></div>
 
 
 
