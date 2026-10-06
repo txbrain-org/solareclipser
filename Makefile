@@ -41,7 +41,7 @@ help:
 
 ### EDIT below
 
-.PHONY: help bootstrap pandoc clean distclean run test install document \
+.PHONY: help bootstrap pandoc clean distclean run test test-release install document \
         check build build-readme build-vignettes docs release urlcheck data \
         solar-reference renv-status renv-snapshot flow
 .DEFAULT_GOAL := help
@@ -112,6 +112,21 @@ run:
 test:
 	@printf "$(info):test\n"
 	$(RE) 'devtools::test($(if $(FILTER),filter = "$(FILTER)", )stop_on_failure = TRUE)'
+
+# test-release: the tarball to test, or download it from GitHub at REF instead
+TEST_RELEASE_SRC = $(if $(REF),-v $(VER) -r $(REF),-t $(CURDIR)/$(TARBALL))
+TEST_RELEASE := $(CURDIR)/dev/test-release.sh
+# --containall gives the container a 64M tmpfs /tmp; --workdir puts it on the host
+SIF_EXEC = singularity exec --cleanenv --no-eval --containall --no-home \
+	--workdir "$$work" --bind $(CURDIR):$(CURDIR):ro $(SIF)
+
+## Test release/<pkg>_<ver>.tar.gz as is in a fresh R library (SIF=R.sif: in that container, CHECK=1: add R CMD check, REF=main: download from GitHub, ARGS: see dev/test-release.sh -h)
+test-release:
+	@printf "$(info):test-release\n"
+	$(if $(SIF),work=$$(mktemp -d) && \
+		$(if $(findstring -k,$(ARGS)),echo "container /tmp is $$work/tmp",trap 'rm -rf "$$work"' EXIT) && \
+		$(SIF_EXEC) bash) \
+		$(TEST_RELEASE) $(TEST_RELEASE_SRC) $(if $(CHECK),-c) $(ARGS)
 
 ## Build and install the package tarball into the renv project library
 install: build
