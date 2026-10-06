@@ -42,7 +42,7 @@ help:
 ### EDIT below
 
 .PHONY: help bootstrap pandoc clean distclean run test install document \
-        check build build-readme build-vignettes urlcheck data \
+        check build build-readme build-vignettes docs release urlcheck data \
         solar-reference renv-status renv-snapshot flow
 .DEFAULT_GOAL := help
 
@@ -50,6 +50,10 @@ TGT := solareclipser
 VER := $(shell sed -n 's/^Version: *//p' DESCRIPTION)
 
 RE := R -e
+MAKEFLAGS += --no-print-directory
+# check fails on this R CMD check level or worse; release raises it to warning
+# (currently fails on Eigen/cdfchi.f warnings, see "Release check" in TODO.md)
+CHECK_ERROR_ON ?= error
 BUILDDIR := release
 TARBALL := $(BUILDDIR)/$(TGT)_$(VER).tar.gz
 
@@ -59,13 +63,21 @@ PANDOC_SHA256 := 67d7d011fed8c8543306022b985b9b2499ab9b74818df91d8727c7e9ebc5ba0
 PANDOC_TGZ := pandoc-$(PANDOC_VER)-linux-amd64.tar.gz
 PANDOC_BIN := $(TOOLS)/pandoc-$(PANDOC_VER)/bin/pandoc
 
+# Render the vignette into doc/ as devtools::build_vignettes() did (deprecated
+# in devtools 2.5, and it adds /doc/ to .gitignore)
+VIGNETTE_R := pkgload::load_all(); \
+  rmarkdown::render("vignettes/minimal.Rmd", output_dir = "doc"); \
+  knitr::purl("vignettes/minimal.Rmd", output = "doc/minimal.R"); \
+  invisible(file.copy("vignettes/minimal.Rmd", "doc", overwrite = TRUE))
+
 ## Restore pinned R dev dependencies (renv.lock) and pandoc into the project
 bootstrap: pandoc
 	@printf "$(info):bootstrap\n"
 	$(RE) 'renv::restore(prompt = FALSE)'
 
-## Download pinned pandoc into .tools/ (used by .Rprofile via RSTUDIO_PANDOC)
+## Download pinned pandoc into .tools/ and link .tools/pandoc to it (.Rprofile uses that)
 pandoc: $(PANDOC_BIN)
+	@ln -sfn pandoc-$(PANDOC_VER) $(TOOLS)/pandoc
 
 $(PANDOC_BIN):
 	@printf "$(info):pandoc\n"
@@ -81,7 +93,7 @@ clean:
 	@printf "$(info):clean\n"
 	rm -f src/*.o src/*.so
 
-## Also remove the check dir and vignette index (Meta/)
+## Also remove the check dir and Meta/ (left by devtools::build_vignettes)
 distclean: clean
 	@printf "$(info):distclean\n"
 	rm -rf $(TGT).Rcheck Meta
@@ -94,9 +106,9 @@ run:
 ## Run tests (FILTER=fphi to run only test-fphi.R)
 test:
 	@printf "$(info):test\n"
-	$(RE) 'devtools::test($(if $(FILTER),filter = "$(FILTER)"))'
+	$(RE) 'devtools::test($(if $(FILTER),filter = "$(FILTER)", )stop_on_failure = TRUE)'
 
-## Build and install the package tarball
+## Build and install the package tarball into the renv project library
 install: build
 	@printf "$(info):install\n"
 	R CMD INSTALL $(TARBALL)
@@ -106,10 +118,10 @@ document:
 	@printf "$(info):document\n"
 	$(RE) 'devtools::document()'
 
-## Document, build and check the package (devtools::check, cran = TRUE)
+## Document, build and check the package (CHECK_ERROR_ON=warning to fail on warnings)
 check: pandoc
 	@printf "$(info):check\n"
-	$(RE) 'devtools::check(error_on = "error")'
+	$(RE) 'devtools::check(error_on = "$(CHECK_ERROR_ON)")'
 
 ## Document, then build the package tarball into release/
 build: pandoc document
@@ -124,7 +136,22 @@ build-readme: pandoc
 ## Build vignettes into doc/
 build-vignettes: pandoc
 	@printf "$(info):build-vignettes\n"
-	$(RE) 'devtools::build_vignettes()'
+	$(RE) '$(VIGNETTE_R)'
+
+## Regenerate roxygen docs, README.md and vignettes (doc/)
+docs:
+	@printf "$(info):docs\n"
+	$(MAKE) document
+	$(MAKE) build-readme
+	$(MAKE) build-vignettes
+
+## Docs, URL check, check failing on warnings, then tarball into release/
+release:
+	@printf "$(info):release\n"
+	$(MAKE) docs
+	$(MAKE) urlcheck
+	$(MAKE) check CHECK_ERROR_ON=warning
+	$(MAKE) build
 
 ## Check URLs in DESCRIPTION, docs and README
 urlcheck:

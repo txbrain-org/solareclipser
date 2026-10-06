@@ -63,3 +63,25 @@ Covariates (1) and multi-trait / EVD reuse (2) first: together they make the
 package usable for real analyses and stay within the already-ported FPHI
 code. Then theoretical pedigrees (3). `polygenic` is the next big step after
 that.
+
+## Release check
+
+`make release` runs `make check CHECK_ERROR_ON=warning`, which currently
+fails with 0 errors, 3 warnings, 1 note (R 4.6.1, 2026-10-05):
+
+- WARNING, significant compiler warnings on install: the bundled `src/Eigen`
+  triggers `-Wdeprecated-enum-enum-conversion`. Fix by linking RcppEigen
+  instead, or updating the bundled Eigen.
+- WARNING, pragmas suppressing diagnostics: also in the bundled Eigen; same
+  fix.
+- WARNING, compiled code may terminate R: `STOP`/`exit` in `cdfchi.f`. Not
+  fixable without editing Fortran, which CLAUDE.md rules out.
+- NOTE, non-standard top-level files `LICENSE.md` and `README.Rmd`: add them
+  to `.Rbuildignore`.
+
+Because of `cdfchi.f`, the strict check can't pass as things stand. Options:
+
+1. Keep `release` strict (`CHECK_ERROR_ON=warning`) and accept that it fails
+   until the package changes.
+2. Have `release` stop only on errors: change `CHECK_ERROR_ON=warning` to
+   `CHECK_ERROR_ON=error` in the `release` recipe.
