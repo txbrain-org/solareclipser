@@ -83,5 +83,6 @@ Because of `cdfchi.f`, the strict check can't pass as things stand. Options:
 
 1. Keep `release` strict (`CHECK_ERROR_ON=warning`) and accept that it fails
    until the package changes.
-2. Have `release` stop only on errors: change `CHECK_ERROR_ON=warning` to
-   `CHECK_ERROR_ON=error` in the `release` recipe.
+2. Have `release` stop only on errors: run `make release CHECK_ERROR_ON=error`
+   for one release, or make `error` the default in the Makefile's
+   `RELEASE_ERROR_ON`.

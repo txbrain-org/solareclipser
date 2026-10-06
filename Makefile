@@ -54,6 +54,8 @@ MAKEFLAGS += --no-print-directory
 # check fails on this R CMD check level or worse; release raises it to warning
 # (currently fails on Eigen/cdfchi.f warnings, see "Release check" in TODO.md)
 CHECK_ERROR_ON ?= error
+# release uses warning unless CHECK_ERROR_ON is given: make release CHECK_ERROR_ON=error
+RELEASE_ERROR_ON := $(if $(filter command line,$(origin CHECK_ERROR_ON)),$(CHECK_ERROR_ON),warning)
 BUILDDIR := release
 TARBALL := $(BUILDDIR)/$(TGT)_$(VER).tar.gz
 
@@ -145,12 +147,12 @@ docs:
 	$(MAKE) build-readme
 	$(MAKE) build-vignettes
 
-## Docs, URL check, check failing on warnings, then tarball into release/
+## Docs, URL check, check (failing on warnings; CHECK_ERROR_ON=error to relax), then tarball into release/
 release:
 	@printf "$(info):release\n"
 	$(MAKE) docs
 	$(MAKE) urlcheck
-	$(MAKE) check CHECK_ERROR_ON=warning
+	$(MAKE) check CHECK_ERROR_ON=$(RELEASE_ERROR_ON)
 	$(MAKE) build
 
 ## Check URLs in DESCRIPTION, docs and README
