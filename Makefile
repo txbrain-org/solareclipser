@@ -39,19 +39,15 @@ help:
 	} \
 	END {flush()}'
 
-### EDIT below -- generic/language-agnostic starting point. Fill in the
-### recipe bodies for whatever this project actually builds/runs/tests
-### with (shell script, python venv, node, a compiled toolchain, ...);
-### delete any target that doesn't apply.
+### EDIT below
 
-.PHONY: all bootstrap clean distclean rebuild run test install help \
-        document check check-cran build build-readme build-vignettes \
-        flow bear push-vm pull-vm pandoc
+.PHONY: help bootstrap pandoc clean distclean run test install document \
+        check build build-readme build-vignettes urlcheck data \
+        solar-reference renv-status renv-snapshot flow
 .DEFAULT_GOAL := help
 
 TGT := solareclipser
 VER := $(shell sed -n 's/^Version: *//p' DESCRIPTION)
-SOPTS ?= 
 
 RE := R -e
 BUILDDIR := release
@@ -62,13 +58,6 @@ PANDOC_VER := 3.12
 PANDOC_SHA256 := 67d7d011fed8c8543306022b985b9b2499ab9b74818df91d8727c7e9ebc5ba06
 PANDOC_TGZ := pandoc-$(PANDOC_VER)-linux-amd64.tar.gz
 PANDOC_BIN := $(TOOLS)/pandoc-$(PANDOC_VER)/bin/pandoc
-
-VM_USER := wb
-#VM_IP := 192.168.4.190
-VM_IP := 10.7.230.208
-
-## Regenerate docs and build the package tarball into release/
-all: document build
 
 ## Restore pinned R dev dependencies (renv.lock) and pandoc into the project
 bootstrap: pandoc
@@ -92,15 +81,12 @@ clean:
 	@printf "$(info):clean\n"
 	rm -f src/*.o src/*.so
 
-## Also remove release/, check dir, and built vignettes (doc/, Meta/)
+## Also remove the check dir and vignette index (Meta/)
 distclean: clean
 	@printf "$(info):distclean\n"
-	rm -rf $(BUILDDIR) $(TGT).Rcheck doc Meta
+	rm -rf $(TGT).Rcheck Meta
 
-## Clean and rebuild
-rebuild: clean all
-
-## Compile and load into an R session (devtools::load_all)
+## Compile src/ and load the package (devtools::load_all)
 run:
 	@printf "$(info):run\n"
 	$(RE) 'devtools::load_all()'
@@ -120,45 +106,50 @@ document:
 	@printf "$(info):document\n"
 	$(RE) 'devtools::document()'
 
-## Build and check the package locally
-check:
+## Document, build and check the package (devtools::check, cran = TRUE)
+check: pandoc
 	@printf "$(info):check\n"
 	$(RE) 'devtools::check(error_on = "error")'
 
-## Build and check the package as CRAN would
-check-cran:
-	@printf "$(info):check-cran\n"
-	$(RE) 'devtools::check(error_on = "error", cran = TRUE)'
-
-## Build the package tarball into release/
-build:
+## Document, then build the package tarball into release/
+build: pandoc document
 	@printf "$(info):build\n"
 	$(RE) 'devtools::build(path = "$(BUILDDIR)/")'
 
 ## Render README.Rmd into README.md
-build-readme:
+build-readme: pandoc
 	@printf "$(info):build-readme\n"
 	$(RE) 'devtools::build_readme()'
 
 ## Build vignettes into doc/
-build-vignettes:
+build-vignettes: pandoc
 	@printf "$(info):build-vignettes\n"
 	$(RE) 'devtools::build_vignettes()'
+
+## Check URLs in DESCRIPTION, docs and README
+urlcheck:
+	@printf "$(info):urlcheck\n"
+	$(RE) 'urlchecker::url_check()'
+
+## Rebuild data/*.rda from data-raw/*.csv
+data:
+	@printf "$(info):data\n"
+	Rscript data-raw/DATASET.R
+
+## Regenerate the original-SOLAR test fixtures (needs tests/solarcli/)
+solar-reference:
+	@printf "$(info):solar-reference\n"
+	dev/solar-reference.sh
+
+## Show differences between renv.lock and the project library
+renv-status:
+	$(RE) 'renv::status()'
+
+## Record the project library in renv.lock
+renv-snapshot:
+	$(RE) 'renv::snapshot(prompt = FALSE)'
 
 ## Print the dev flow notes
 flow:
 	@cat dev/doc/flow.md
 
-## Regenerate compile_commands.json for clangd
-bear:
-	@printf "$(info):bear\n"
-	bear -- R CMD INSTALL . --preclean
-	$(MAKE) run
-
-## rsync this project to the dev VM
-push-vm:
-	rsync -avz --delete ../$(TGT)/ $(VM_USER)@$(VM_IP):~/$(TGT)/
-
-## rsync this project back from the dev VM
-pull-vm:
-	rsync -avz --delete $(VM_USER)@$(VM_IP):~/$(TGT)/ ../$(TGT)/
