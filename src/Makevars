@@ -5,8 +5,9 @@
 # Note: Explicit optimization flags like -O2 are considered non-portable by R CMD check
 # R will use appropriate optimization flags by default
 
-# Libraries (need gfortran library for Fortran code)
-#PKG_LIBS = -lz -lm -lgfortran
+# zlib for the gzipped kinship matrix (phi2.gz); R adds $(FLIBS) for the
+# Fortran sources itself
+PKG_LIBS = -lz
 
 # Source files to compile
 SOURCES = RcppExports.cpp rcpp_interface.cpp \

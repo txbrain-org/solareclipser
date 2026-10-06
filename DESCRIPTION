@@ -16,6 +16,8 @@ Description: An R interface to the Fast Permutation Heritability Inference
     'SOLAR' fphi command. See <https://solar-eclipse-genetics.org> for more
     information about 'SOLAR'.
 License: GPL (>= 3)
+SystemRequirements: a Fortran compiler, zlib (e.g. zlib1g-dev on Debian/Ubuntu,
+    zlib-devel on Fedora/RHEL)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/txbrain-org/solareclipser

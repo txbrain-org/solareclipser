@@ -24,7 +24,9 @@ Results are checked against SOLAR 9.0.1 in the package tests.
 
 ## Installation
 
-base R installation:
+base R installation (building from source needs a C++ and a Fortran
+compiler, e.g. `gfortran`, and the zlib headers, e.g. `zlib1g-dev` on
+Debian/Ubuntu):
 
 1.  Download the tarball from the [releases
     page](https://github.com/txbrain-org/solareclipser/tree/main/release)
