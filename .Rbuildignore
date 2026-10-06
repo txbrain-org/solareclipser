@@ -22,3 +22,5 @@
 ^\.Rprofile$
 ^\.rlib$
 ^\.tools$
+^LICENSE\.md$
+^README\.Rmd$

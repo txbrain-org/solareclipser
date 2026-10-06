@@ -49,7 +49,10 @@ help:
 TGT := solareclipser
 VER := $(shell sed -n 's/^Version: *//p' DESCRIPTION)
 
-RE := R -e
+# R compiles src/ with make; JOBS=1 to compile one file at a time
+JOBS ?= $(shell nproc)
+RMAKE := MAKEFLAGS=-j$(JOBS)
+RE := $(RMAKE) R -e
 MAKEFLAGS += --no-print-directory
 # check fails on this R CMD check level or worse; release raises it to warning
 # (currently fails on Eigen/cdfchi.f warnings, see "Release check" in TODO.md)
@@ -113,7 +116,7 @@ test:
 ## Build and install the package tarball into the renv project library
 install: build
 	@printf "$(info):install\n"
-	R CMD INSTALL $(TARBALL)
+	$(RMAKE) R CMD INSTALL $(TARBALL)
 
 ## Regenerate RcppExports, NAMESPACE and man/ from roxygen comments
 document:
